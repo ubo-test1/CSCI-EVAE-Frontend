@@ -30,6 +30,7 @@ class AuthService {
       });
     }*/
   
+    //kd
     getCurrentUser() {
       return JSON.parse(localStorage.getItem('user'));;
     }
