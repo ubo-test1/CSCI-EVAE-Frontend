@@ -10,6 +10,8 @@ import Profile from "./components/profile.component";
 import UserTest from "./components/user-test";
 import AdminTest from "./components/admin-test";
 import CommonTest from "./components/common-test"
+import Evaluations from "./components/Evaluations";
+import { ChakraProvider } from "@chakra-ui/react";
 
 class App extends Component {
   constructor(props) {
@@ -47,7 +49,10 @@ class App extends Component {
     const { currentUser, showAdminBoard } = this.state;
 
     return (
+    <ChakraProvider>
+
       <div>
+        
         <nav className="navbar navbar-expand navbar-dark bg-dark">
           <Link to={"/"} className="navbar-brand">
             CSA
@@ -92,6 +97,11 @@ class App extends Component {
           ) : (
             <div className="navbar-nav ml-auto">
               <li className="nav-item">
+                <Link to={"/evaluations"} className="nav-link">
+                  Mes évaluations
+                </Link>
+              </li>
+              <li className="nav-item">
                 <Link to={"/login"} className="nav-link">
                   Login
                 </Link>
@@ -113,11 +123,14 @@ class App extends Component {
             <Route path="/register" element={<Login />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/userTest" element={<UserTest />} />
+            <Route path="/evaluations" element={<Evaluations/>} />
             <Route path="/adminTest" element={<AdminTest />} />
             <Route path="/commonTest" element={<CommonTest />} />
+            <Route path="/*" element={<h1>404</h1>} />
           </Routes>
         </div>
       </div>
+      </ChakraProvider>
     );
   }
 }
