@@ -12,6 +12,7 @@ import AdminTest from "./components/admin-test";
 import CommonTest from "./components/common-test"
 import Evaluations from "./components/Evaluations";
 import { ChakraProvider } from "@chakra-ui/react";
+import Evaluation from "./components/Evaluation";
 
 class App extends Component {
   constructor(props) {
@@ -52,7 +53,7 @@ class App extends Component {
     <ChakraProvider>
 
       <div>
-        
+
         <nav className="navbar navbar-expand navbar-dark bg-dark">
           <Link to={"/"} className="navbar-brand">
             CSA
@@ -124,6 +125,7 @@ class App extends Component {
             <Route path="/profile" element={<Profile />} />
             <Route path="/userTest" element={<UserTest />} />
             <Route path="/evaluations" element={<Evaluations/>} />
+            <Route path="/evaluations/:id" element={<Evaluation/>} />
             <Route path="/adminTest" element={<AdminTest />} />
             <Route path="/commonTest" element={<CommonTest />} />
             <Route path="/*" element={<h1>404</h1>} />
