@@ -1,67 +1,26 @@
-import { Box, Heading, Text } from '@chakra-ui/react';
+import { Box, Heading, Text, Table, Thead, Tbody, Tr, Th, Td  } from '@chakra-ui/react';
 import React from 'react';
 import { useParams } from 'react-router-dom'; // Assurez-vous d'avoir React Router installé
 
 
 const evaluationData = {
-    "id": 1,
-    "noEnseignant": {
+  "evaluation": {
       "id": 1,
-      "type": "ENC",
-      "sexe": "H",
-      "nom": "Saliou",
-      "prenom": "Philippe",
-      "adresse": "6, rue de l'Argoat",
-      "cp": "29860",
-      "ville": "Le Drennec",
-      "pays": "France",
-      "telPort": null,
-      "encPersoTel": "02.98.40.82.95",
-      "encUboTel": "02.98.01.69.74",
-      "encPersoEmail": null,
-      "encUboEmail": "Philippe.Saliou@univ-brest.fr",
-      "intNoInsee": null,
-      "intSocNom": null,
-      "intSocAdresse": null,
-      "intSocCp": null,
-      "intSocVille": null,
-      "intSocPays": null,
-      "intFonction": null,
-      "intProfEmail": null,
-      "intProfTel": null
-    },
-    "elementConstitutif": {
-      "id": {
-        "codeFormation": "M2DOSI",
-        "codeUe": "PSI",
-        "codeEc": "SD"
-      },
-      "uniteEnseignement": {
-        "codeFormation": {
-          "codeFormation": "M2DOSI",
-          "diplome": "M",
-          "n0Annee": 2,
-          "nomFormation": "Master Développement à l'Offshore des Systèmes d'Information",
-          "doubleDiplome": "O",
-          "debutHabilitation": "2012-08-31T22:00:00Z",
-          "finHabilitation": "2016-08-31T22:00:00Z"
-        },
-        "codeUe": "PSI",
-        "noEnseignant": {
-          "id": 2,
+      "noEnseignant": {
+          "id": 1,
           "type": "ENC",
           "sexe": "H",
-          "nom": "Ribaud",
-          "prenom": "Vincent",
-          "adresse": "20, avenur le Gorgeu",
-          "cp": "29200",
-          "ville": "Brest",
+          "nom": "Saliou",
+          "prenom": "Philippe",
+          "adresse": "6, rue de l'Argoat",
+          "cp": "29860",
+          "ville": "Le Drennec",
           "pays": "France",
           "telPort": null,
-          "encPersoTel": null,
-          "encUboTel": "02.98.01.69.71",
+          "encPersoTel": "02.98.40.82.95",
+          "encUboTel": "02.98.01.69.74",
           "encPersoEmail": null,
-          "encUboEmail": "Vincent.Ribaud@univ-brest.fr",
+          "encUboEmail": "Philippe.Saliou@univ-brest.fr",
           "intNoInsee": null,
           "intSocNom": null,
           "intSocAdresse": null,
@@ -71,101 +30,455 @@ const evaluationData = {
           "intFonction": null,
           "intProfEmail": null,
           "intProfTel": null
-        },
-        "designation": "Programmation des Systèmes d’Information",
-        "semestre": "9  ",
-        "description": null,
-        "nbhCm": null,
-        "nbhTd": null,
-        "nbhTp": 48
       },
-      "noEnseignant": {
-        "id": 1,
-        "type": "ENC",
-        "sexe": "H",
-        "nom": "Saliou",
-        "prenom": "Philippe",
-        "adresse": "6, rue de l'Argoat",
-        "cp": "29860",
-        "ville": "Le Drennec",
-        "pays": "France",
-        "telPort": null,
-        "encPersoTel": "02.98.40.82.95",
-        "encUboTel": "02.98.01.69.74",
-        "encPersoEmail": null,
-        "encUboEmail": "Philippe.Saliou@univ-brest.fr",
-        "intNoInsee": null,
-        "intSocNom": null,
-        "intSocAdresse": null,
-        "intSocCp": null,
-        "intSocVille": null,
-        "intSocPays": null,
-        "intFonction": null,
-        "intProfEmail": null,
-        "intProfTel": null
+      "elementConstitutif": {
+          "id": {
+              "codeFormation": "M2DOSI",
+              "codeUe": "PSI",
+              "codeEc": "SD"
+          },
+          "uniteEnseignement": {
+              "codeFormation": {
+                  "codeFormation": "M2DOSI",
+                  "diplome": "M",
+                  "n0Annee": 2,
+                  "nomFormation": "Master Développement à l'Offshore des Systèmes d'Information",
+                  "doubleDiplome": "O",
+                  "debutHabilitation": "2012-08-31T22:00:00Z",
+                  "finHabilitation": "2016-08-31T22:00:00Z"
+              },
+              "codeUe": "PSI",
+              "noEnseignant": {
+                  "id": 2,
+                  "type": "ENC",
+                  "sexe": "H",
+                  "nom": "Ribaud",
+                  "prenom": "Vincent",
+                  "adresse": "20, avenur le Gorgeu",
+                  "cp": "29200",
+                  "ville": "Brest",
+                  "pays": "France",
+                  "telPort": null,
+                  "encPersoTel": null,
+                  "encUboTel": "02.98.01.69.71",
+                  "encPersoEmail": null,
+                  "encUboEmail": "Vincent.Ribaud@univ-brest.fr",
+                  "intNoInsee": null,
+                  "intSocNom": null,
+                  "intSocAdresse": null,
+                  "intSocCp": null,
+                  "intSocVille": null,
+                  "intSocPays": null,
+                  "intFonction": null,
+                  "intProfEmail": null,
+                  "intProfTel": null
+              },
+              "designation": "Programmation des Systèmes d’Information",
+              "semestre": "9  ",
+              "description": null,
+              "nbhCm": null,
+              "nbhTd": null,
+              "nbhTp": 48
+          },
+          "noEnseignant": {
+              "id": 1,
+              "type": "ENC",
+              "sexe": "H",
+              "nom": "Saliou",
+              "prenom": "Philippe",
+              "adresse": "6, rue de l'Argoat",
+              "cp": "29860",
+              "ville": "Le Drennec",
+              "pays": "France",
+              "telPort": null,
+              "encPersoTel": "02.98.40.82.95",
+              "encUboTel": "02.98.01.69.74",
+              "encPersoEmail": null,
+              "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+              "intNoInsee": null,
+              "intSocNom": null,
+              "intSocAdresse": null,
+              "intSocCp": null,
+              "intSocVille": null,
+              "intSocPays": null,
+              "intFonction": null,
+              "intProfEmail": null,
+              "intProfTel": null
+          },
+          "designation": "Serveur de Donnees",
+          "description": "Programmation BDD localisï¿½ sur un  Serveur de base de Donnï¿½es",
+          "nbhCm": 10,
+          "nbhTd": 10,
+          "nbhTp": 18
       },
-      "designation": "Serveur de Donnees",
-      "description": "Programmation BDD localisï¿½ sur un  Serveur de base de Donnï¿½es",
-      "nbhCm": 10,
-      "nbhTd": 10,
-      "nbhTp": 18
-    },
-    "anneePro": {
-      "anneePro": "2006-2007",
-      "codeFormation": null,
-      "noEnseignant": {
-        "id": 1,
-        "type": "ENC",
-        "sexe": "H",
-        "nom": "Saliou",
-        "prenom": "Philippe",
-        "adresse": "6, rue de l'Argoat",
-        "cp": "29860",
-        "ville": "Le Drennec",
-        "pays": "France",
-        "telPort": null,
-        "encPersoTel": "02.98.40.82.95",
-        "encUboTel": "02.98.01.69.74",
-        "encPersoEmail": null,
-        "encUboEmail": "Philippe.Saliou@univ-brest.fr",
-        "intNoInsee": null,
-        "intSocNom": null,
-        "intSocAdresse": null,
-        "intSocCp": null,
-        "intSocVille": null,
-        "intSocPays": null,
-        "intFonction": null,
-        "intProfEmail": null,
-        "intProfTel": null
+      "anneePro": {
+          "anneePro": "2006-2007",
+          "codeFormation": null,
+          "noEnseignant": {
+              "id": 1,
+              "type": "ENC",
+              "sexe": "H",
+              "nom": "Saliou",
+              "prenom": "Philippe",
+              "adresse": "6, rue de l'Argoat",
+              "cp": "29860",
+              "ville": "Le Drennec",
+              "pays": "France",
+              "telPort": null,
+              "encPersoTel": "02.98.40.82.95",
+              "encUboTel": "02.98.01.69.74",
+              "encPersoEmail": null,
+              "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+              "intNoInsee": null,
+              "intSocNom": null,
+              "intSocAdresse": null,
+              "intSocCp": null,
+              "intSocVille": null,
+              "intSocPays": null,
+              "intFonction": null,
+              "intProfEmail": null,
+              "intProfTel": null
+          },
+          "siglePro": "RSOFT",
+          "nbEtuSouhaite": 12,
+          "etatPreselection": "ENC",
+          "dateRentree": "2006-09-17T22:00:00Z",
+          "lieuRentree": "LC117A",
+          "dateReponseLp": "2006-07-13T22:00:00Z",
+          "commentaire": null,
+          "dateReponseLalp": null,
+          "processusStage": null,
+          "noEvaluation": null,
+          "noBareme": null
       },
-      "siglePro": "RSOFT",
-      "nbEtuSouhaite": 12,
-      "etatPreselection": "ENC",
-      "dateRentree": "2006-09-17T22:00:00Z",
-      "lieuRentree": "LC117A",
-      "dateReponseLp": "2006-07-13T22:00:00Z",
-      "commentaire": null,
-      "dateReponseLalp": null,
-      "processusStage": null,
-      "noEvaluation": null,
-      "noBareme": null
-    },
-    "noEvaluation": 1,
-    "etat": "ELA",
-    "periode": "printemps",
-    "debutReponse": "2007-01-05T23:00:00Z",
-    "finReponse": "2007-06-05T22:00:00Z"
-  };
+      "noEvaluation": 1,
+      "etat": "ELA",
+      "periode": "printemps",
+      "debutReponse": "2007-01-05T23:00:00Z",
+      "finReponse": "2007-06-05T22:00:00Z"
+  },
+  "rubriques": [
+      {
+          "rubrique": {
+              "id": 1,
+              "type": "RBP",
+              "designation": "Cours/Td Agl",
+              "ordre": 1.0,
+              "noEnseignant": {
+                  "id": 1,
+                  "type": "ENC",
+                  "sexe": "H",
+                  "nom": "Saliou",
+                  "prenom": "Philippe",
+                  "adresse": "6, rue de l'Argoat",
+                  "cp": "29860",
+                  "ville": "Le Drennec",
+                  "pays": "France",
+                  "telPort": null,
+                  "encPersoTel": "02.98.40.82.95",
+                  "encUboTel": "02.98.01.69.74",
+                  "encPersoEmail": null,
+                  "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+                  "intNoInsee": null,
+                  "intSocNom": null,
+                  "intSocAdresse": null,
+                  "intSocCp": null,
+                  "intSocVille": null,
+                  "intSocPays": null,
+                  "intFonction": null,
+                  "intProfEmail": null,
+                  "intProfTel": null
+              }
+          },
+          "questions": [
+              {
+                  "id": 1,
+                  "type": "QUS",
+                  "noEnseignant": {
+                      "id": 1,
+                      "type": "ENC",
+                      "sexe": "H",
+                      "nom": "Saliou",
+                      "prenom": "Philippe",
+                      "adresse": "6, rue de l'Argoat",
+                      "cp": "29860",
+                      "ville": "Le Drennec",
+                      "pays": "France",
+                      "telPort": null,
+                      "encPersoTel": "02.98.40.82.95",
+                      "encUboTel": "02.98.01.69.74",
+                      "encPersoEmail": null,
+                      "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+                      "intNoInsee": null,
+                      "intSocNom": null,
+                      "intSocAdresse": null,
+                      "intSocCp": null,
+                      "intSocVille": null,
+                      "intSocPays": null,
+                      "intFonction": null,
+                      "intProfEmail": null,
+                      "intProfTel": null
+                  },
+                  "idQualificatif": {
+                      "id": 1,
+                      "maximal": "Pauvre",
+                      "minimal": "Riche"
+                  },
+                  "intitule": "Contenu"
+              },
+              {
+                  "id": 2,
+                  "type": "QUS",
+                  "noEnseignant": {
+                      "id": 1,
+                      "type": "ENC",
+                      "sexe": "H",
+                      "nom": "Saliou",
+                      "prenom": "Philippe",
+                      "adresse": "6, rue de l'Argoat",
+                      "cp": "29860",
+                      "ville": "Le Drennec",
+                      "pays": "France",
+                      "telPort": null,
+                      "encPersoTel": "02.98.40.82.95",
+                      "encUboTel": "02.98.01.69.74",
+                      "encPersoEmail": null,
+                      "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+                      "intNoInsee": null,
+                      "intSocNom": null,
+                      "intSocAdresse": null,
+                      "intSocCp": null,
+                      "intSocVille": null,
+                      "intSocPays": null,
+                      "intFonction": null,
+                      "intProfEmail": null,
+                      "intProfTel": null
+                  },
+                  "idQualificatif": {
+                      "id": 1,
+                      "maximal": "Faible",
+                      "minimal": "Fort"
+                  },
+                  "intitule": "Interet"
+              },
+              {
+                  "id": 3,
+                  "type": "QUS",
+                  "noEnseignant": {
+                      "id": 1,
+                      "type": "ENC",
+                      "sexe": "H",
+                      "nom": "Saliou",
+                      "prenom": "Philippe",
+                      "adresse": "6, rue de l'Argoat",
+                      "cp": "29860",
+                      "ville": "Le Drennec",
+                      "pays": "France",
+                      "telPort": null,
+                      "encPersoTel": "02.98.40.82.95",
+                      "encUboTel": "02.98.01.69.74",
+                      "encPersoEmail": null,
+                      "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+                      "intNoInsee": null,
+                      "intSocNom": null,
+                      "intSocAdresse": null,
+                      "intSocCp": null,
+                      "intSocVille": null,
+                      "intSocPays": null,
+                      "intFonction": null,
+                      "intProfEmail": null,
+                      "intProfTel": null
+                  },
+                  "idQualificatif": {
+                      "id": 1,
+                      "maximal": "Difficile",
+                      "minimal": "Facile"
+                  },
+                  "intitule": "Assimilabilité"
+              }
+          ]
+      },
+      {
+          "rubrique": {
+              "id": 2,
+              "type": "RBP",
+              "designation": "Tp Agl",
+              "ordre": 2.0,
+              "noEnseignant": {
+                  "id": 1,
+                  "type": "ENC",
+                  "sexe": "H",
+                  "nom": "Saliou",
+                  "prenom": "Philippe",
+                  "adresse": "6, rue de l'Argoat",
+                  "cp": "29860",
+                  "ville": "Le Drennec",
+                  "pays": "France",
+                  "telPort": null,
+                  "encPersoTel": "02.98.40.82.95",
+                  "encUboTel": "02.98.01.69.74",
+                  "encPersoEmail": null,
+                  "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+                  "intNoInsee": null,
+                  "intSocNom": null,
+                  "intSocAdresse": null,
+                  "intSocCp": null,
+                  "intSocVille": null,
+                  "intSocPays": null,
+                  "intFonction": null,
+                  "intProfEmail": null,
+                  "intProfTel": null
+              }
+          },
+          "questions": [
+              {
+                  "id": 1,
+                  "type": "QUS",
+                  "noEnseignant": {
+                      "id": 1,
+                      "type": "ENC",
+                      "sexe": "H",
+                      "nom": "Saliou",
+                      "prenom": "Philippe",
+                      "adresse": "6, rue de l'Argoat",
+                      "cp": "29860",
+                      "ville": "Le Drennec",
+                      "pays": "France",
+                      "telPort": null,
+                      "encPersoTel": "02.98.40.82.95",
+                      "encUboTel": "02.98.01.69.74",
+                      "encPersoEmail": null,
+                      "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+                      "intNoInsee": null,
+                      "intSocNom": null,
+                      "intSocAdresse": null,
+                      "intSocCp": null,
+                      "intSocVille": null,
+                      "intSocPays": null,
+                      "intFonction": null,
+                      "intProfEmail": null,
+                      "intProfTel": null
+                  },
+                  "idQualificatif": {
+                      "id": 1,
+                      "maximal": "Faible",
+                      "minimal": "Importante"
+                  },
+                  "intitule": "Utilité des Tp pour assimiler le cours"
+              },
+              {
+                  "id": 2,
+                  "type": "QUS",
+                  "noEnseignant": {
+                      "id": 1,
+                      "type": "ENC",
+                      "sexe": "H",
+                      "nom": "Saliou",
+                      "prenom": "Philippe",
+                      "adresse": "6, rue de l'Argoat",
+                      "cp": "29860",
+                      "ville": "Le Drennec",
+                      "pays": "France",
+                      "telPort": null,
+                      "encPersoTel": "02.98.40.82.95",
+                      "encUboTel": "02.98.01.69.74",
+                      "encPersoEmail": null,
+                      "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+                      "intNoInsee": null,
+                      "intSocNom": null,
+                      "intSocAdresse": null,
+                      "intSocCp": null,
+                      "intSocVille": null,
+                      "intSocPays": null,
+                      "intFonction": null,
+                      "intProfEmail": null,
+                      "intProfTel": null
+                  },
+                  "idQualificatif": {
+                      "id": 1,
+                      "maximal": "Difficile",
+                      "minimal": "Facile"
+                  },
+                  "intitule": "Niveau des exercices"
+              },
+              {
+                  "id": 3,
+                  "type": "QUS",
+                  "noEnseignant": {
+                      "id": 1,
+                      "type": "ENC",
+                      "sexe": "H",
+                      "nom": "Saliou",
+                      "prenom": "Philippe",
+                      "adresse": "6, rue de l'Argoat",
+                      "cp": "29860",
+                      "ville": "Le Drennec",
+                      "pays": "France",
+                      "telPort": null,
+                      "encPersoTel": "02.98.40.82.95",
+                      "encUboTel": "02.98.01.69.74",
+                      "encPersoEmail": null,
+                      "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+                      "intNoInsee": null,
+                      "intSocNom": null,
+                      "intSocAdresse": null,
+                      "intSocCp": null,
+                      "intSocVille": null,
+                      "intSocPays": null,
+                      "intFonction": null,
+                      "intProfEmail": null,
+                      "intProfTel": null
+                  },
+                  "idQualificatif": {
+                      "id": 1,
+                      "maximal": "Peu clair",
+                      "minimal": "Tres clair"
+                  },
+                  "intitule": "Clarté des énoncés"
+              }
+          ]
+      }
+  ]
+};
 
   const Evaluation = () => {
     const { id } = useParams();
 
     return (
-      <div>
-        <Heading as="h2" size="lg" mb="5">Evaluation {evaluationData.noEvaluation}</Heading>
-        <Box borderWidth="1px" borderRadius="lg" p="4" mb="4">
-              <Text>{evaluationData.elementConstitutif.id.codeFormation}</Text>
-        </Box>
+      <div style={{ marginTop: '40px' }}> {/* Ajout de marge en haut */}
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>Rubrique</Th>
+              <Th>Question</Th>
+              <Th>Qualificatif Minimal</Th>
+              <Th>Qualificatif Maximal</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {evaluationData.rubriques.map((rubrique, index) => (
+              <React.Fragment key={index}>
+                <Tr>
+                  <Td rowSpan={rubrique.questions.length + 1} fontWeight="bold">
+                    <span style={{ textTransform: 'uppercase', color: '#1A365D' }}>{rubrique.rubrique.designation}</span>
+                  </Td>
+                </Tr>
+                {rubrique.questions.map((question, idx) => (
+                  <Tr key={idx}>
+                    {idx === 0 && (
+                      <Td style={{ width: '40%' }}>{question.intitule}</Td>
+                    )}
+                    {idx !== 0 && (
+                      <Td>{question.intitule}</Td>
+                    )}
+                    <Td>{question.idQualificatif.minimal}</Td>
+                    <Td>{question.idQualificatif.maximal}</Td>
+                  </Tr>
+                ))}
+              </React.Fragment>
+            ))}
+          </Tbody>
+        </Table>
       </div>
     );
   };
