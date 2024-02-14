@@ -14,6 +14,8 @@ import Evaluations from "./components/Evaluations";
 import { ChakraProvider } from "@chakra-ui/react";
 import Evaluation from "./components/Evaluation";
 import CreerQualificatif from "./components/CreerQualificatif";
+import ConsulterQualificatifs from "./components/ConsulterQualificatifs";
+import ModifierQualificatif from "./components/ModifierQualificatif";
 
 class App extends Component {
   constructor(props) {
@@ -99,7 +101,7 @@ class App extends Component {
           ) : (
             <div className="navbar-nav ml-auto">
               <li className="nav-item">
-                <Link to={"/qualificatifs/creer"} className="nav-link">
+                <Link to={"/qualificatifs"} className="nav-link">
                   Couples qualificatifs
                 </Link>
               </li>
@@ -132,7 +134,9 @@ class App extends Component {
             <Route path="/userTest" element={<UserTest />} />
             <Route path="/evaluations" element={<Evaluations/>} />
             <Route path="/evaluations/:id" element={<Evaluation/>} />
+            <Route path="/qualificatifs" element={<ConsulterQualificatifs/>} />
             <Route path="/qualificatifs/creer" element={<CreerQualificatif/>} />
+            <Route path="/qualificatifs/:id" element={<ModifierQualificatif/>} />
             <Route path="/adminTest" element={<AdminTest />} />
             <Route path="/commonTest" element={<CommonTest />} />
             <Route path="/*" element={<h1>404</h1>} />
