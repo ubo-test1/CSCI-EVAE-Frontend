@@ -437,50 +437,223 @@ const evaluationData = {
                   "intitule": "Clarté des énoncés"
               }
           ]
-      }
+      },
+      {
+        "rubrique": {
+            "id": 2,
+            "type": "RBP",
+            "designation": "Tp Agl",
+            "ordre": 2.0,
+            "noEnseignant": {
+                "id": 1,
+                "type": "ENC",
+                "sexe": "H",
+                "nom": "Saliou",
+                "prenom": "Philippe",
+                "adresse": "6, rue de l'Argoat",
+                "cp": "29860",
+                "ville": "Le Drennec",
+                "pays": "France",
+                "telPort": null,
+                "encPersoTel": "02.98.40.82.95",
+                "encUboTel": "02.98.01.69.74",
+                "encPersoEmail": null,
+                "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+                "intNoInsee": null,
+                "intSocNom": null,
+                "intSocAdresse": null,
+                "intSocCp": null,
+                "intSocVille": null,
+                "intSocPays": null,
+                "intFonction": null,
+                "intProfEmail": null,
+                "intProfTel": null
+            }
+        },
+        "questions": [
+            {
+                "id": 1,
+                "type": "QUS",
+                "noEnseignant": {
+                    "id": 1,
+                    "type": "ENC",
+                    "sexe": "H",
+                    "nom": "Saliou",
+                    "prenom": "Philippe",
+                    "adresse": "6, rue de l'Argoat",
+                    "cp": "29860",
+                    "ville": "Le Drennec",
+                    "pays": "France",
+                    "telPort": null,
+                    "encPersoTel": "02.98.40.82.95",
+                    "encUboTel": "02.98.01.69.74",
+                    "encPersoEmail": null,
+                    "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+                    "intNoInsee": null,
+                    "intSocNom": null,
+                    "intSocAdresse": null,
+                    "intSocCp": null,
+                    "intSocVille": null,
+                    "intSocPays": null,
+                    "intFonction": null,
+                    "intProfEmail": null,
+                    "intProfTel": null
+                },
+                "idQualificatif": {
+                    "id": 1,
+                    "maximal": "Faible",
+                    "minimal": "Importante"
+                },
+                "intitule": "Utilité des Tp pour assimiler le cours"
+            },
+            {
+                "id": 2,
+                "type": "QUS",
+                "noEnseignant": {
+                    "id": 1,
+                    "type": "ENC",
+                    "sexe": "H",
+                    "nom": "Saliou",
+                    "prenom": "Philippe",
+                    "adresse": "6, rue de l'Argoat",
+                    "cp": "29860",
+                    "ville": "Le Drennec",
+                    "pays": "France",
+                    "telPort": null,
+                    "encPersoTel": "02.98.40.82.95",
+                    "encUboTel": "02.98.01.69.74",
+                    "encPersoEmail": null,
+                    "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+                    "intNoInsee": null,
+                    "intSocNom": null,
+                    "intSocAdresse": null,
+                    "intSocCp": null,
+                    "intSocVille": null,
+                    "intSocPays": null,
+                    "intFonction": null,
+                    "intProfEmail": null,
+                    "intProfTel": null
+                },
+                "idQualificatif": {
+                    "id": 1,
+                    "maximal": "Difficile",
+                    "minimal": "Facile"
+                },
+                "intitule": "Niveau des exercices"
+            },
+            {
+                "id": 3,
+                "type": "QUS",
+                "noEnseignant": {
+                    "id": 1,
+                    "type": "ENC",
+                    "sexe": "H",
+                    "nom": "Saliou",
+                    "prenom": "Philippe",
+                    "adresse": "6, rue de l'Argoat",
+                    "cp": "29860",
+                    "ville": "Le Drennec",
+                    "pays": "France",
+                    "telPort": null,
+                    "encPersoTel": "02.98.40.82.95",
+                    "encUboTel": "02.98.01.69.74",
+                    "encPersoEmail": null,
+                    "encUboEmail": "Philippe.Saliou@univ-brest.fr",
+                    "intNoInsee": null,
+                    "intSocNom": null,
+                    "intSocAdresse": null,
+                    "intSocCp": null,
+                    "intSocVille": null,
+                    "intSocPays": null,
+                    "intFonction": null,
+                    "intProfEmail": null,
+                    "intProfTel": null
+                },
+                "idQualificatif": {
+                    "id": 1,
+                    "maximal": "Peu clair",
+                    "minimal": "Tres clair"
+                },
+                "intitule": "Clarté des énoncés"
+            }
+        ]
+    }
+    
   ]
 };
+
+const formation = evaluationData.evaluation.elementConstitutif.uniteEnseignement.codeFormation.nomFormation;
+const promotion = evaluationData.evaluation.anneePro.anneePro;
+const ue = evaluationData.evaluation.elementConstitutif.uniteEnseignement.designation;
+const elementConstitutif = evaluationData.evaluation.elementConstitutif.designation;
 
   const Evaluation = () => {
     const { id } = useParams();
 
     return (
-      <div style={{ marginTop: '40px' }}> {/* Ajout de marge en haut */}
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Rubrique</Th>
-              <Th>Question</Th>
-              <Th>Qualificatif Minimal</Th>
-              <Th>Qualificatif Maximal</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {evaluationData.rubriques.map((rubrique, index) => (
-              <React.Fragment key={index}>
-                <Tr>
-                  <Td rowSpan={rubrique.questions.length + 1} fontWeight="bold">
-                    <span style={{ textTransform: 'uppercase', color: '#1A365D' }}>{rubrique.rubrique.designation}</span>
-                  </Td>
-                </Tr>
-                {rubrique.questions.map((question, idx) => (
-                  <Tr key={idx}>
-                    {idx === 0 && (
-                      <Td style={{ width: '40%' }}>{question.intitule}</Td>
-                    )}
-                    {idx !== 0 && (
-                      <Td>{question.intitule}</Td>
-                    )}
-                    <Td>{question.idQualificatif.minimal}</Td>
-                    <Td>{question.idQualificatif.maximal}</Td>
-                  </Tr>
-                ))}
-              </React.Fragment>
-            ))}
-          </Tbody>
-        </Table>
+        <>
+        <div style={{ marginTop: '40px', maxWidth: '60%', margin: '0 auto' }}>
+          {/* Tableau des informations */}
+          <Table variant="simple" size="sm">
+        <Tbody>
+          <Tr>
+            <Td fontSize="sm"><strong>Formation</strong></Td>
+            <Td fontSize="sm">{formation}</Td>
+          </Tr>
+          <Tr>
+            <Td fontSize="sm"><strong>Promotion</strong></Td>
+            <Td fontSize="sm">{promotion}</Td>
+          </Tr>
+          <Tr>
+            <Td fontSize="sm"><strong>Unité d'enseignement</strong></Td>
+            <Td fontSize="sm">{ue}</Td>
+          </Tr>
+          <Tr>
+            <Td fontSize="sm"><strong>Élément constitutif</strong></Td>
+            <Td fontSize="sm">{elementConstitutif}</Td>
+          </Tr>
+        </Tbody>
+      </Table>
       </div>
-    );
+      <div style={{ marginBottom: '50px'}}>
+    
+          {/* Affichage du tableau principal */}
+          <Table variant="simple" size="sm" marginTop="50px">
+            <Thead>
+              <Tr>
+                <Th fontSize="sm">Rubrique</Th>
+                <Th fontSize="sm">Question</Th>
+                <Th fontSize="sm">Qualificatif Minimal</Th>
+                <Th fontSize="sm">Qualificatif Maximal</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {evaluationData.rubriques.map((rubrique, index) => (
+                <React.Fragment key={index}>
+                  <Tr>
+                    <Td fontSize="sm" rowSpan={rubrique.questions.length + 1} fontWeight="bold">
+                      <span style={{ textTransform: 'uppercase', color: '#1A365D' }}>{rubrique.rubrique.designation}</span>
+                    </Td>
+                  </Tr>
+                  {rubrique.questions.map((question, idx) => (
+                    <Tr key={idx}>
+                      {idx === 0 && (
+                        <Td fontSize="sm" style={{ width: '40%' }}>{question.intitule}</Td>
+                      )}
+                      {idx !== 0 && (
+                        <Td fontSize="sm">{question.intitule}</Td>
+                      )}
+                      <Td fontSize="sm">{question.idQualificatif.minimal}</Td>
+                      <Td fontSize="sm">{question.idQualificatif.maximal}</Td>
+                    </Tr>
+                  ))}
+                </React.Fragment>
+              ))}
+            </Tbody>
+          </Table>
+        </div>
+        </>
+      );
   };
 
 export default Evaluation;
