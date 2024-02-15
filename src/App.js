@@ -16,6 +16,7 @@ import Evaluation from "./components/Evaluation";
 import CreerQualificatif from "./components/CreerQualificatif";
 import ConsulterQualificatifs from "./components/ConsulterQualificatifs";
 import ModifierQualificatif from "./components/ModifierQualificatif";
+import Test from "./components/Test";
 
 class App extends Component {
   constructor(props) {
@@ -139,6 +140,8 @@ class App extends Component {
             <Route path="/qualificatifs/:id" element={<ModifierQualificatif/>} />
             <Route path="/adminTest" element={<AdminTest />} />
             <Route path="/commonTest" element={<CommonTest />} />
+            <Route path="/test" element={<Test />} />
+
             <Route path="/*" element={<h1>404</h1>} />
           </Routes>
         </div>

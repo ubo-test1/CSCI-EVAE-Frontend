@@ -592,9 +592,8 @@ const elementConstitutif = evaluationData.evaluation.elementConstitutif.designat
 
     return (
         <>
-        <div style={{ marginTop: '40px', maxWidth: '60%', margin: '0 auto' }}>
-          {/* Tableau des informations */}
-          <Table variant="simple" size="sm">
+        <Box mt="8" width="60%">
+          <Table variant="simple" size="sm" mt="8">
         <Tbody>
           <Tr>
             <Td fontSize="sm"><strong>Formation</strong></Td>
@@ -614,7 +613,7 @@ const elementConstitutif = evaluationData.evaluation.elementConstitutif.designat
           </Tr>
         </Tbody>
       </Table>
-      </div>
+      </Box>
       <div style={{ marginBottom: '50px'}}>
     
           {/* Affichage du tableau principal */}

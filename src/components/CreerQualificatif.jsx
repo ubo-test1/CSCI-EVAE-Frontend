@@ -9,33 +9,49 @@ import {
   Button,
   useToast
 } from '@chakra-ui/react';
+import axios from 'axios';
+import { useNavigate } from 'react-router';
 
 const CreerQualificatif = () => {
   const [qualificatif1, setQualificatif1] = useState('');
   const [qualificatif2, setQualificatif2] = useState('');
+  const navigate = useNavigate();
   const toast = useToast();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Vous pouvez traiter les données ici, par exemple, envoyer une requête API
 
-    // Afficher un message de succès
-    toast({
-      title: "Qualificatifs créés avec succès.",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    });
-    
-    let  req = {
-      qualificatif1: qualificatif1,
-      qualificatif2: qualificatif2
+    try {
+      // Envoi de la requête POST avec les données saisies par l'utilisateur
+      await axios.post('http://localhost:8080/qualificatifs/create', {
+        minimal: qualificatif1,
+        maximal: qualificatif2
+      });
+
+      // Afficher un message de succès
+      toast({
+        title: "Qualificatifs créés avec succès.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+
+      navigate('/qualificatifs');
+
+      // Réinitialiser les champs
+      setQualificatif1('');
+      setQualificatif2('');
+    } catch (error) {
+      console.error('Error creating qualificatifs:', error);
+      // Afficher un message d'erreur
+      toast({
+        title: "Erreur lors de la création des qualificatifs.",
+        description: "Une erreur s'est produite lors de la création des qualificatifs.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
-
-    console.log(req);
-    // Réinitialiser les champs
-    setQualificatif1('');
-    setQualificatif2('');
   };
 
   return (
