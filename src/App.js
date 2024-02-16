@@ -17,6 +17,7 @@ import CreerQualificatif from "./components/CreerQualificatif";
 import ConsulterQualificatifs from "./components/ConsulterQualificatifs";
 import ModifierQualificatif from "./components/ModifierQualificatif";
 import Test from "./components/Test";
+import RubriqueStandard from "./components/RubriqueStandard";
 
 class App extends Component {
   constructor(props) {
@@ -102,6 +103,11 @@ class App extends Component {
           ) : (
             <div className="navbar-nav ml-auto">
               <li className="nav-item">
+                <Link to={"/rubriques"} className="nav-link">
+                  Rubriques
+                </Link>
+              </li>
+              <li className="nav-item">
                 <Link to={"/qualificatifs"} className="nav-link">
                   Couples qualificatifs
                 </Link>
@@ -138,6 +144,7 @@ class App extends Component {
             <Route path="/qualificatifs" element={<ConsulterQualificatifs/>} />
             <Route path="/qualificatifs/creer" element={<CreerQualificatif/>} />
             <Route path="/qualificatifs/:id" element={<ModifierQualificatif/>} />
+            <Route path="/rubriques" element={<RubriqueStandard/>} />
             <Route path="/adminTest" element={<AdminTest />} />
             <Route path="/commonTest" element={<CommonTest />} />
             <Route path="/test" element={<Test />} />
