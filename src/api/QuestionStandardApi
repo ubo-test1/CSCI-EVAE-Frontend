@@ -1,0 +1,9 @@
+// QuestionStandardApi.js
+export default async function fetchQuestionStandards() {
+  const response = await fetch('http://localhost:8080/ListQuestionStandard');
+  if (!response.ok) {
+    throw new Error('Failed to fetch question standards');
+  }
+  console.log(response)
+  return await response.json();
+}
