@@ -46,7 +46,7 @@ const CreerQualificatif = () => {
       // Afficher un message d'erreur
       toast({
         title: "Erreur lors de la création des qualificatifs.",
-        description: "Une erreur s'est produite lors de la création des qualificatifs.",
+        description: error.response.data,
         status: "error",
         duration: 3000,
         isClosable: true,

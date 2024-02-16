@@ -71,18 +71,19 @@ const ConsulterQualificatifs = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {qualificatifsData.map(qualificatif => (
-            <Tr key={qualificatif.qualificatif.idQualificatif} _hover={{ backgroundColor: "#ddd" }} height="40px">
-              <Td>{qualificatif.qualificatif.minimal}</Td>
-              <Td>{qualificatif.qualificatif.maximal}</Td>
-              <Td>
-                <Link href={`/qualificatifs/${qualificatif.qualificatif.idQualificatif}`} color="blue.500" textDecoration="underline" mr="2">
-                  <IconButton icon={<EditIcon />} aria-label="Modifier" />
-                </Link>
-                <IconButton icon={<DeleteIcon />} aria-label="Supprimer" onClick={() => handleDelete(qualificatif.qualificatif.idQualificatif)} />
-              </Td>
-            </Tr>
-          ))}
+        {qualificatifsData.map(qualificatif => (
+          <Tr key={qualificatif.qualificatif.idQualificatif} _hover={{ backgroundColor: "#ddd" }} height="40px">
+            <Td>{qualificatif.qualificatif.minimal}</Td>
+            <Td>{qualificatif.qualificatif.maximal}</Td>
+            <Td>
+              <Link href={`/qualificatifs/${qualificatif.qualificatif.idQualificatif}`} color="blue.500" textDecoration="underline" mr="2">
+                <IconButton icon={<EditIcon />} aria-label="Modifier" isDisabled={qualificatif.associated} />
+              </Link>
+              <IconButton icon={<DeleteIcon />} aria-label="Supprimer" onClick={() => handleDelete(qualificatif.qualificatif.idQualificatif)} isDisabled={qualificatif.associated} />
+            </Td>
+          </Tr>
+        ))}
+
           {/* Bouton "Ajouter qualificatif" stylisé */}
           <Tr>
             <Td colSpan={3} textAlign="center">

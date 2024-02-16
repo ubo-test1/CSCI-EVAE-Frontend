@@ -1,6 +1,5 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Flex,
   Box,
@@ -11,37 +10,68 @@ import {
   Button,
   useToast
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import axios from 'axios';
+import { API } from "../constants";
 
 const ModifierQualificatif = () => {
   const [qualificatif1, setQualificatif1] = useState('');
   const [qualificatif2, setQualificatif2] = useState('');
+  const { id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    // Récupérer les données du qualificatif à modifier
+    axios.get(API + `qualificatifs/find/${id}`)
+      .then(response => {
+        const { minimal, maximal } = response.data;
+        setQualificatif1(minimal);
+        setQualificatif2(maximal);
+      })
+      .catch(error => {
+        console.error('Error fetching qualificatif:', error);
+        // Afficher un message d'erreur
+        toast({
+          title: "Erreur lors du chargement du qualificatif.",
+          description: "Une erreur s'est produite lors du chargement du qualificatif à modifier.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      });
+  }, [id, toast]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Vous pouvez traiter les données ici, par exemple, envoyer une requête API
 
-    // Afficher un message de succès
-    toast({
-      title: "Qualificatifs modifiés avec succès",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
-    
-    let  req = {
-      qualificatif1: qualificatif1,
-      qualificatif2: qualificatif2
+    try {
+      // Envoi de la requête PUT avec les données saisies par l'utilisateur
+      await axios.put(`http://localhost:8080/qualificatifs/${id}`, {
+        minimal: qualificatif1,
+        maximal: qualificatif2
+      });
+
+      // Afficher un message de succès
+      toast({
+        title: "Qualificatifs modifiés avec succès",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+
+      // Navigation vers la page '/qualificatifs'
+      navigate('/qualificatifs');
+    } catch (error) {
+      console.error('Error updating qualificatifs:', error.response.data.message);
+      // Afficher un message d'erreur
+      toast({
+        title: "Erreur lors de la modification des qualificatifs.",
+        description: error.response.data,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
-
-    console.log(req);
-    // Réinitialiser les champs
-    setQualificatif1('');
-    setQualificatif2('');
-    navigate('/qualificatifs'); 
-
   };
 
   return (
@@ -79,4 +109,5 @@ const ModifierQualificatif = () => {
     </Flex>
   );
 };
+
 export default ModifierQualificatif;
