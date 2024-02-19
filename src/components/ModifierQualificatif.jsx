@@ -46,7 +46,7 @@ const ModifierQualificatif = () => {
 
     try {
       // Envoi de la requête PUT avec les données saisies par l'utilisateur
-      await axios.put(`http://localhost:8080/qualificatifs/${id}`, {
+      await axios.put(API+`qualificatifs/${id}`, {
         minimal: qualificatif1,
         maximal: qualificatif2
       });

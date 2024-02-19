@@ -17,7 +17,9 @@ import CreerQualificatif from "./components/CreerQualificatif";
 import ConsulterQualificatifs from "./components/ConsulterQualificatifs";
 import ModifierQualificatif from "./components/ModifierQualificatif";
 import Test from "./components/Test";
-import RubriqueStandard from "./components/RubriqueStandard";
+import ConsulterRubriques from "./components/ConsulterRubriques";
+import CreerRubrique from "./components/CreerRubrique";
+import ModifierRubrique from "./components/ModifierRubrique";
 
 class App extends Component {
   constructor(props) {
@@ -144,7 +146,9 @@ class App extends Component {
             <Route path="/qualificatifs" element={<ConsulterQualificatifs/>} />
             <Route path="/qualificatifs/creer" element={<CreerQualificatif/>} />
             <Route path="/qualificatifs/:id" element={<ModifierQualificatif/>} />
-            <Route path="/rubriques" element={<RubriqueStandard/>} />
+            <Route path="/rubriques" element={<ConsulterRubriques/>} />
+            <Route path="/rubriques/creer" element={<CreerRubrique/>} />
+            <Route path="/rubriques/:id" element={<ModifierRubrique/>} />
             <Route path="/adminTest" element={<AdminTest />} />
             <Route path="/commonTest" element={<CommonTest />} />
             <Route path="/test" element={<Test />} />

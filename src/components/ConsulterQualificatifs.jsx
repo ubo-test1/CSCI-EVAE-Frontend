@@ -19,7 +19,7 @@ const ConsulterQualificatifs = () => {
   }, []);
 
   const handleDelete = (idQualificatif) => {
-    fetch(`http://localhost:8080/qualificatifs/delete/${idQualificatif}`, {
+    fetch(API+`qualificatifs/delete/${idQualificatif}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
