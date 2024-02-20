@@ -21,6 +21,17 @@ const CreerQualificatif = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!qualificatif1 || !qualificatif2) {
+      // Afficher un message d'erreur si un champ est vide
+      toast({
+        title: "Veuillez remplir tous les champs.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     try {
       // Envoi de la requête POST avec les données saisies par l'utilisateur
       await axios.post('http://localhost:8080/qualificatifs/create', {

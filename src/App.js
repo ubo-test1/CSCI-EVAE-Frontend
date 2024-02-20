@@ -81,11 +81,29 @@ class App extends Component {
             )}
 
             {currentUser && (
+              <>
               <li className="nav-item">
                 <Link to={"/userTest"} className="nav-link">
                   User
                 </Link>
               </li>
+              <li className="nav-item">
+              <Link to={"/rubriques"} className="nav-link">
+                Rubriques
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to={"/qualificatifs"} className="nav-link">
+                Couples qualificatifs
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to={"/evaluations"} className="nav-link">
+                Mes évaluations
+              </Link>
+            </li>
+            </>
+              
             )}
           </div>
 
@@ -101,24 +119,12 @@ class App extends Component {
                   LogOut
                 </a>
               </li>
+              
             </div>
+
           ) : (
             <div className="navbar-nav ml-auto">
-              <li className="nav-item">
-                <Link to={"/rubriques"} className="nav-link">
-                  Rubriques
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to={"/qualificatifs"} className="nav-link">
-                  Couples qualificatifs
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to={"/evaluations"} className="nav-link">
-                  Mes évaluations
-                </Link>
-              </li>
+              
               <li className="nav-item">
                 <Link to={"/login"} className="nav-link">
                   Login

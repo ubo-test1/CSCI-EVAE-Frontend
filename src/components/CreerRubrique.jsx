@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router';
 import { API } from '../constants';
 
 const CreerRubrique = () => {
-  const [type, setType] = useState('');
+  const [type, setType] = useState('RBS');
   const [designation, setDesignation] = useState('');
   const navigate = useNavigate();
   const toast = useToast();
@@ -35,13 +35,16 @@ const CreerRubrique = () => {
     }
   
     try {
+      // Récupérer le token de l'utilisateur depuis le local storage
+      const user = JSON.parse(localStorage.getItem('user'));
+      const token = user.accessToken;
+  
       // Envoi de la requête POST avec les données saisies par l'utilisateur
-      await axios.post('http://localhost:8080/rub/createStd', {
-        type: type,
+      await axios.post(API+'rub/create', {
         designation: designation
       }, {
         headers: {
-          Authorization: '' // Laisser le header Authorization vide pour l'instant
+          Authorization: `Bearer ${token}` // Ajouter le token dans l'en-tête Authorization
         }
       });
   
@@ -70,6 +73,7 @@ const CreerRubrique = () => {
     }
   };
   
+  
 
   return (
     <Flex align="center" justify="center" height="80vh">
@@ -79,7 +83,7 @@ const CreerRubrique = () => {
         </Box>
         <Box my={4}>
           <form onSubmit={handleSubmit}>
-            <FormControl>
+            {/* <FormControl>
               <FormLabel>Type</FormLabel>
               <Input
                 type="text"
@@ -87,7 +91,7 @@ const CreerRubrique = () => {
                 value={type}
                 onChange={(e) => setType(e.target.value)}
               />
-            </FormControl>
+            </FormControl> */}
             <FormControl mt={4}>
               <FormLabel>Designation</FormLabel>
               <Input
