@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './navbar';
 import CircularProgress from '@mui/material/CircularProgress';
-
+import evaluationImage from '../img/evaluationIcon.png'; // Import your evaluation image here
 import image2 from '../img/rubrique.png';
 import image3 from '../img/question.png';
 import image4 from '../img/couple.png';
@@ -12,11 +12,12 @@ function Home() {
   const [showErrorMessage, setShowErrorMessage] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPath, setCurrentPath] = useState('');
+  const userRole = sessionStorage.getItem('role');
 
   useEffect(() => {
-    const userData = JSON.parse(sessionStorage.getItem('user'));
+    const userData = sessionStorage.getItem('user');
     if (userData) {
-      setUser(userData);
+      setUser(JSON.parse(userData));
       setIsLoggedIn(true);
     }
 
@@ -43,20 +44,14 @@ function Home() {
   };
 
   const handleRedirect = (route) => {
-    if (route === '/questionStandards') {
-      // Store user information in session storage
-      sessionStorage.setItem('isLoggedIn', JSON.stringify(isLoggedIn));
-      sessionStorage.setItem('userInfo', JSON.stringify(user));
-      sessionStorage.setItem('request',"questionStandards")
+    // Store user information in session storage
+    sessionStorage.setItem('isLoggedIn', JSON.stringify(isLoggedIn));
+    sessionStorage.setItem('userInfo', JSON.stringify(user));
+    sessionStorage.setItem('request', route);
 
-      // Redirect to the specified route
-      window.location.href = route;
-    } else {
-      // Redirect to the specified route
-      window.location.href = route;
-    }
+    // Redirect to the specified route
+    window.location.href = route;
   };
-  
 
   return (
     <div>
@@ -68,23 +63,29 @@ function Home() {
         <div>
           {isLoggedIn ? (
             <div>
-<Navbar isLoggedIn={isLoggedIn} />
+              <Navbar isLoggedIn={isLoggedIn} />
               <div className="dashboard-container">
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  {/* Add onClick handlers to divs and wrap them in anchor tags */}
-                  <div className="dashboard-item" onClick={() => handleRedirect('/rubriqueStandards')}>
-                    <img src={image2} alt="Image 1" />
-                    <p>Rubriques Standards</p>
+                {userRole === 'ROLE_ADM' ? (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <div className="dashboard-item" onClick={() => handleRedirect('/rubriqueStandard')}>
+                      <img src={image2} alt="Rubriques Standards" />
+                      <p>Rubriques Standards</p>
+                    </div>
+                    <div className="dashboard-item" onClick={() => handleRedirect('/questionStandards')}>
+                      <img src={image3} alt="Questions Standards" />
+                      <p>Questions Standards</p>
+                    </div>
+                    <div className="dashboard-item" onClick={() => handleRedirect('/coupleQualificatif')}>
+                      <img src={image4} alt="Couples Qualificatifs" />
+                      <p>Couples Qualificatifs</p>
+                    </div>
                   </div>
-                  <div className="dashboard-item" onClick={() => handleRedirect('/questionStandards')}>
-                    <img src={image3} alt="Image 2" />
-                    <p>Questions Standards</p>
+                ) : (
+                  <div className="dashboard-item evaluation-item" style={{ textAlign: 'center', marginTop: '20px', flexDirection:'column' }} onClick={() => handleRedirect('/evaluation')}>
+                    <img src={evaluationImage} alt="Evaluation" style={{ width: '200px', height: '200px' }} />
+                    <h2>Evaluation</h2>
                   </div>
-                  <div className="dashboard-item" onClick={() => handleRedirect('/couplesQualificatifs')}>
-                    <img src={image4} alt="Image 3" />
-                    <p>Couples Qualificatifs</p>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           ) : (

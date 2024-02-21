@@ -46,6 +46,12 @@ const DataTable = () => {
   const [questionToDelete, setQuestionToDelete] = useState(null);
   const [user, setUser] = useState(null);
 
+  const userString = sessionStorage.getItem('user');
+  const userObject = userString
+  const accessToken = userObject.accessToken;
+
+  console.log("Access Token:", accessToken);
+
 
   const handleOpenDeleteDialog = (questionId) => {
     setQuestionToDelete(questionId);
@@ -54,7 +60,7 @@ const DataTable = () => {
   const handleDelete = async (id) => {
     // Display a confirmation dialog
     const confirmed = window.confirm('Are you sure you want to delete this question?');
-    
+
     // If confirmed, proceed with deletion
     if (confirmed) {
       try {
@@ -120,20 +126,20 @@ const DataTable = () => {
   
   
   const columns = [
-    { field: 'intitule', headerName: 'Intitulé', width: 130 },
-    { field: 'coupleQualificatif', headerName: 'Couple Qualificatif', width: 200 },
-    {
+    { field: 'intitule', headerName: 'Intitulé', width: 450 },
+    { field: 'coupleQualificatif', headerName: 'Couple Qualificatif', width: 250 },
+    /*{
       field: 'associated',
       headerName: 'Associé',
       width: 150,
       renderCell: (params) => (
         params.value ? <CheckCircleIcon color="primary" /> : null
       ),
-    },
+    },*/
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 150,
+      width: 100,
       renderCell: (params) => (
         <div>
           <Tooltip title="Modifier la question" arrow placement="top">
@@ -181,7 +187,8 @@ const DataTable = () => {
   .then(data => {
     console.log("Couple Qualificatif response:", data);
 if (data && Array.isArray(data) && data.length > 0) {
-  const formattedCoupleQualificatifs = data.map(item => `${item.id}-${item.minimal}-${item.maximal}`);
+  console.log("THIS IS THE ID ::: " + JSON.stringify(data))
+  const formattedCoupleQualificatifs = data.map(item => `${item.qualificatif.id}-${item.qualificatif.minimal}-${item.qualificatif.maximal}`);
   setCoupleQualificatifs(formattedCoupleQualificatifs);
 } else {
   console.error('Data received is not in the expected format');
@@ -225,17 +232,31 @@ if (data && Array.isArray(data) && data.length > 0) {
 
 
 const handleUpdate = () => {
-  const [qualificatifId, minimalValue, maximalValue] = modifiedCoupleQualificatif.split('-');
+  //const [qualificatifId, minimalValue, maximalValue] = modifiedCoupleQualificatif.split('-');
+  const holderQualificatif = modifiedCoupleQualificatif.split('-')
+  const qualificatifId = holderQualificatif[0]
+  const minimalValue = holderQualificatif[2]
+  const maximalValue = holderQualificatif[1]
+  console.log("this is the ID :::: " + qualificatifId)
+  console.log("this is the minimal :::: " + minimalValue)
+
+  console.log("this is the maximal :::: " + maximalValue)
+
+
+
+  //console.log("this is the MAXXX : " + maximalValue)
+  
 
   const updatedQuestion = {
-    id: selectedQuestion.id, // Include the id field
+    id: selectedQuestion.id,
     type: modifiedType,
     intitule: modifiedIntitule,
-    idQualificatif: { id: qualificatifId }, // Set the idQualificatif using extracted id
-    coupleQualificatif: `${minimalValue}-${maximalValue}` // Set the coupleQualificatif value
+    idQualificatif: {
+      id: parseInt(qualificatifId)
+    },
+    //coupleQualificatif: `${minimalValue}-${maximalValue}`
   };
-
-  console.log("THE NEW INFORMATION §§§§ "  + selectedCoupleQualificatif);
+  console.log("THE NEW INFORMATION §§§§ "  + JSON.stringify(updatedQuestion));
 
   // Send the update request to the server
   updateQuestion(updatedQuestion)
@@ -270,7 +291,8 @@ return (
   <>
 <Navbar isLoggedIn={isLoggedIn} userInfo={user} pageTitle={currentPath === '/questionStandards' ? 'Questions Standards' : 'CSCI-EVAE'} />
     <Sidebar />
-    <div className="dataTableContainer">
+
+    <div className="dataTableContainer" style={{ width: '80%', margin: 'auto' }}>
       <div style={{ marginBottom: '20px' }}>
         <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={handleAjouterModalOpen}>
           Ajouter Question
@@ -281,6 +303,7 @@ return (
         columns={columns}
         pageSizeOptions={[5, 10]}
         checkboxSelection
+        style={{ width: '80%' }}
       />
       {/* Ajouter Question Modal */}
       <Dialog open={openAjouterModal} onClose={handleAjouterModalClose}>
@@ -291,6 +314,7 @@ return (
             fullWidth
             value={newQuestionIntitule}
             onChange={(e) => setNewQuestionIntitule(e.target.value)}
+            style={{ width: '100%', margin: 'auto' }}
           />
           <TextField
             select

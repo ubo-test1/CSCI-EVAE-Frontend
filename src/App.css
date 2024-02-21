@@ -156,6 +156,7 @@ flex-shrink: 0;
 
 /*sidebar */ 
 
+
 .sidebar {
   width: 200px; /* Adjust width as needed */
   background-color: #093356;
@@ -240,6 +241,7 @@ flex-shrink: 0;
   justify-content: flex-start; /* Align items at the top */
   align-items: center; /* Align items to the center horizontally */
   padding: 20px; /* Add padding as needed */
+  
 }
 
 /*login css */
@@ -277,7 +279,8 @@ flex-shrink: 0;
   left: 50%; /* Move it to the center horizontally */
   transform: translateX(-50%); /* Adjust it to the center */
   display: flex;
-  justify-content: center;
+  
+  justify-content: space-around;
   align-items: center;
   border-radius: 25px;
 background: #DADADA;
@@ -292,15 +295,106 @@ box-shadow: 7px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
 .dashboard-container > div > div {
+  margin: 20px !important;
+
   text-align: center;
-  padding: 50px;
+  padding: 30px;
   border-radius: 25px;
 border: 1px solid #000;
 background: #FFF;
 box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
 
 }
+.dashboard-item{
+  padding: -20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-radius: 25px;
+  border: 1px solid #000;
+  background: #FFF;
+  box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
+  background: #FFF;
+  justify-content: center;
+  align-items: center;
+  width: 30% !important;
+  height: 50% !important;
+}
+.dashboard-item img{
+  width: 150px !important;
+  
+}
 
 .dashboard-container > div > div > img {
   width: 100px;
+}
+
+/*Evaluation */
+
+.evaluationContainer {
+  display: flex;
+  justify-content: center; /* Center the content horizontally */
+  align-items: center; /* Center the content vertically */
+  margin-top: 25vh; /* Adjust as needed to account for the height of the navbar */
+  margin-left: 300px; /* Distance from the sidebar */
+  margin-right: 50px; /* Distance from the right edge */
+  margin-bottom: 20px; /* Distance from the bottom */
+}
+
+.tableWrapper {
+  width: 100%; /* Set to full width */
+}
+
+.MuiDataGrid-row{
+  cursor: pointer;
+}
+
+
+/*rubrique*/
+
+.rubriqueContainer {
+  display: flex;
+  justify-content: center; /* Center the content horizontally */
+  align-items: center; /* Center the content vertically */
+  margin-top: 15vh; /* Distance from the top (adjust as needed) */
+  margin-left: 300px; /* Distance from the sidebar */
+  margin-right: 50px; /* Distance from the right edge */
+}
+
+
+.dataTableContainer{
+  width: 70vw !important;
+  margin: auto;
+}
+
+.evaluationContainer{
+  margin-top: 18vh;
+  display: flex;
+  flex-direction: column;
+  margin-left: 20vw ;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 18vh;
+  margin-right: 10vw !important;
+
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.grid-container {
+  width: 80%;
+  height: 400px;
+  margin: auto;
+  margin-left: 23vw;
+  margin-top: 50px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 20px;
 }

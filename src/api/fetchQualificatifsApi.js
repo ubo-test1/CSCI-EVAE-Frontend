@@ -2,11 +2,10 @@ import { authenticateUser } from "./loginApi";
 
 export async function fetchQualificatifs() {
   try {
-    const accessToken = await authenticateUser('admin', 'admin');
-    console.log("this is in qualificatif : " + accessToken);
-    const response = await fetch('http://localhost:8080/eva/qus/qualificatifs', {
+
+    const response = await fetch('http://localhost:8080/qualificatif/all', {
       headers: {
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
       }
     });
 

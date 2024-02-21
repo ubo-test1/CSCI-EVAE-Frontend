@@ -8,13 +8,18 @@ export async function authenticateUser(username, password) {
             },
             body: JSON.stringify({ username, password })
         });
+        console.log("I AM HEREREREER")
+        const data = await response.json();
+        console.log("this is what the controlelr gives you " + JSON.stringify(data, null, 2));
 
         if (!response.ok) {
-            throw new Error('Failed to authenticate user');
+            // Check if the error message indicates bad credentials
+            if (data.message === 'Bad credentials') {
+                throw new Error('Invalid username or password');
+            } else {
+                throw new Error('Failed to authenticate user');
+            }
         }
-
-        const data = await response.json();
-        console.log(JSON.stringify(data, null, 2));
 
         return data;
     } catch (error) {
