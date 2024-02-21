@@ -16,6 +16,7 @@ function EvaluationDetails() {
   useEffect(() => {
     const getEvaluationDetails = async () => {
       try {
+        console.log("text wla chi l3iba: "+id);
         const data = await fetchEvaluationDetails(id);
         setDetails(data);
       } catch (error) {

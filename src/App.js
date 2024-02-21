@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // Import BrowserRouter
-import Login from './Components/login';
-import QuestionStandardsList from './Components/QuestionStandardsList';
-import Home from './Components/Home';
-import EvaluationList from './Components/Evaluation';
-import EvaluationDetails from './Components/EvaluationDetails';
-import CoupleQualificatifList from './Components/CoupleQualificatiList';
-import RubriqueList from './Components/rubrique';
+import Login from './components/login';
+import QuestionStandardsList from './components/QuestionStandardsList';
+import Home from './components/Home';
+import EvaluationList from './components/Evaluation';
+import EvaluationDetails from './components/EvaluationDetails';
+import CoupleQualificatifList from './components/CoupleQualificatiList';
+import RubriqueList from './components/rubrique';
 class App extends Component {
   render() {
     return (
