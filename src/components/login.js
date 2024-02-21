@@ -27,8 +27,11 @@ const [userInfo, setUserInfo] = useState(null);
       };
   
       // Save user data in session storage after stringifying
-      sessionStorage.setItem('user', JSON.stringify(userData));
+      sessionStorage.setItem('user', JSON.stringify((userData)));
+      sessionStorage.setItem('role', JSON.parse(sessionStorage.getItem('user')).roles)
+      sessionStorage.setItem('accessToken', JSON.parse(sessionStorage.getItem('user')).accessToken)
       sessionStorage.setItem('request',"login")
+      console.log("this is the response of the login : " + userData)
       // Set the isLoggedIn state to true
       setIsLoggedIn(true);
     

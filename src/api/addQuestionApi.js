@@ -5,6 +5,7 @@ export async function saveQuestion(questionData) {
       const response = await axios.post('http://localhost:8080/eva/qus/create', questionData, {
         headers: {
           'Content-Type': 'application/json',
+          'Authorization':` Bearer ${sessionStorage.getItem('accessToken')}`  
         },
       });
       return response.data;
