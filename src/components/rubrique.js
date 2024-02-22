@@ -18,6 +18,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import DialogContentText from '@mui/material/DialogContentText';
+import {updateRubriqueApi} from '../api/updateRubriqueApi';
+import { addQtoRubApi } from '../api/addQtoRubApi';
+import { delQfromRubApi } from '../api/delQfromRubApi';
 
 
 const RubriqueList = () => {
@@ -35,12 +38,12 @@ const RubriqueList = () => {
     const [initialCheckState, setInitialCheckState] = useState(false);
     const [checkedQuestions, setCheckedQuestions] = useState([]);
     const [srvQuestions, setSrvQuestions] = useState([]);
-    const [toAdd, setToAdd] = useState({ ids: [] });
-    const [toDel, setToDel] = useState({ ids: [] });
 
 
     useEffect(() => {
         fetchRubriques();
+        sessionStorage.setItem('toAdd', JSON.stringify([]));
+        sessionStorage.setItem('toDel', JSON.stringify([]));
     }, []);
 
     const fetchRubriques = async () => {
@@ -69,7 +72,13 @@ const RubriqueList = () => {
         try {
             setLoading(true);
             const rubriqueDetails = await fetchRubriqueDetails(rubriqueId);
-            const modifiedQuestions = rubriqueDetails.questions.map(question => ({
+            console.log(rubriqueDetails)
+            if ('rubrique' in rubriqueDetails) {
+                setSelectedRubrique(rubriqueDetails.rubrique);
+            } else {
+                setSelectedRubrique(rubriqueDetails);
+            }
+            const modifiedQuestions = (rubriqueDetails.questions || []).map(question => ({
                 ...question,
                 received: true
             }));
@@ -100,7 +109,9 @@ const RubriqueList = () => {
             setFullQuestions(mergedQuestions);
             setCheckedQuestions(modifiedQuestions)
             setSrvQuestions(modifiedQuestions)
-            setSelectedRubrique(rubriqueDetails.rubrique.rubrique);
+            
+            console.log("RUUUUUUUUUUB")
+            console.log(rubriqueDetails.rubrique)
             setQuestionStandards(data);
         } catch (error) {
             console.error('Error fetching rubrique details:', error);
@@ -117,13 +128,53 @@ const RubriqueList = () => {
         try {
             setLoading(true);
             // Example API call to update the rubrique
-            // const success = await updateRubrique(selectedRubrique.id, designation, selectedQuestions.map(question => question.id));
-            // if (success) {
-            //     console.log('Rubrique updated successfully');
-            //     fetchRubriques(); // Refresh rubriques data after editing
-            // } else {
-            //     console.error('Failed to update rubrique');
-            // }
+            let updateReq = {
+                "id" : selectedRubrique.id,
+                "type" : selectedRubrique.type,
+                "noEnseignant" : selectedRubrique.noEnseignant,
+                "designation" : selectedRubrique.designation,
+                "ordre" : selectedRubrique.ordre
+            }
+
+            let addQReq = {
+                "rubriqueId" : selectedRubrique.id,
+                "qList" : JSON.parse(sessionStorage.getItem('toAdd'))
+            }
+
+            let delQReq = {
+                "rubriqueId" : selectedRubrique.id,
+                "qList" : JSON.parse(sessionStorage.getItem('toDel'))
+            }
+            if(JSON.parse(sessionStorage.getItem('toAdd')).length > 0){
+                const addq = await addQtoRubApi(addQReq);
+                if (addq) {
+                    console.log('questions added successfully');
+                    fetchRubriques();
+                } else {
+                    alert('Failed to add quests');
+                }
+            }
+
+            if(JSON.parse(sessionStorage.getItem('toDel')).length > 0){
+                const delq = await delQfromRubApi(delQReq);
+                if (delq) {
+                    console.log('questions deleted successfully');
+                    fetchRubriques();
+                } else {
+                    alert('Failed to update rubrique');
+                }
+            }
+
+            const update = await updateRubriqueApi(updateReq);
+                if (update) {
+                    console.log('rubrique updated successfully');
+                    fetchRubriques();
+                } else {
+                    alert('Failed to delete quests');
+                }
+                
+            location.reload()
+            
         } catch (error) {
             console.error('Error updating rubrique:', error);
         } finally {
@@ -191,6 +242,7 @@ const RubriqueList = () => {
         setDesignation('');
         setSelectedQuestions([]);
         setSelectedRubrique(null);
+        location.reload()
     };
 
     const handleDesignationChange = (event) => {
@@ -201,35 +253,51 @@ const RubriqueList = () => {
         if (initialCheckState === false) setInitialCheckState(true);
         const isChecked = event.target.checked;
     
+        // Initialize toAdd and toDel in session storage if they don't exist
+        if (!sessionStorage.getItem('toAdd')) sessionStorage.setItem('toAdd', JSON.stringify([]));
+        if (!sessionStorage.getItem('toDel')) sessionStorage.setItem('toDel', JSON.stringify([]));
+    
+        // Deserialize toAdd and toDel from session storage
+        let toAdd = JSON.parse(sessionStorage.getItem('toAdd'));
+        let toDel = JSON.parse(sessionStorage.getItem('toDel'));
+    
         if (isChecked) {
             setCheckedQuestions(prevChecked => [...prevChecked, question]);
             if (!srvQuestions.includes(question)) {
-                if(Object.keys(toAdd).length === 0){
-                    setToAdd()
-                }
-                setToAdd(prevToAdd => ({ ...prevToAdd, ids: [...prevToAdd.ids, question.id] }));
+                // Add question.id to toAdd
+                toAdd = [...toAdd, question.id];
+                sessionStorage.setItem('toAdd', JSON.stringify(toAdd));
+            }
+            else{
+                toDel.pop(question.id)
+                sessionStorage.setItem('toDel', JSON.stringify(toDel));
             }
         } else {
             setCheckedQuestions(prevChecked =>
                 prevChecked.filter(selected => selected.id !== question.id)
             );
-            if (toAdd.ids.includes(question.id)) {
-                setToAdd(prevToAdd => ({ ...prevToAdd, ids: prevToAdd.ids.filter(id => id !== question.id) }));
+            // Remove question.id from toAdd if it exists
+            if (toAdd.includes(question.id)) {
+                toAdd = toAdd.filter(id => id !== question.id);
+                sessionStorage.setItem('toAdd', JSON.stringify(toAdd));
             }
+            // Add question.id to toDel if the question is in srvQuestions
             if (srvQuestions.includes(question)) {
-                setToDel(prevToDel => ({ ...prevToDel, ids: [...prevToDel.ids, question.id] }));
+                toDel = [...toDel, question.id];
+                sessionStorage.setItem('toDel', JSON.stringify(toDel));
             }
         }
     
-        console.log("To add");
-        console.log(toAdd);
-        console.log("To del");
-        console.log(toDel);
+        // For debugging purposes
+        console.log("To add", JSON.parse(sessionStorage.getItem('toAdd')));
+        console.log("To del", JSON.parse(sessionStorage.getItem('toDel')));
+    
         event.target.checked = isChecked;
     };
     
+    
 
-    const handleCheckboxChangejj = (event, question) => {
+    const handleCheckboxChange2 = (event, question) => {
         const isChecked = event.target.checked;
         if (isChecked) {
             setSelectedQuestions(prevSelected => [...prevSelected, question]);
@@ -266,7 +334,7 @@ const RubriqueList = () => {
                                 <td>
                                     <input
                                         type="checkbox"
-                                        onChange={(event) => handleCheckboxChange(event, question)}
+                                        onChange={(event) => handleCheckboxChange2(event, question)}
                                     />
                                 </td>
                             </tr>
