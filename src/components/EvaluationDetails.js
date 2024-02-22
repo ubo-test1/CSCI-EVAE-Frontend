@@ -5,6 +5,18 @@ import Navbar from './navbar'; // Import Navbar component
 import Sidebar from './sideBar'; // Import Sidebar component
 import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid component from Material-UI
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'; // Import Material-UI components
+import { Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import zIndex from '@mui/material/styles/zIndex';
+
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+
+  return result;
+};
 
 function EvaluationDetails() {
 
@@ -12,10 +24,12 @@ function EvaluationDetails() {
   const [details, setDetails] = useState(null);
   const [selectedRubriqueQuestions, setSelectedRubriqueQuestions] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [rubriques, setRubriques] = useState([]);
 
   useEffect(() => {
     const getEvaluationDetails = async () => {
       try {
+        console.log("text wla chi l3iba: "+id);
         const data = await fetchEvaluationDetails(id);
         setDetails(data);
       } catch (error) {
@@ -26,61 +40,40 @@ function EvaluationDetails() {
     getEvaluationDetails();
   }, [id]); // Fetch details whenever ID changes
 
+  useEffect(() => {
+    if (details) {
+      setRubriques(details.rubriques);
+    }
+  }, [details]); // Update
+
   if (!details) {
     return <div>Loading...</div>;
   }
-
-  const evaluationDetails = details.evaluation;
-  const rubriques = details.rubriques;
-
-  // Function to render questions for a rubrique
-  const renderQuestions = (questions) => {
-    if (questions.length === 0) {
-      return <p>No questions available for this rubrique.</p>;
-    } else {
-      return (
-        <ul>
-          {questions.map((question, index) => (
-            <li key={index}>{question}</li>
-          ))}
-        </ul>
-      );
-    }
-  };
-
-  // Open dialog to show questions for selected rubrique
-  const handleShowQuestions = (questions) => {
-
-    setSelectedRubriqueQuestions(questions);
-    setDialogOpen(true);
-  };
   
 
-  // Define columns for rubriques table
-  const columns = [
-    { field: 'rubrique', headerName: 'Rubrique', width: 200 },
-    { field: 'order', headerName: 'Order', width: 150 },
-    {
-      field: 'questions',
-      headerName: 'Questions',
-      width: 300,
-      renderCell: (params) =>
-  params.value.length > 0 ? (
-    <Button onClick={() => handleShowQuestions(params.value)}>Show Questions</Button>
-  ) : (
-    <span>No Questions</span>
-  ),
+  const evaluationDetails = details.evaluation;
+ 
+  
 
-    },
-  ];
+  const onDragEnd = (result) => {
+    // dropped outside the list
+    if (!result.destination) {
+      return;
+    }
+
+    const items = reorder(
+      rubriques,
+      result.source.index,
+      result.destination.index
+    );
+
+    setRubriques(items);
+  };
+
+
 
   // Define rows for rubriques table
-  const rows = rubriques.map((rubrique, index) => ({
-    id: index,
-    rubrique: rubrique.rubrique.designation,
-    order: rubrique.rubrique.ordre,
-    questions: rubrique.questions, // Pass the entire questions array
-  }));
+
 
   return (
     <div>
@@ -105,10 +98,66 @@ function EvaluationDetails() {
     </TableBody>
   </Table>
 </TableContainer>
-        <div style={{ height: 400, width: '100%' }}>
-          <DataGrid rows={rows} columns={columns} pageSize={5} />
-        </div>
-      </div>
+
+<DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="droppable">
+        {(provided) => (
+          <div {...provided.droppableProps} ref={provided.innerRef}>
+            <Typography variant="h5" style={{ marginTop: '20px', marginBottom: '20px' }} align="left">
+              Rubriques:
+            </Typography>
+            {rubriques.map((rubrique, index) => (
+              <Draggable key={rubrique.rubrique.id} draggableId={rubrique.rubrique.id.toString()} index={index}>
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                    <Accordion>
+                      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography>{rubrique.rubrique.designation}</Typography>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                      <AccordionDetails style={{ maxHeight: '400px',zIndex:'-2', overflow: 'auto' }}>
+      {rubrique.questions.length > 0 ? (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Intitulé</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Minimal</TableCell>
+                <TableCell>Maximal</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rubrique.questions.map((question, qIndex) => (
+                <TableRow key={qIndex}>
+                  <TableCell>{question.intitule}</TableCell>
+                  <TableCell>{question.type}</TableCell>
+                  <TableCell>{question.idQualificatif.minimal}</TableCell>
+                  <TableCell>{question.idQualificatif.maximal}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Typography variant="body1" style={{ margin: '10px' }}>
+          Aucune question
+        </Typography>
+      )}
+    </AccordionDetails>
+                      </AccordionDetails>
+                    </Accordion>
+                  </div>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
+    </div>
+    
       <Dialog
   open={dialogOpen}
   onClose={() => setDialogOpen(false)}
