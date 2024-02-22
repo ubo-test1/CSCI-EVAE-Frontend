@@ -7,6 +7,7 @@ import EvaluationList from './Components/Evaluation';
 import EvaluationDetails from './Components/EvaluationDetails';
 import CoupleQualificatifList from './Components/CoupleQualificatiList';
 import RubriqueList from './Components/rubrique';
+import RubriqueDetails from './Components/RubriqueDetails';
 class App extends Component {
   render() {
     return (
@@ -20,6 +21,8 @@ class App extends Component {
           <Route path="/Evaluation/:id" element={<EvaluationDetails />} />
           <Route path="/coupleQualificaitf" element={<CoupleQualificatifList />} />
           <Route path="/rubriqueStandard" element={<RubriqueList />} />
+          <Route path="/rubriqueStandard/:id" element={<RubriqueDetails />} />
+
 
 
         </Routes>

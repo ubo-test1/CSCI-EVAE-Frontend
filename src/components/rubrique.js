@@ -2,318 +2,441 @@ import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import Navbar from './navbar';
 import Sidebar from './sideBar';
-import Button from '@mui/material/Button';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import { fetchAllStandardRubriques } from '../api/fetchRubriques';
-import { deleteRubriqueApi } from '../api/deleteRubriqueApi';
-import { updateRubriqueApi } from '../api/updateRubriqueApi';
+import { fetchQuestionStandards } from '../api/fetchQuestionStandardsApi';
+import { fetchRubriqueDetails } from '../api/fetchRubriqueDetailsApi';; // Import the API function for fetching rubrique details
 import { createRubriqueAndAssignQuestions } from '../api/createRubriqueAndAssignQuestions';
-import { createRubriqueApi, assignQuestionsToRubrique } from '../api/createRubriqueAndAssignQuestions';
+import { deleteRubriqueApi } from '../api/deleteRubriqueApi';
+import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import Alert from '@mui/material/Alert';
 import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import CircularProgress from '@mui/material/CircularProgress';
-import { fetchQuestionStandards } from '../api/fetchQuestionStandardsApi';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import DialogContentText from '@mui/material/DialogContentText';
+
 
 const RubriqueList = () => {
-  const [rubriques, setRubriques] = useState([]);
-  const [deleteConfirmation, setDeleteConfirmation] = useState(null);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editRubrique, setEditRubrique] = useState({
-    id: null,
-    type: '',
-    noEnseignant: null,
-    designation: '',
-    ordre: null
-  });
-  const [editSuccess, setEditSuccess] = useState(false);
-  const [editError, setEditError] = useState(null);
-  const [ajouterDialogOpen, setAjouterDialogOpen] = useState(false);
-  const [ajouterDesignation, setAjouterDesignation] = useState('');
-  const [selectedQuestions, setSelectedQuestions] = useState([]);
-  const [questionsLoading, setQuestionsLoading] = useState(false);
-  const [questions, setQuestions] = useState([]);
+    const [rubriques, setRubriques] = useState([]);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [designation, setDesignation] = useState('');
+    const [questionStandards, setQuestionStandards] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [selectedQuestions, setSelectedQuestions] = useState([]);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [rubriqueToDelete, setRubriqueToDelete] = useState(null);
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [selectedRubrique, setSelectedRubrique] = useState(null);
+    const [fullQuestions, setFullQuestions] = useState([]);
+    const [initialCheckState, setInitialCheckState] = useState(false);
+    const [checkedQuestions, setCheckedQuestions] = useState([]);
+    const [srvQuestions, setSrvQuestions] = useState([]);
+    const [toAdd, setToAdd] = useState({ ids: [] });
+    const [toDel, setToDel] = useState({ ids: [] });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
 
-  const fetchData = async () => {
-    try {
-      const data = await fetchAllStandardRubriques();
-      setRubriques(data);
-    } catch (error) {
-      console.error('Error fetching rubriques:', error);
-    }
-  };
-  const generateUniqueIds = (data) => {
-    return data.map((item, index) => {
-      return { ...item, id: index + 1 }; // Generate unique ID based on the index
-    });
-  };
+    useEffect(() => {
+        fetchRubriques();
+    }, []);
 
-  const fetchQuestions = async () => {
-    setQuestionsLoading(true);
-    try {
-      const fetchedQuestions = await fetchQuestionStandards();
-      const questionsWithUniqueIds = generateUniqueIds(fetchedQuestions);
-      setQuestions(questionsWithUniqueIds);
-    } catch (error) {
-      console.error('Error fetching questions:', error);
-    } finally {
-      setQuestionsLoading(false);
-    }
-  };
+    const fetchRubriques = async () => {
+        try {
+            const data = await fetchAllStandardRubriques();
+            setRubriques(data.map(rubrique => ({
+                ...rubrique.rubrique,
+                associated: rubrique.associated
+            })));
+        } catch (error) {
+            console.error('Error fetching rubriques:', error);
+        }
+    };
 
-  const handleDeleteConfirmation = (row) => {
-    setDeleteConfirmation(row);
-  };
+    const fetchRubriqueDetailsById = async (id) => {
+        try {
+            const data = await fetchRubriqueDetails(id);
+            return data;
+        } catch (error) {
+            console.error('Error fetching rubrique details:', error);
+        }
+    };
 
-  const handleDeleteCancel = () => {
-    setDeleteConfirmation(null);
-  };
+    const handleEditClick = async (rubriqueId) => {
+        setEditDialogOpen(true);
+        try {
+            setLoading(true);
+            const rubriqueDetails = await fetchRubriqueDetails(rubriqueId);
+            const modifiedQuestions = rubriqueDetails.questions.map(question => ({
+                ...question,
+                received: true
+            }));
+            console.log("this is the modified quesitons " + JSON.stringify(modifiedQuestions))
+    
+            let mergedQuestions = [];
+            const data = await fetchQuestionStandards();
+            console.log("mamaaaaaaaaaaaak")
+            console.log(data)
+            const filteredData = data.filter(question => !modifiedQuestions.some(modifiedQuestion => modifiedQuestion.intitule === question.question.intitule));
+            console.log("ouououoihoi")
+            console.log(filteredData)
 
-  const handleDeleteConfirm = async () => {
-    try {
-      await deleteRubriqueApi(deleteConfirmation.rubrique.id);
-      setEditSuccess(true);
-      setEditError(null);
-      setDeleteConfirmation(null);
-      // Remove the deleted row from the list
-      const updatedRubriques = rubriques.filter((rubrique) => rubrique.rubrique.id !== deleteConfirmation.rubrique.id);
-      setRubriques(updatedRubriques);
-    } catch (error) {
-      setEditError('Failed to delete rubrique');
-      setEditSuccess(false);
-      console.error('Error deleting rubrique:', error);
-    }
-  };
+            let test1 = []
 
-  const handleEdit = (row) => {
-    setEditRubrique({
-      id: row.rubrique.id,
-      type: row.rubrique.type,
-      noEnseignant: row.rubrique.noEnseignant,
-      designation: row.rubrique.designation,
-      ordre: row.rubrique.ordre
-    });
-    setEditDialogOpen(true);
-  };
+            filteredData.forEach(element => {
+                test1.push(element.question)
+            });
 
-  const handleEditDialogClose = () => {
-    setEditDialogOpen(false);
-    // Reset editRubrique to its initial values
-    setEditRubrique({
-      id: null,
-      type: '',
-      noEnseignant: null,
-      designation: '',
-      ordre: null
-    });
-  };
-  
-  const handleEditSubmit = async () => {
-    try {
-      const response = await updateRubriqueApi(editRubrique);
-      if (response.success) {
-        setEditSuccess(true);
-        setEditError(null);
-        setEditDialogOpen(false);
-        fetchData();
-      } else {
-        setEditError('Failed to update rubrique');
-        setEditSuccess(false);
-        console.error('Error updating rubrique:', response.error);
-      }
-    } catch (error) {
-      console.error('Error updating rubrique:', error);
-      setEditError('Failed to update rubrique');
-      setEditSuccess(false);
-    }
-  };
+            // Concatenate the selected questions with the merged questions
+            mergedQuestions = [...modifiedQuestions, ...test1];
 
-  const handleAjouterDialogOpen = () => {
-    fetchQuestions(); // Fetch questions when "Ajouter Rubrique" button is clicked
-    setAjouterDialogOpen(true);
-  };
+            console.log("hhhhhhhhhhhh")
+            console.log(mergedQuestions)
+    
+            // Update state
+            setDesignation(rubriqueDetails.designation || rubriqueDetails.rubrique.designation);
+            setFullQuestions(mergedQuestions);
+            setCheckedQuestions(modifiedQuestions)
+            setSrvQuestions(modifiedQuestions)
+            setSelectedRubrique(rubriqueDetails.rubrique.rubrique);
+            setQuestionStandards(data);
+        } catch (error) {
+            console.error('Error fetching rubrique details:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
 
-  const handleAjouterDialogClose = () => {
-    setAjouterDialogOpen(false);
-    setAjouterDesignation('');
-    setSelectedQuestions([]);
-  };
+    const handleEditConfirmed = async () => {
+        // Handle edit confirmation logic here
+        // You can update the rubrique details with the new designation and questions
+        // Make API call to update the rubrique with the new details
+        try {
+            setLoading(true);
+            // Example API call to update the rubrique
+            // const success = await updateRubrique(selectedRubrique.id, designation, selectedQuestions.map(question => question.id));
+            // if (success) {
+            //     console.log('Rubrique updated successfully');
+            //     fetchRubriques(); // Refresh rubriques data after editing
+            // } else {
+            //     console.error('Failed to update rubrique');
+            // }
+        } catch (error) {
+            console.error('Error updating rubrique:', error);
+        } finally {
+            setLoading(false);
+            handleCloseDialog();
+        }
+    };
 
-  const handleAjouterSubmit = async () => {
-    try {
-      const response = await createRubriqueAndAssignQuestions(ajouterDesignation, selectedQuestions.map(question => question.id), sessionStorage.getItem('accessToken'));
-      if (response) {
-        setEditSuccess(true);
-        setEditError(null);
-        setAjouterDialogOpen(false);
-        fetchData();
-      } else {
-        setEditError('Failed to create rubrique and assign questions');
-        setEditSuccess(false);
-        console.error('Error creating rubrique and assigning questions');
-      }
-    } catch (error) {
-      console.error('Error creating rubrique and assigning questions:', error);
-      setEditError('Failed to create rubrique and assign questions');
-      setEditSuccess(false);
-    }
-  };
+    const handleAjouterRubrique = async () => {
+        setOpenDialog(true);
+        try {
+            setLoading(true);
+            const data = await fetchQuestionStandards();
+            console.log("this is the questions data " + data)
+            setQuestionStandards(data);
+        } catch (error) {
+            console.error('Error fetching question standards:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const columns = [
-    { field: 'rubrique.designation', headerName: 'Designation', width: 300, valueGetter: (params) => params.row.rubrique.designation },
-    { field: 'rubrique.ordre', headerName: 'Ordre', width: 150, valueGetter: (params) => params.row.rubrique.ordre },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 200,
-      renderCell: (params) => {
+    const handleAddRubrique = async () => {
+        try {
+            setLoading(true);
+            const success = await createRubriqueAndAssignQuestions(designation, selectedQuestions.map(question => question.question.id), sessionStorage.getItem('accessToken'));
+            if (success) {
+                console.log('Rubrique created and questions assigned successfully');
+                fetchRubriques(); // Refresh the rubriques data after adding a rubrique
+            } else {
+                console.error('Failed to create rubrique or assign questions');
+            }
+        } catch (error) {
+            console.error('Error creating rubrique and assigning questions:', error);
+        } finally {
+            setLoading(false);
+            handleCloseDialog();
+        }
+    };
+
+    const handleDeleteClick = (rubriqueId) => {
+        setRubriqueToDelete(rubriqueId);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDeleteConfirmed = async () => {
+        try {
+            const { success, error } = await deleteRubriqueApi(rubriqueToDelete);
+            if (success) {
+                console.log('Rubrique deleted successfully');
+                fetchRubriques(); // Refresh the rubriques data after deleting a rubrique
+            } else {
+                console.error('Error deleting rubrique:', error);
+            }
+        } catch (error) {
+            console.error('Error deleting rubrique:', error);
+        } finally {
+            setDeleteDialogOpen(false);
+            setRubriqueToDelete(null);
+        }
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        setDesignation('');
+        setSelectedQuestions([]);
+        setSelectedRubrique(null);
+    };
+
+    const handleDesignationChange = (event) => {
+        setDesignation(event.target.value);
+    };
+
+    const handleCheckboxChange = (event, question) => {
+        if (initialCheckState === false) setInitialCheckState(true);
+        const isChecked = event.target.checked;
+    
+        if (isChecked) {
+            setCheckedQuestions(prevChecked => [...prevChecked, question]);
+            if (!srvQuestions.includes(question)) {
+                if(Object.keys(toAdd).length === 0){
+                    setToAdd()
+                }
+                setToAdd(prevToAdd => ({ ...prevToAdd, ids: [...prevToAdd.ids, question.id] }));
+            }
+        } else {
+            setCheckedQuestions(prevChecked =>
+                prevChecked.filter(selected => selected.id !== question.id)
+            );
+            if (toAdd.ids.includes(question.id)) {
+                setToAdd(prevToAdd => ({ ...prevToAdd, ids: prevToAdd.ids.filter(id => id !== question.id) }));
+            }
+            if (srvQuestions.includes(question)) {
+                setToDel(prevToDel => ({ ...prevToDel, ids: [...prevToDel.ids, question.id] }));
+            }
+        }
+    
+        console.log("To add");
+        console.log(toAdd);
+        console.log("To del");
+        console.log(toDel);
+        event.target.checked = isChecked;
+    };
+    
+
+    const handleCheckboxChangejj = (event, question) => {
+        const isChecked = event.target.checked;
+        if (isChecked) {
+            setSelectedQuestions(prevSelected => [...prevSelected, question]);
+        } else {
+            setSelectedQuestions(prevSelected =>
+                prevSelected.filter(selected => selected.id !== question.id)
+            );
+        }
+    };
+
+    const renderQuestionStandardsTable = () => {
+        if (loading) {
+            return <p>Loading...</p>;
+        }
+    
         return (
-          <div>
-            <Button
-              startIcon={<EditIcon />}
-              onClick={() => handleEdit(params.row)}
-              color="primary"
-              disabled={params.row.associated}
-            >
-              Edit
-            </Button>
-            <Button
-              startIcon={<DeleteIcon />}
-              onClick={() => handleDeleteConfirmation(params.row)}
-              color="secondary"
-              disabled={params.row.associated}
-            >
-              Delete
-            </Button>
-          </div>
+            <div>
+                <h3>Question Standards</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Intitule</th>
+                            <th>Minimal</th>
+                            <th>Maximal</th>
+                            <th>Ajouter</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {questionStandards.map((question, index) => (
+                            <tr key={index}>
+                                <td>{question.question.intitule}</td>
+                                <td>{question.question.idQualificatif.minimal}</td>
+                                <td>{question.question.idQualificatif.maximal}</td>
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        onChange={(event) => handleCheckboxChange(event, question)}
+                                    />
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         );
-      },
-    },
-  ];
+    };
 
-  return (
-    <div className="container">
-      <Navbar />
-      <Sidebar />
-      <div className="actions">
-        <Button variant="contained" onClick={handleAjouterDialogOpen}>Ajouter Rubrique</Button>
-      </div>
-      <div className="grid-container">
-        <DataGrid rows={rubriques} columns={columns} pageSize={5} getRowId={(row) => row.rubrique.id} />
-      </div>
-      {/* Delete confirmation dialog */}
-      <Dialog open={Boolean(deleteConfirmation)} onClose={handleDeleteCancel}>
-        <DialogTitle>Confirmation</DialogTitle>
-        <DialogContent>
-          <div>Are you sure you want to delete this rubrique?</div>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteCancel} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleDeleteConfirm} color="secondary">
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {/* Edit rubrique dialog */}
-      <Dialog open={editDialogOpen} onClose={handleEditDialogClose}>
-        <DialogTitle>Edit Rubrique</DialogTitle>
-        <DialogContent>
-          <TextField
+    const renderEditRubrique = () => {
+        if (loading) {
+            return <p>Loading...</p>;
+        }
+    
+        return (
+            <div>
+                <h3>Question Standards</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Intitule</th>
+                            <th>Minimal</th>
+                            <th>Maximal</th>
+                            <th>Ajouter</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    {fullQuestions.map((question, index) => (
+        <tr key={index}>
+            <td>{question.intitule}</td>
+            <td>{question.idQualificatif.minimal}</td>
+            <td>{question.idQualificatif.maximal}</td>
+            <td>
+            <input
+                    type="checkbox"
+                    checked={checkedQuestions.includes(question)}
+                    onChange={(event) => handleCheckboxChange(event, question)}
+                />
+            </td>
+        </tr>
+    ))}
+</tbody>
+
+                </table>
+            </div>
+        );
+    };
+    
+    const columns = [
+        { field: 'designation', headerName: 'Designation', width: 300 },
+        { field: 'ordre', headerName: 'Ordre', width: 150 },
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 150,
+            renderCell: (params) => (
+                <div>
+                    {params.row.associated ? (
+                        <Tooltip title="Referencé">
+                            <span>
+                                <IconButton
+                                    disabled
+                                    style={{
+                                        color: 'rgba(0, 0, 0, 0.26)',
+                                        pointerEvents: 'none',
+                                    }}
+                                >
+                                    <EditIcon />
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title="Modifier">
+                            <IconButton color="primary" onClick={() => handleEditClick(params.row.id)}>
+                                <EditIcon />
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                    {params.row.associated ? (
+                        <Tooltip title="Referencé">
+                            <span>
+                                <IconButton
+                                    disabled
+                                    style={{
+                                        color: 'rgba(0, 0, 0, 0.26)',
+                                        pointerEvents: 'none',
+                                    }}
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title="Supprimer">
+                            <IconButton color="secondary" onClick={() => handleDeleteClick(params.row.id)}>
+                                <DeleteIcon />
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                </div>
+            ),
+        },
+    ];
+
+    return (
+        <div className="container" style={{ display: 'flex', flexDirection: 'column' }}>
+            <Navbar />
+            <Sidebar />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+                <Button variant="contained" onClick={handleAjouterRubrique}>Ajouter Rubrique</Button>
+            </div>
+            <div className="grid-container">
+                <DataGrid rows={rubriques} columns={columns} pageSize={5} getRowId={(row) => row.id} />
+            </div>
+            <Dialog open={openDialog} onClose={handleCloseDialog}>
+    <DialogTitle>Ajouter Rubrique</DialogTitle>
+    <DialogContent>
+        <TextField
             autoFocus
             margin="dense"
             id="designation"
             label="Designation"
-            type="text"
             fullWidth
-            value={editRubrique.designation}
-            onChange={(e) => setEditRubrique({ ...editRubrique, designation: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            id="ordre"
-            label="Ordre"
-            type="number"
-            fullWidth
-            value={editRubrique.ordre}
-            onChange={(e) => setEditRubrique({ ...editRubrique, ordre: e.target.value })}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleEditDialogClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleEditSubmit} color="primary">
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {/* Ajouter rubrique dialog */}
-      <Dialog open={ajouterDialogOpen} onClose={handleAjouterDialogClose}>
-        <DialogTitle>Ajouter Rubrique</DialogTitle>
-        <DialogContent>
-          <TextField
+            value={designation}
+            onChange={handleDesignationChange}
+        />
+        {renderQuestionStandardsTable()}
+    </DialogContent>
+    <DialogActions>
+        <Button onClick={handleCloseDialog}>Cancel</Button>
+        <Button onClick={handleAddRubrique} color="primary">Add Rubrique</Button>
+    </DialogActions>
+</Dialog>
+<Dialog open={editDialogOpen} onClose={handleCloseDialog}>
+    <DialogTitle>Edit Rubrique</DialogTitle>
+    <DialogContent>
+        <TextField
             autoFocus
             margin="dense"
             id="designation"
             label="Designation"
-            type="text"
             fullWidth
-            value={ajouterDesignation}
-            onChange={(e) => setAjouterDesignation(e.target.value)}
-          />
-          <div style={{ height: 400, width: '100%' }}>
-          <DataGrid
-  rows={questions}
-  columns={[
-    { field: 'id', headerName: 'ID', width: 100 }, // Optional: If you want to display the ID
-    { field: 'intitule', headerName: 'Intitule', width: 300,valueGetter: (params) => params.row.question.intitule },
-    { field: 'idQualificatif.minimal', headerName: 'Minimal', width: 150, valueGetter: (params) => params.row.question.idQualificatif.minimal },
-    { field: 'idQualificatif.maximal', headerName: 'Maximal', width: 150, valueGetter: (params) => params.row.question.idQualificatif.maximal }
-  ]}
-  pageSize={5}
-  checkboxSelection
-  loading={questionsLoading}
-  selectionModel={selectedQuestions}
-  onSelectionModelChange={(newSelection) => setSelectedQuestions(newSelection.selectionModel)}
-  getRowId={(row) => row.id} // Assuming 'id' is the unique identifier of each question
-/>
+            value={designation}
+            onChange={handleDesignationChange}
+        />
+        {renderEditRubrique()}
+    </DialogContent>
+    <DialogActions>
+        <Button onClick={handleCloseDialog}>Cancel</Button>
+        <Button onClick={handleEditConfirmed} color="primary">Save Changes</Button>
+    </DialogActions>
+</Dialog>
 
-
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleAjouterDialogClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleAjouterSubmit} color="primary">
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {/* Display edit success and error alerts */}
-      {editSuccess && (
-        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
-          Rubrique updated successfully!
-        </Alert>
-      )}
-      {editError && (
-        <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
-          Failed to update rubrique!
-        </Alert>
-      )}
-    </div>
-  );
+            <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+                <DialogTitle>Delete Rubrique</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete this rubrique?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+                    <Button onClick={handleDeleteConfirmed} color="primary" autoFocus>
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </div>
+    );
 };
 
 export default RubriqueList;

@@ -34,13 +34,12 @@ const CoupleQualificatifList = () => {
   const fetchData = async () => {
     try {
       const data = await fetchQualificatifs();
-      const rowsWithId = data.map((row, index) => ({ ...row.qualificatif, id: index + 1, associated : row.associated }));
+      const rowsWithId = data.map((row) => ({ ...row.qualificatif, id: row.qualificatif.id, associated : row.associated }));
       setCoupleQualificatifs(rowsWithId);
     } catch (error) {
       console.error('Error fetching couple qualificatifs:', error);
     }
   };
-  
 
   const columns = [
     { field: 'minimal', headerName: 'Minimal', width: 300 },
