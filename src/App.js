@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // Import BrowserRouter
+
+
 import Login from './components/login';
 import QuestionStandardsList from './components/QuestionStandardsList';
 import Home from './components/Home';
@@ -7,6 +9,8 @@ import EvaluationList from './components/Evaluation';
 import EvaluationDetails from './components/EvaluationDetails';
 import CoupleQualificatifList from './components/CoupleQualificatiList';
 import RubriqueList from './components/rubrique';
+import RubriqueDetails from './components/RubriqueDetails';
+
 class App extends Component {
   render() {
     return (
@@ -20,6 +24,8 @@ class App extends Component {
           <Route path="/Evaluation/:id" element={<EvaluationDetails />} />
           <Route path="/coupleQualificaitf" element={<CoupleQualificatifList />} />
           <Route path="/rubriqueStandard" element={<RubriqueList />} />
+          <Route path="/rubriqueStandard/:id" element={<RubriqueDetails />} />
+
 
 
         </Routes>

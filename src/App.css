@@ -400,7 +400,35 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
   justify-content: flex-end;
   margin-right: 20px;
 }
+.data-grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-grid th,
+.data-grid td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.data-grid th {
+  background-color: #f2f2f2;
+}
+
+.data-grid tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.data-grid tr:hover {
+  background-color: #ddd;
+}
+
+.data-grid input[type="checkbox"] {
+  margin: 0;
+}
 
 .test{
   z-index: -2;
 }
+
