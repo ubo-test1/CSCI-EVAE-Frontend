@@ -385,8 +385,8 @@ const RubriqueList = () => {
     };
     
     const columns = [
-        { field: 'designation', headerName: 'Designation', width: 300 },
-        { field: 'ordre', headerName: 'Ordre', width: 150 },
+        { field: 'designation', headerName: 'Designation', width: 400 },
+        { field: 'ordre', headerName: 'Ordre', width: 500 },
         {
             field: 'actions',
             headerName: 'Actions',
@@ -448,7 +448,7 @@ const RubriqueList = () => {
                 <Button variant="contained" onClick={handleAjouterRubrique}>Ajouter Rubrique</Button>
             </div>
             <div className="grid-container">
-                <DataGrid rows={rubriques} columns={columns} pageSize={5} getRowId={(row) => row.id} />
+                <DataGrid rows={rubriques} columns={columns} pageSize={5} getRowId={(row) => row.id } />
             </div>
             <Dialog open={openDialog} onClose={handleCloseDialog}>
     <DialogTitle>Ajouter Rubrique</DialogTitle>

@@ -142,20 +142,46 @@ const DataTable = () => {
       width: 100,
       renderCell: (params) => (
         <div>
-          <Tooltip title="Modifier la question" arrow placement="top">
+                    {params.row.associated ? (
+          <Tooltip title="Referencé" arrow placement="top">
             <span>
-              <IconButton onClick={() => handleModify(params.row.id)} color="primary" disabled={params.row.associated}>
+              <IconButton onClick={() => handleModify(params.row.id)} color="primary" disabled style={{
+                                        color: 'rgba(0, 0, 0, 0.26)',
+                                        pointerEvents: 'none',
+                                    }}>
                 <EditIcon />
               </IconButton>
             </span>
           </Tooltip>
-          <Tooltip title="Supprimer la question" arrow placement="top">
-            <span>
-              <IconButton onClick={() => handleDelete(params.row.id)} color="secondary" disabled={params.row.associated}>
-                <DeleteIcon />
-              </IconButton>
-            </span>
-          </Tooltip>
+                              ) : (
+<Tooltip title="Modifier">
+                            <IconButton color="primary" onClick={() => handleModify(params.row.id)}>
+                                <EditIcon />
+                            </IconButton>
+                        </Tooltip>
+                                            )}
+
+{params.row.associated ? (
+                        <Tooltip title="Referencé">
+                            <span>
+                                <IconButton
+                                    disabled
+                                    style={{
+                                        color: 'rgba(0, 0, 0, 0.26)',
+                                        pointerEvents: 'none',
+                                    }}
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title="Supprimer">
+                            <IconButton color="secondary" onClick={() => handleDelete(params.row.id)}>
+                                <DeleteIcon />
+                            </IconButton>
+                        </Tooltip>
+                    )}
         </div>
       ),
     },
@@ -302,7 +328,6 @@ return (
         rows={rows}
         columns={columns}
         pageSizeOptions={[5, 10]}
-        checkboxSelection
         style={{ width: '80%' }}
       />
       {/* Ajouter Question Modal */}

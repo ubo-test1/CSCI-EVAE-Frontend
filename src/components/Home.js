@@ -75,7 +75,7 @@ function Home() {
                       <img src={image3} alt="Questions Standards" />
                       <p>Questions Standards</p>
                     </div>
-                    <div className="dashboard-item" onClick={() => handleRedirect('/coupleQualificatif')}>
+                    <div className="dashboard-item" onClick={() => handleRedirect('/coupleQualificaitf')}>
                       <img src={image4} alt="Couples Qualificatifs" />
                       <p>Couples Qualificatifs</p>
                     </div>
