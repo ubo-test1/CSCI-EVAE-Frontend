@@ -119,10 +119,10 @@ const CoupleQualificatifList = () => {
       if (response.status === 200) {
         // Refresh data grid after adding couple
         fetchData();
-  
+        setOpenAddDialog(false)
         setMinimalValue('');
         setMaximalValue('');
-        setOpenAddDialog(false);
+        location.reload();
       } else if (response.status === 400) {
         console.error('Failed to add couple:', response.statusText);
         // Display generic error message to the user
