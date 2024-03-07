@@ -106,7 +106,7 @@
   justify-content: space-between;
   align-items: center;
   background-color: #7296A5;
-  height: 15vh; /* Set the height */
+  height: 10vh !important; /* Set the height */
   width: 100%; /* Take the full width of the page */
   position: fixed; /* Stick it to the top */
   top: 0; /* Make sure it's at the top */
@@ -121,11 +121,14 @@
 .section2 {
   display: flex;
   align-items: center;
-  width: 40%;
+  width: 50%;
   justify-content: space-evenly;
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;}
+  .section2{
+    width: 40% !important;
+  }
 .section1 h4, .section2 h4{
   font-size: 20px;
   margin: 0;
@@ -165,14 +168,23 @@ flex-shrink: 0;
   position: fixed; /* Change position to fixed */
   top: 0; /* Adjust to accommodate the height of the navbar */
   bottom: 0; /* Set bottom to 0 */
-  left: 0;
+  left: -200px; /* Initially hide the sidebar */
   height: auto;
   display: flex;
   flex-direction: column;
+  justify-content: space-around;
   align-items: center;
   border-radius: 0px 25px 25px 0px;
   box-shadow: 7px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  z-index: 3;
+  transition: left 0.3s ease; /* Add transition for smooth animation */
 }
+
+.sidebar.open {
+  left: 0; /* Display the sidebar when hovered */
+}
+
+
 
 .logo-container img{
   width: 116px;
@@ -276,7 +288,7 @@ flex-shrink: 0;
   top: 20%;
   height: 60vh;
   bottom: 50%; /* Position it at the bottom */
-  left: 50%; /* Move it to the center horizontally */
+  left: 52%; /* Move it to the center horizontally */
   transform: translateX(-50%); /* Adjust it to the center */
   display: flex;
   
@@ -306,7 +318,6 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
 
 }
 .dashboard-item{
-  padding: -20px;
   padding-top: 20px;
   padding-bottom: 20px;
   border-radius: 25px;
@@ -326,6 +337,9 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
 
 .dashboard-container > div > div > img {
   width: 100px;
+}
+.dashboard-container > img{
+  width: 300px;
 }
 
 /*Evaluation */
@@ -426,3 +440,27 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
 .data-grid input[type="checkbox"] {
   margin: 0;
 }
+
+
+.MuiDataGrid-columnHeaders{
+  height: 20px !important;
+  min-height: 40px !important;
+  padding: 0;
+  background-color: #85afc2; 
+  margin: 0;/* Adjust the height of the header row as needed */
+}
+.css-1t1j96h-MuiPaper-root-MuiDialog-paper{
+  width: 50vw !important;
+  max-width: none !important;
+  margin-top: 10px;
+  max-height: none ;
+  height: 45vh;
+}
+.css-1t1j96h-MuiPaper-root-MuiDialog-paper form{
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+
+}
+

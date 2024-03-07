@@ -22,6 +22,13 @@ import DeleteQuestionDialog from './deleteQuestionDialog';
 import { deleteQuestion } from '../api/deleteQuestionApi';
 import Navbar from './navbar';
 import Sidebar from './sideBar';
+import Alert from '@mui/material/Alert';
+import { useStepContext } from '@mui/material';
+import { fetchQualificatifById } from '../api/fetchCoupleById';
+import { getQuestionById } from '../api/fetchQuestionById';
+import CloseIcon from '@mui/icons-material/Close';
+
+
 
 const DataTable = () => {
   const [rows, setRows] = useState([]);
@@ -32,8 +39,8 @@ const DataTable = () => {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!sessionStorage.getItem('accessToken'));
   const [currentPath, setCurrentPath] = useState('');
-
-
+  const [latestAction, setLatestAction] = useState(null);
+  const [coupleQualificatifError, setCoupleQualificatifError] = useState(false);
   const [minimalMaximalValues, setMinimalMaximalValues] = useState([]);
   const [selectedCoupleQualificatif, setSelectedCoupleQualificatif] = useState('');
   const [modifiedIntitule, setModifiedIntitule] = useState('');
@@ -45,43 +52,76 @@ const DataTable = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState(null);
   const [user, setUser] = useState(null);
+  const [showAlert, setShowAlert] = useState(true);
 
+  const [intituleValue,setIntituleValue] = useState('')
+  const [intituleError, setIntituleError] = useState(false);
   const userString = sessionStorage.getItem('user');
   const userObject = userString
   const accessToken = userObject.accessToken;
 
-  console.log("Access Token:", accessToken);
-
-
-  const handleOpenDeleteDialog = (questionId) => {
-    setQuestionToDelete(questionId);
-    setDeleteDialogOpen(true);
+  const localizedTextsMap = {
+    columnMenuUnsort: "non classé",
+    columnMenuSortAsc: "Trier par ordre croissant",
+    columnMenuSortDesc: "Trier par ordre décroissant",
+    columnMenuFilter: "Filtre",
+    columnMenuHideColumn: "Cacher",
+    columnMenuManageColumns: "Gérer les colonnes", // Add translation for "Manage Columns"
   };
-  const handleDelete = async (id) => {
-    // Display a confirmation dialog
-    const confirmed = window.confirm('Are you sure you want to delete this question?');
 
-    // If confirmed, proceed with deletion
-    if (confirmed) {
-      try {
-        const message = await deleteQuestion(id);
-        setRows(prevRows => prevRows.filter(row => row.id !== id));
-        alert(message); // Display the message to the user
-      } catch (error) {
-        console.error('Error deleting question:', error);
-        alert('Failed to delete question');
-      }
-    }
+
+  const handleHideAlert = () => {
+    setShowAlert(false);
+  };
+  const handleOpenDeleteDialog = (id) => {
+    setQuestionToDelete(id); // Set the ID of the question to be deleted
+    setDeleteDialogOpen(true); // Open the delete confirmation dialog
   };
   
-
-
-  const handleCoupleQualificatifChange = (event) => {
-    setSelectedCoupleQualificatif(event.target.value);
-  };
-  const handleAjouterQuestion = async () => {
+  const handleDeleteConfirm = async (id) => {
     try {
-      const selectedCoupleId = newQuestionCoupleQualificatif.split('-')[0];
+      await deleteQuestion(id);
+      setRows(prevRows => prevRows.filter(row => row.id !== id));
+      setShowAlert(true);
+      setLatestAction('delete');
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      console.error('Error deleting question:', error);
+      setShowAlert(true);
+      setLatestAction('deleteError');
+      setDeleteDialogOpen(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+  };
+  
+  const handleAjouterQuestion = async (selectedCoupleId, newQuestionIntitule) => {
+    try {
+      // Check if the new question intitulé is empty
+      if (!selectedCoupleId && newQuestionIntitule.trim()=="") {
+        setCoupleQualificatifError(true);
+        setIntituleError(true);  // Set error state if intitulé is empty
+        return;
+      }
+      if (newQuestionIntitule.trim()=="") {
+        setIntituleError(true); // Set error state if intitulé is empty
+        return;
+      }
+      if(!selectedCoupleId){
+        setCoupleQualificatifError(true);
+        return;
+      }
+  
+      // Check if the selected couple ID is valid
+      const selectedCouple = coupleQualificatifs.find(couple => couple.qualificatif.id === selectedCoupleId);
+      if (!selectedCouple) {
+        setShowAlert(true);
+        setLatestAction('addError');
+        return;
+      }
+  
       const questionData = {
         idQuestion: 3,
         intitule: newQuestionIntitule,
@@ -93,22 +133,27 @@ const DataTable = () => {
       await saveQuestion(questionData);
   
       // Display a success message to the user
-      alert('Question créée avec succès');
+      setShowAlert(true);
+      setLatestAction('add');
   
       // Close the modal
       handleAjouterModalClose();
   
       // Fetch the updated list of questions
       fetchQuestionStandards()
-        .then((questionStandards) => {
+        .then(questionStandards => {
           if (questionStandards) {
             const formattedRows = questionStandards.map((standard, index) => ({
               id: standard.question.id,
               intitule: standard.question.intitule,
               type: standard.question.type,
-              coupleQualificatif: `${standard.question.idQualificatif.minimal}-${standard.question.idQualificatif.maximal}`,
-              associated: standard.associated,
+              coupleQualificatif: `${standard.question.idQualificatif.minimal} / ${standard.question.idQualificatif.maximal}`,
+              associated: standard.associated
             }));
+  
+            // Sort formattedRows by intitule
+            formattedRows.sort((a, b) => a.intitule.localeCompare(b.intitule));
+  
             setRows(formattedRows);
           }
         })
@@ -117,17 +162,17 @@ const DataTable = () => {
         });
     } catch (error) {
       console.error('Error creating question:', error);
-      alert("Une erreur s'est produite lors de la création de la question");
+      setShowAlert(true);
+      setLatestAction("addError")
+      setOpenAjouterModal(false)
     }
   };
   
   
   
-  
-  
   const columns = [
-    { field: 'intitule', headerName: 'Intitulé', width: 450 },
-    { field: 'coupleQualificatif', headerName: 'Couple Qualificatif', width: 250 },
+    { field: 'intitule', headerName: 'Intitulé', width: 500 },
+    { field: 'coupleQualificatif', headerName: 'Couple Qualificatif', width: 500 },
     /*{
       field: 'associated',
       headerName: 'Associé',
@@ -140,6 +185,8 @@ const DataTable = () => {
       field: 'actions',
       headerName: 'Actions',
       width: 100,
+      sortable: false,
+      filterable: false,
       renderCell: (params) => (
         <div>
           <Tooltip title="Modifier la question" arrow placement="top">
@@ -150,12 +197,14 @@ const DataTable = () => {
             </span>
           </Tooltip>
           <Tooltip title="Supprimer la question" arrow placement="top">
-            <span>
-              <IconButton onClick={() => handleDelete(params.row.id)} color="secondary" disabled={params.row.associated}>
-                <DeleteIcon />
-              </IconButton>
-            </span>
-          </Tooltip>
+  <span>
+    <IconButton onClick={() => handleOpenDeleteDialog(params.row.id)} color="secondary" disabled={params.row.associated}>
+      <DeleteIcon />
+    </IconButton>
+  </span>
+</Tooltip>
+
+
         </div>
       ),
     },
@@ -169,9 +218,13 @@ const DataTable = () => {
             id: standard.question.id,
             intitule: standard.question.intitule,
             type: standard.question.type,
-            coupleQualificatif: `${standard.question.idQualificatif.minimal}-${standard.question.idQualificatif.maximal}`,
+            coupleQualificatif: `${standard.question.idQualificatif.minimal} / ${standard.question.idQualificatif.maximal}`,
             associated: standard.associated
           }));
+
+          // Sort formattedRows by intitule
+          formattedRows.sort((a, b) => a.intitule.localeCompare(b.intitule));
+
           setRows(formattedRows);
         }
       })
@@ -184,22 +237,20 @@ const DataTable = () => {
 
     // Fetch minimal and maximal values
     fetchQualificatifs()
-  .then(data => {
-    console.log("Couple Qualificatif response:", data);
-if (data && Array.isArray(data) && data.length > 0) {
-  console.log("THIS IS THE ID ::: " + JSON.stringify(data))
-  const formattedCoupleQualificatifs = data.map(item => `${item.qualificatif.id}-${item.qualificatif.minimal}-${item.qualificatif.maximal}`);
-  setCoupleQualificatifs(formattedCoupleQualificatifs);
-} else {
-  console.error('Data received is not in the expected format');
-}
+    .then(data => {
+      console.log("Couple Qualificatif response:", data);
+      if (data && Array.isArray(data) && data.length > 0) {
+        console.log("THIS IS THE ID ::: " + JSON.stringify(data))
+        setCoupleQualificatifs(data);
+      } else {
+        console.error('Data received is not in the expected format');
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching couple qualificatifs:', error);
+    });
+}, []); // Empty dependency array means this effect will run once after the first render
 
-  })
-  .catch(error => {
-    console.error('Error fetching couple qualificatifs:', error);
-  });
-
-  }, []);
 
   
 
@@ -217,71 +268,98 @@ if (data && Array.isArray(data) && data.length > 0) {
     setSelectedQuestion(null); // Reset selectedQuestion after closing the modify modal
   };
 
-  const handleModify = (id) => {
-    const questionToModify = rows.find(row => row.id === id);
-    if (questionToModify) {
-      setSelectedQuestion({ ...questionToModify, id: id });
-      // Set modifiedType to 'QUS'
-      setModifiedType('QUS');
-      setModifiedIntitule(questionToModify.intitule);
-      setModifiedCoupleQualificatif(questionToModify.coupleQualificatif);
-      setSelectedCoupleQualificatif(questionToModify.coupleQualificatif);
-      setOpenModifyModal(true);
+  const handleModify = async (id) => {
+    try {
+      const questionToModify = rows.find(row => row.id === id);
+      if (questionToModify) {
+        setSelectedQuestion({ ...questionToModify, id: id });
+        // Set modifiedType to 'QUS'
+        setModifiedType('QUS');
+  
+        // Fetch question details including the couple qualificatif
+        const questionDetails = await getQuestionById(id);
+  
+        // Extract relevant information from the response
+        const intitule = questionDetails.intitule;
+        const qualificatifId = questionDetails.idQualificatif.id;
+  
+        // Set the modified intitule and couple qualificatif ID
+        setModifiedIntitule(intitule);
+        setModifiedCoupleQualificatif(qualificatifId); // Set ID instead of formatted string
+  
+        setOpenModifyModal(true);
+      }
+    } catch (error) {
+      console.error('Error fetching question details:', error);
     }
   };
-
-
-const handleUpdate = () => {
-  //const [qualificatifId, minimalValue, maximalValue] = modifiedCoupleQualificatif.split('-');
-  const holderQualificatif = modifiedCoupleQualificatif.split('-')
-  const qualificatifId = holderQualificatif[0]
-  const minimalValue = holderQualificatif[2]
-  const maximalValue = holderQualificatif[1]
-  console.log("this is the ID :::: " + qualificatifId)
-  console.log("this is the minimal :::: " + minimalValue)
-
-  console.log("this is the maximal :::: " + maximalValue)
-
-
-
-  //console.log("this is the MAXXX : " + maximalValue)
   
-
-  const updatedQuestion = {
-    id: selectedQuestion.id,
-    type: modifiedType,
-    intitule: modifiedIntitule,
-    idQualificatif: {
-      id: parseInt(qualificatifId)
-    },
-    //coupleQualificatif: `${minimalValue}-${maximalValue}`
+  
+  const handleBlur = (value, setValue, setError) => {
+    const trimmedValue = value.trim();
+    if (trimmedValue === "" || trimmedValue.length <= 64) {
+      setValue(trimmedValue);
+      setError(false); // Reset error state when value is valid
+    } else {
+      setError(true); // Set error state when value is invalid
+    }
   };
-  console.log("THE NEW INFORMATION §§§§ "  + JSON.stringify(updatedQuestion));
+  
+  const handleModifyCoupleQualificatifChange = (event) => {
+    setModifiedCoupleQualificatif(event.target.value);
+  };
+  
+  const handleUpdate = async () => {
+    try {
+        const response = await fetchQualificatifById(modifiedCoupleQualificatif);
+        console.log("this is the responsssseee ::::  " + JSON.stringify(response))
+        const qualificatif = response; // Assuming the response has a data field containing the qualificatif object
+        console.log("Fetched Qualificatif:", qualificatif);
 
-  // Send the update request to the server
-  updateQuestion(updatedQuestion)
-    .then(updatedQuestion => {
-      // Update the rows state with the modified question data
-      const updatedRows = rows.map(row => {
-        if (row.id === selectedQuestion.id) {
-          return {
-            ...row,
-            intitule: updatedQuestion.intitule,
-            type: updatedQuestion.type,
-            coupleQualificatif: `${minimalValue}-${maximalValue}`
-          };
-        }
-        return row;
-      });
+        const updatedQuestion = {
+            id: selectedQuestion.id,
+            type: modifiedType,
+            intitule: modifiedIntitule,
+            idQualificatif: {
+                id: qualificatif.id
+            },
+            coupleQualificatif: `${qualificatif.minimal}-${qualificatif.maximal}`
+        };
 
-      setRows(updatedRows); // Update the rows state
-      console.log('Question updated successfully:', updatedQuestion);
-      handleModifyModalClose();
-    })
-    .catch(error => {
-      console.error('Failed to update question:', error);
-    });
+        console.log("Updated Question:", updatedQuestion);
+
+        // Send the update request to the server
+        updateQuestion(updatedQuestion)
+            .then(updatedQuestion => {
+                // Update the rows state with the modified question data
+                const updatedRows = rows.map(row => {
+                    if (row.id === selectedQuestion.id) {
+                        return {
+                            ...row,
+                            intitule: updatedQuestion.intitule,
+                            type: updatedQuestion.type,
+                            coupleQualificatif: `${qualificatif.minimal} / ${qualificatif.maximal}`
+                        };
+                    }
+                    return row;
+                });
+
+                setRows(updatedRows); // Update the rows state
+                setShowAlert(true);
+                setLatestAction('edit');
+                console.log('Question updated successfully:', updatedQuestion);
+                handleModifyModalClose();
+            })
+            .catch(error => {
+              setShowAlert(true);
+              setLatestAction('editError');
+                console.error('Failed to update question:', error);
+            });
+    } catch (error) {
+        console.error('Failed to fetch qualificatif:', error);
+    }
 };
+
 
 
   
@@ -292,56 +370,127 @@ return (
 <Navbar isLoggedIn={isLoggedIn} userInfo={user} pageTitle={currentPath === '/questionStandards' ? 'Questions Standards' : 'CSCI-EVAE'} />
     <Sidebar />
 
-    <div className="dataTableContainer" style={{ width: '80%', margin: 'auto' }}>
-      <div style={{ marginBottom: '20px' }}>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={handleAjouterModalOpen}>
-          Ajouter Question
+    
+      <div style={{ position: 'absolute', right: '17vh', marginTop: '17vh', marginBottom: '0', }}>
+        <Button style={{ textTransform: 'none' }} variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleAjouterModalOpen}>
+          Ajouter
         </Button>
       </div>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        pageSizeOptions={[5, 10]}
-        checkboxSelection
-        style={{ width: '80%' }}
-      />
+      <div style={{ position: 'absolute', left: '12vw', top: '25vh', width: '80%', margin: 'auto' }}>
+        <div style={{ height: 450, width: '100%' }}>
+        <DataGrid
+  rows={rows}
+  columns={columns}
+  style={{ width: '100%' }}
+  hideFooter={true}
+  className="customDataGrid"
+  rowHeight={30}
+  pageSize={10}
+  localeText={localizedTextsMap}
+/>
+
+      </div>
+      </div>
       {/* Ajouter Question Modal */}
       <Dialog open={openAjouterModal} onClose={handleAjouterModalClose}>
-        <DialogTitle>Ajouter Question</DialogTitle>
+        <DialogTitle>Ajouter une question standard</DialogTitle>
         <DialogContent>
-          <TextField
-            label="Intitulé"
-            fullWidth
-            value={newQuestionIntitule}
-            onChange={(e) => setNewQuestionIntitule(e.target.value)}
-            style={{ width: '100%', margin: 'auto' }}
-          />
-          <TextField
-            select
-            label="Couple Qualificatifs"
-            fullWidth
-            value={newQuestionCoupleQualificatif}
-            onChange={(e) => setNewQuestionCoupleQualificatif(e.target.value)}
-          >
-            {coupleQualificatifs.map((couple, index) => (
-              <MenuItem key={index} value={couple}>
-                {couple}
-              </MenuItem>
-            ))}
-          </TextField>
+        <TextField
+  label="Intitulé"
+  fullWidth
+  value={newQuestionIntitule}
+  onChange={(e) => {
+    setNewQuestionIntitule(e.target.value);
+    setIntituleError(false); // Reset error state when value changes
+  }}
+  onBlur={() => handleBlur(newQuestionIntitule, setNewQuestionIntitule, setIntituleError)}
+  error={intituleError}
+  helperText={intituleError ? "L'intitulé est requis" : ""}
+  style={{ width: '100%', margin: 'auto' }}
+  required
+  inputProps={{ maxLength: 64 }}
+/>
+
+
+<TextField
+  select
+  label="Couple Qualificatifs"
+  fullWidth
+  value={modifiedCoupleQualificatif}
+  onChange={(e) => {
+    setModifiedCoupleQualificatif(e.target.value);
+    setCoupleQualificatifError(false); // Reset error state when value changes
+  }}
+  error={coupleQualificatifError}
+  helperText={coupleQualificatifError ? "Le couple qualificatif est requis" : ""}
+  required
+>
+  {coupleQualificatifs.map((couple) => (
+    <MenuItem key={couple.qualificatif.id} value={couple.qualificatif.id}>
+      {`${couple.qualificatif.minimal}-${couple.qualificatif.maximal}`}
+    </MenuItem>
+  ))}
+</TextField>
+
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleAjouterModalClose} color="primary">
+        <Button
+        style={{ textTransform: 'none' }}
+  variant='contained'
+  onClick={() => {
+    // Check if the new question intitulé is empty and no couple qualificatif is selected
+    if (!modifiedCoupleQualificatif && !newQuestionIntitule.trim()) {
+      setCoupleQualificatifError(true);
+      setIntituleError(true);  // Set error state if intitulé is empty
+      return;
+    }
+
+    // Check if the new question intitulé is empty
+    if (!newQuestionIntitule.trim()) {
+      setIntituleError(true); // Set error state if intitulé is empty
+      return;
+    }
+
+    // Check if no couple qualificatif is selected
+    if (!modifiedCoupleQualificatif) {
+      setCoupleQualificatifError(true);
+      return;
+    }
+
+    // Extract the selected couple ID
+    const selectedCoupleId = modifiedCoupleQualificatif;
+
+    // Reset error states when valid inputs are provided
+    setCoupleQualificatifError(false);
+    setIntituleError(false);
+
+    // Call handleAjouterQuestion with the selected couple ID and new question intitule
+    handleAjouterQuestion(selectedCoupleId, newQuestionIntitule);
+  }}
+  color="primary"
+>
+  Ajouter
+</Button>
+
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleAjouterModalClose} color="secondary">
             Annuler
           </Button>
-          <Button onClick={handleAjouterQuestion} color="primary">
-            Ajouter
-          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* Dialog for delete confirmation */}
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Confirmer la suppression</DialogTitle>
+        <DialogContent style={{fontFamily:'Roboto'}}>
+          Êtes-vous sûr de vouloir supprimer cette question ?
+        </DialogContent>
+        <DialogActions>
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={() => setDeleteDialogOpen(false)}>Annuler</Button>
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={() => handleDeleteConfirm(questionToDelete)} color="secondary">Supprimer</Button>
         </DialogActions>
       </Dialog>
       {/* Modify Question Modal */}
       <Dialog open={openModifyModal} onClose={handleModifyModalClose}>
-        <DialogTitle>Modifier Question</DialogTitle>
+        <DialogTitle>Modifier une question standard</DialogTitle>
         <DialogContent>
           <TextField
             label="Intitulé"
@@ -350,35 +499,66 @@ return (
             onChange={(e) => setModifiedIntitule(e.target.value)}
           />
           <TextField
-            select
-            label="Couple Qualificatifs"
-            fullWidth
-            value={modifiedCoupleQualificatif}
-            onChange={(e) => setModifiedCoupleQualificatif(e.target.value)}
-          >
-            {coupleQualificatifs.map((couple, index) => (
-              <MenuItem key={index} value={couple}>
-                {couple}
-              </MenuItem>
-            ))}
-          </TextField>
+  select
+  label="Couple Qualificatifs"
+  fullWidth
+  value={modifiedCoupleQualificatif} // Make sure this holds the ID of the qualificatif
+  onChange={handleModifyCoupleQualificatifChange}
+>
+  {coupleQualificatifs.map((couple, index) => (
+    <MenuItem key={index} value={couple.qualificatif.id}>
+      {`${couple.qualificatif.minimal} / ${couple.qualificatif.maximal}`}
+    </MenuItem>
+  ))}
+</TextField>
+
+
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleModifyModalClose} color="primary">
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleModifyModalClose} color="primary">
             Annuler
           </Button>
-          <Button onClick={handleUpdate} color="primary">
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleUpdate} color="secondary">
             Modifier
           </Button>
         </DialogActions>
       </Dialog>
-      <DeleteQuestionDialog
-        isOpen={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        onDelete={handleDelete}
-        questionId={questionToDelete}
-      />
-    </div>
+      {showAlert && latestAction === 'delete' && (
+        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+          Question standard supprimé avec succès !
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+      )}
+{showAlert && latestAction === 'deleteError' && (
+  <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+    Échec de la suppression de la question standard !
+    <Button onClick={handleHideAlert}><CloseIcon /></Button>
+  </Alert>
+)}
+{showAlert && latestAction === 'add' && (
+        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+          Question standard ajouté avec succès !
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+      )}
+{showAlert && latestAction === 'addError' && (
+  <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+    Échec de l'ajout de la question standard (la question existe déjà) !
+    <Button onClick={handleHideAlert}><CloseIcon /></Button>
+  </Alert>
+)}
+{showAlert && latestAction === 'edit' && (
+        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+          Question standard modifié avec succès !
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+      )}
+{showAlert && latestAction==='editError' && (
+  <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+    Échec de la modification de la question standard (la question existe déjà) !
+    <Button onClick={handleHideAlert}><CloseIcon /></Button>
+  </Alert>
+)}
   </>
 );
 

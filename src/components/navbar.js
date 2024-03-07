@@ -31,22 +31,32 @@ function Navbar() {
       pageTitle = 'Couples Qualificatifs';
       break;
     default:
-      pageTitle = 'CSCI-EVAE';
+      pageTitle = 'Gestion des évaluations';
       break;
   }
-
+  let displayText = "";
+  //console.log("this is the roles : : : :  " + JSON.parse(sessionStorage.getItem('user')).roles)
+  if(sessionStorage.getItem('user') && JSON.parse(sessionStorage.getItem('user')).roles.includes("ROLE_ENS")){  
+  const user = JSON.parse(sessionStorage.getItem('user'));
+          const emailParts = user.email.split(".");
+          const displayName = emailParts[0].charAt(0).toUpperCase() + emailParts[0].slice(1);
+          const domainName = emailParts[1].split("@")[0].toUpperCase();
+          displayText = `${domainName}  ${displayName}`;
+        }else{
+          displayText = "Administrateur"
+        }
   return (
     <div className='navbarContainer'>
       <div className='section1'>
+      <a href="/home">
         <img className="ubo-logo" alt="ubo-logo" src={uboLogo} />
-        {/* Render component based on login status */}
+        </a>
         <h4>{pageTitle}</h4>
       </div>
       {sessionStorage.getItem('user') && (
         <div className='section2'>
           {/* Render other components only if logged in */}
-          <h4>{JSON.parse(sessionStorage.getItem('user')).email}</h4>
-          <img className="profile-img" alt="profile-icon" src={profileImg} />
+          <h4>{displayText}</h4>
           <Tooltip title="Déconnexion" arrow>
             <LogoutIcon className="logout-icon" onClick={handleLogout} />
           </Tooltip>

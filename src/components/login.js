@@ -23,26 +23,23 @@ const [userInfo, setUserInfo] = useState(null);
         email: response.email,
         number: response.id,
         accessToken: response.accessToken,
-        roles: response.roles // Include roles in the userData object
+        roles: response.roles 
       };
   
-      // Save user data in session storage after stringifying
       sessionStorage.setItem('user', JSON.stringify((userData)));
       sessionStorage.setItem('role', JSON.parse(sessionStorage.getItem('user')).roles)
       sessionStorage.setItem('accessToken', JSON.parse(sessionStorage.getItem('user')).accessToken)
       sessionStorage.setItem('request',"login")
       console.log("this is the response of the login : " + userData)
-      // Set the isLoggedIn state to true
       setIsLoggedIn(true);
     
-      // Set the userInfo state
       setUserInfo(userData);
     
       // Redirect to home page
       window.location.href = '/home';
     } catch (error) {
       console.error('Error:', error);
-      setError('Invalid username or password');
+      setError("Nom d'utilisateur ou mot de passe invalide");
     }
   };
   
@@ -56,12 +53,12 @@ const [userInfo, setUserInfo] = useState(null);
         <Card>
           <CardContent>
             <Typography variant="h5" align="center" gutterBottom>
-              Login
+              Connexion
             </Typography>
             {error && <Typography variant="body2" align="center" color="error">{error}</Typography>}
             <form onSubmit={handleLogin}>
               <TextField
-                label="Username"
+                label="Email ou Pseudo"
                 variant="outlined"
                 fullWidth
                 margin="normal"
@@ -70,7 +67,7 @@ const [userInfo, setUserInfo] = useState(null);
               />
               <TextField
                 type="password"
-                label="Password"
+                label="Mot de passe"
                 variant="outlined"
                 fullWidth
                 margin="normal"
@@ -78,12 +75,10 @@ const [userInfo, setUserInfo] = useState(null);
                 onChange={(e) => setPassword(e.target.value)}
               />
               <Button type="submit" variant="contained" color="primary" fullWidth>
-                Login
+                Se connecter
               </Button>
             </form>
-            <Typography variant="body2" align="center" style={{ marginTop: '1rem' }}>
-              Don't have an account? <Link href="#">Create your account here!</Link>
-            </Typography>
+            
           </CardContent>
         </Card>
       </Container>
