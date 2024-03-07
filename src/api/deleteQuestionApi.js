@@ -8,6 +8,10 @@ export const deleteQuestion = async (questionId) => {
           'Authorization':` Bearer ${sessionStorage.getItem('accessToken')}`  
         },  
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
+        },
+        
       });
   
       if (!response.ok) {

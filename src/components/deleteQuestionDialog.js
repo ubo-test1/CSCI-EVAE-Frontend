@@ -15,16 +15,16 @@ const DeleteQuestionDialog = ({ isOpen, onClose, onDelete, questionId }) => {
 
   return (
     <Dialog open={isOpen} onClose={onClose}>
-      <DialogTitle>Confirmation</DialogTitle>
+      <DialogTitle>Confirmer la suppression</DialogTitle>
       <DialogContent>
-        <p>Are you sure you want to delete this question?</p>
+        <p>Êtes-vous sûr de vouloir supprimer cette question ?</p>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
-          Cancel
+        <Button variant='contained' onClick={onClose} color="primary">
+          Annuler
         </Button>
-        <Button onClick={handleDelete} color="secondary">
-          Delete
+        <Button variant='contained' onClick={handleDelete} color="secondary">
+          Supprimer
         </Button>
       </DialogActions>
     </Dialog>

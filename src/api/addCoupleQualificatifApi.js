@@ -1,10 +1,6 @@
-// api.js
-
-const BASE_URL = 'http://localhost:8080';
-
 export const addCouple = async (minimal, maximal) => {
   try {
-    const response = await fetch(`${BASE_URL}/qualificatif/create`, {
+    const response = await fetch(`http://localhost:8080/qualificatif/create`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
@@ -12,11 +8,19 @@ export const addCouple = async (minimal, maximal) => {
       },
       body: JSON.stringify({ minimal, maximal }),
     });
-    if (!response.ok) {
-      throw new Error('Failed to add couple');
+    
+    const reponseStatus = response.status;
+
+    // Check if response status is 400
+    if (reponseStatus === 400) {
+      const errorData = await response.text(); // Read error message as text
+      throw new Error(`Failed to add couple: ${errorData}`);
     }
+
+    // For other response statuses, parse JSON response
     const data = await response.json();
-    return data; // Return the response data if successful
+
+    return { data, status: reponseStatus }; // Return both data and status
   } catch (error) {
     throw new Error(error.message); // Throw an error if request fails
   }
