@@ -21,6 +21,9 @@ import DialogContentText from '@mui/material/DialogContentText';
 import {updateRubriqueApi} from '../api/updateRubriqueApi';
 import { addQtoRubApi } from '../api/addQtoRubApi';
 import { delQfromRubApi } from '../api/delQfromRubApi';
+import AddIcon from '@mui/icons-material/Add';
+import Checkbox from '@mui/material/Checkbox';
+import CircularProgress from '@mui/material/CircularProgress'; 
 
 
 const RubriqueList = () => {
@@ -39,6 +42,15 @@ const RubriqueList = () => {
     const [checkedQuestions, setCheckedQuestions] = useState([]);
     const [srvQuestions, setSrvQuestions] = useState([]);
 
+    const localizedTextsMap = {
+        columnMenuUnsort: "non classé",
+        columnMenuSortAsc: "Trier par ordre croissant",
+        columnMenuSortDesc: "Trier par ordre décroissant",
+        columnMenuFilter: "Filtre",
+        columnMenuHideColumn: "Cacher",
+        columnMenuManageColumns: "Gérer les colonnes", // Add translation for "Manage Columns"
+      };
+
 
     useEffect(() => {
         fetchRubriques();
@@ -49,14 +61,17 @@ const RubriqueList = () => {
     const fetchRubriques = async () => {
         try {
             const data = await fetchAllStandardRubriques();
-            setRubriques(data.map(rubrique => ({
+            const sortedRubriques = data.map((rubrique) => ({
                 ...rubrique.rubrique,
                 associated: rubrique.associated
-            })));
+            })).sort((a, b) => a.designation.localeCompare(b.designation));
+    
+            setRubriques(sortedRubriques);
         } catch (error) {
             console.error('Error fetching rubriques:', error);
         }
     };
+    
 
     const fetchRubriqueDetailsById = async (id) => {
         try {
@@ -83,13 +98,10 @@ const RubriqueList = () => {
                 received: true
             }));
             console.log("this is the modified quesitons " + JSON.stringify(modifiedQuestions))
-    
             let mergedQuestions = [];
             const data = await fetchQuestionStandards();
-            console.log("mamaaaaaaaaaaaak")
             console.log(data)
             const filteredData = data.filter(question => !modifiedQuestions.some(modifiedQuestion => modifiedQuestion.intitule === question.question.intitule));
-            console.log("ouououoihoi")
             console.log(filteredData)
 
             let test1 = []
@@ -101,7 +113,6 @@ const RubriqueList = () => {
             // Concatenate the selected questions with the merged questions
             mergedQuestions = [...modifiedQuestions, ...test1];
 
-            console.log("hhhhhhhhhhhh")
             console.log(mergedQuestions)
     
             // Update state
@@ -110,7 +121,6 @@ const RubriqueList = () => {
             setCheckedQuestions(modifiedQuestions)
             setSrvQuestions(modifiedQuestions)
             
-            console.log("RUUUUUUUUUUB")
             console.log(rubriqueDetails.rubrique)
             setQuestionStandards(data);
         } catch (error) {
@@ -189,7 +199,8 @@ const RubriqueList = () => {
             setLoading(true);
             const data = await fetchQuestionStandards();
             console.log("this is the questions data " + data)
-            setQuestionStandards(data);
+            const sortedData = data.sort((a, b) => a.question.intitule.localeCompare(b.question.intitule));
+            setQuestionStandards(sortedData);
         } catch (error) {
             console.error('Error fetching question standards:', error);
         } finally {
@@ -242,7 +253,6 @@ const RubriqueList = () => {
         setDesignation('');
         setSelectedQuestions([]);
         setSelectedRubrique(null);
-        location.reload()
     };
 
     const handleDesignationChange = (event) => {
@@ -252,7 +262,7 @@ const RubriqueList = () => {
     const handleCheckboxChange = (event, question) => {
         if (initialCheckState === false) setInitialCheckState(true);
         const isChecked = event.target.checked;
-    
+        console.log("this is the ischecked value :::: " + isChecked)
         // Initialize toAdd and toDel in session storage if they don't exist
         if (!sessionStorage.getItem('toAdd')) sessionStorage.setItem('toAdd', JSON.stringify([]));
         if (!sessionStorage.getItem('toDel')) sessionStorage.setItem('toDel', JSON.stringify([]));
@@ -300,93 +310,107 @@ const RubriqueList = () => {
     const handleCheckboxChange2 = (event, question) => {
         const isChecked = event.target.checked;
         if (isChecked) {
-            setSelectedQuestions(prevSelected => [...prevSelected, question]);
+            setSelectedQuestions(prevSelected => [...prevSelected, { id: question.id, question }]);
         } else {
             setSelectedQuestions(prevSelected =>
                 prevSelected.filter(selected => selected.id !== question.id)
             );
         }
     };
+    
+    
 
     const renderQuestionStandardsTable = () => {
-        if (loading) {
-            return <p>Loading...</p>;
-        }
+        const columns = [
+            { field: 'intitule', headerName: 'Intitule',width: 400 },
+            { field: 'minimal', headerName: 'Minimal', flex: 1 },
+            { field: 'maximal', headerName: 'Maximal', flex: 1 },
+            {
+                field: 'action',
+                headerName: 'Ajouter',
+                flex: 1,
+                sortable: false,
+                filterable: false,
+                disableColumnMenu: true,
+                renderCell: (params) => (
+                    <Checkbox
+                checked={selectedQuestions.some(q => q.id === params.row.id)}
+                onChange={(event) => handleCheckboxChange2(event, params.row)}
+            />
+                ),
+            },
+        ];
     
-        return (
-            <div>
-                <h3>Question Standards</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Intitule</th>
-                            <th>Minimal</th>
-                            <th>Maximal</th>
-                            <th>Ajouter</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {questionStandards.map((question, index) => (
-                            <tr key={index}>
-                                <td>{question.question.intitule}</td>
-                                <td>{question.question.idQualificatif.minimal}</td>
-                                <td>{question.question.idQualificatif.maximal}</td>
-                                <td>
-                                    <input
-                                        type="checkbox"
-                                        onChange={(event) => handleCheckboxChange2(event, question)}
-                                    />
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        );
-    };
+        if (loading) {
+            return <CircularProgress />;
+        }
 
-    const renderEditRubrique = () => {
-        if (loading) {
-            return <p>Loading...</p>;
-        }
     
         return (
-            <div>
+            <div style={{ height: 400, width: '100%' }}>
                 <h3>Question Standards</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Intitule</th>
-                            <th>Minimal</th>
-                            <th>Maximal</th>
-                            <th>Ajouter</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-    {fullQuestions.map((question, index) => (
-        <tr key={index}>
-            <td>{question.intitule}</td>
-            <td>{question.idQualificatif.minimal}</td>
-            <td>{question.idQualificatif.maximal}</td>
-            <td>
-            <input
-                    type="checkbox"
-                    checked={checkedQuestions.includes(question)}
-                    onChange={(event) => handleCheckboxChange(event, question)}
+                <DataGrid
+                    localeText={localizedTextsMap}
+                    rowHeight={30}
+                    hideFooter={true}
+                    rows={questionStandards.map(question => ({
+                        id: question.question.id, // Assuming each question has a unique id property
+                        intitule: question.question.intitule,
+                        minimal: question.question.idQualificatif.minimal,
+                        maximal: question.question.idQualificatif.maximal,
+                    }))}
+                    columns={columns}
+                    pageSize={5}
                 />
-            </td>
-        </tr>
-    ))}
-</tbody>
 
-                </table>
             </div>
         );
     };
+    const renderEditRubrique = () => {
+    if (loading) {
+        return <CircularProgress />;
+    }
+
+    const columns = [
+        { field: 'intitule', headerName: 'Intitule', width: 400 },
+        { field: 'minimal', headerName: 'Minimal', flex: 1 },
+        { field: 'maximal', headerName: 'Maximal', flex: 1 },
+        {
+            field: 'action',
+            headerName: 'Ajouter',
+            flex: 1,
+            sortable: false,
+            filterable: false,
+            renderCell: (params) => (
+                <Checkbox
+                    checked={checkedQuestions.some(q => q.id === params.row.id)}
+                    onChange={(event) => handleCheckboxChange(event, params.row)}
+                />
+            ),
+        },
+    ];
+
+    return (
+        <div style={{ height: 400, width: '100%' }}>
+            <h3>Question Standards</h3>
+            <DataGrid
+                rows={fullQuestions.map((question) => ({
+                    id: question.id,
+                    intitule: question.intitule,
+                    minimal: question.idQualificatif.minimal,
+                    maximal: question.idQualificatif.maximal,
+                }))}
+                columns={columns}
+                pageSize={5}
+            />
+        </div>
+    );
+};
+
+    
     
     const columns = [
-        { field: 'designation', headerName: 'Designation', width: 400 },
-        { field: 'ordre', headerName: 'Ordre', width: 500 },
+        { field: 'designation', headerName: 'Désignation', width: 1050 },
         {
             field: 'actions',
             headerName: 'Actions',
@@ -441,18 +465,42 @@ const RubriqueList = () => {
     ];
 
     return (
-        <div className="container" style={{ display: 'flex', flexDirection: 'column' }}>
+        <div>
             <Navbar />
             <Sidebar />
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-                <Button variant="contained" onClick={handleAjouterRubrique}>Ajouter Rubrique</Button>
+            <div style={{ position: 'absolute', right: '17vh', marginTop: '17vh', marginBottom: '0', }}>
+            <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleAjouterRubrique} color="primary" startIcon={<AddIcon />}>
+                Ajouter
+            </Button>
             </div>
-            <div className="grid-container">
-                <DataGrid rows={rubriques} columns={columns} pageSize={5} getRowId={(row) => row.id } />
+            <div style={{ position: 'absolute', left: '12vw', top: '25vh', width: '80%', margin: 'auto' }}>
+                <div style={{ height: 450, width: '100%' }}>
+                        <DataGrid pageSize={5} localeText={localizedTextsMap} hideFooter={true} className="customDataGrid" rowHeight={30} style={{ width: '100%' }} rows={rubriques} columns={columns} getRowId={(row) => row.id} />
+                </div>
             </div>
-            <Dialog open={openDialog} onClose={handleCloseDialog}>
-    <DialogTitle>Ajouter Rubrique</DialogTitle>
+            <Dialog 
+                open={openDialog} 
+                onClose={handleCloseDialog}
+                style={{
+                    position:'absolute !important',
+                    width: '100vw !important',
+                    maxWidth: 'none !important',
+                    marginTop: '10px',
+                    maxHieght: 'none',
+                    height: '100vh',
+                  }}
+            >
+    <DialogTitle>Ajouter une rubrique standard</DialogTitle>
     <DialogContent>
+    <form
+            style={{
+                height:'100%',
+                width :'100%',
+                justifyContent:'space-between',
+                display:'flex',
+                flexDirection :'column'
+            }}
+            noValidate>
         <TextField
             autoFocus
             margin="dense"
@@ -463,10 +511,11 @@ const RubriqueList = () => {
             onChange={handleDesignationChange}
         />
         {renderQuestionStandardsTable()}
+        </form>
     </DialogContent>
     <DialogActions>
-        <Button onClick={handleCloseDialog}>Cancel</Button>
-        <Button onClick={handleAddRubrique} color="primary">Add Rubrique</Button>
+        <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleCloseDialog} color="secondary">Annuler</Button>
+        <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleAddRubrique} color="primary">Ajouter</Button>
     </DialogActions>
 </Dialog>
 <Dialog open={editDialogOpen} onClose={handleCloseDialog}>
@@ -484,8 +533,8 @@ const RubriqueList = () => {
         {renderEditRubrique()}
     </DialogContent>
     <DialogActions>
-        <Button onClick={handleCloseDialog}>Cancel</Button>
-        <Button onClick={handleEditConfirmed} color="primary">Save Changes</Button>
+        <Button style={{ textTransform: 'none' }} onClick={handleCloseDialog}>Annuler</Button>
+        <Button style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Sauvgarder</Button>
     </DialogActions>
 </Dialog>
 

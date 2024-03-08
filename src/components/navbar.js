@@ -22,13 +22,13 @@ function Navbar() {
   // Set the page title based on the current path
   switch (currentPath) {
     case '/questionStandards':
-      pageTitle = 'Questions Standards';
+      pageTitle = 'Questions standards';
       break;
     case '/rubriqueStandard':
-      pageTitle = 'Rubriques Standards';
+      pageTitle = 'Rubriques standards';
       break;
     case '/coupleQualificaitf':
-      pageTitle = 'Couples Qualificatifs';
+      pageTitle = 'Couples qualificatifs';
       break;
     default:
       pageTitle = 'Gestion des évaluations';

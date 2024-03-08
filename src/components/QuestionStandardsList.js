@@ -174,7 +174,7 @@ const DataTable = () => {
   
   const columns = [
     { field: 'intitule', headerName: 'Intitulé', width: 500 },
-    { field: 'coupleQualificatif', headerName: 'Couple Qualificatif', width: 500 },
+    { field: 'coupleQualificatif', headerName: 'Couple qualificatif', width: 500 },
     /*{
       field: 'associated',
       headerName: 'Associé',
