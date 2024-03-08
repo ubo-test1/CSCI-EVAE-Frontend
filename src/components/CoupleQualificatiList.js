@@ -19,7 +19,7 @@ import Alert from '@mui/material/Alert';
 import Tooltip from '@mui/material/Tooltip';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
-
+import InputAdornment from '@mui/material/InputAdornment';
 
 
 
@@ -159,13 +159,21 @@ const CoupleQualificatifList = () => {
 
   const handleAddCouple = async () => {
     try {
-      if (!minimalValue || !maximalValue) {
-        throw new Error('Minimal and maximal values are required');
+        setMinimalError(false);
+        setMaximalError(false);
+        if (!minimalValue && !maximalValue) {
+            setMinimalError(true);
+            setMaximalError(true);
+            return
+        }
+      if (!minimalValue) {
+          setMinimalError(true);
+          return
       }
-  
-      // Reset minimal and maximal error states
-      setMinimalError(false);
-      setMaximalError(false);
+        if (!maximalValue) {
+            setMaximalError(true);
+            return
+        }
 
       const response = await addCouple(minimalValue, maximalValue);
   
@@ -194,15 +202,9 @@ const CoupleQualificatifList = () => {
         setAddError(true);
         setShowAlert(true);
         setLatestAction('addError');
-        setOpenAddDialog(false);
 
       // Set minimal and maximal error states if values are not provided
-      if (!minimalValue) {
-        setMinimalError(true);
-      }
-      if (!maximalValue) {
-        setMaximalError(true);
-      }
+
 
       // Set error message
       setAddError('Failed to add couple qualificatif');
@@ -216,6 +218,12 @@ const CoupleQualificatifList = () => {
 
   const handleUpdateQualificatif = async () => {
     try {
+        if (!minimalValue) {
+            setMinimalError(true);
+        }
+        if (!maximalValue) {
+            setMaximalError(true);
+        }
       await updateQualificatif(editRow.id, minimalValue, maximalValue);
       const updatedCoupleQualificatifs = coupleQualificatifs.map((couple) => {
         if (couple.id === editRow.id) {
@@ -236,8 +244,7 @@ const CoupleQualificatifList = () => {
       console.error('Error updating qualificatif:', error);
       setShowAlert(true);
       setLatestAction('editError');
-      setOpenEditDialog(false);
-
+      setOpenEditDialog(true);
 
     }
   };
@@ -257,7 +264,7 @@ const CoupleQualificatifList = () => {
       <Navbar />
       <Sidebar />
       <div style={{ position: 'absolute', right: '17vh', marginTop: '17vh', marginBottom: '0', }}>
-      <Button variant='contained' onClick={handleAjouterCouple} color="primary" startIcon={<AddIcon />}>
+      <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleAjouterCouple} color="primary" startIcon={<AddIcon />}>
   Ajouter
 </Button>
       </div>
@@ -267,23 +274,47 @@ const CoupleQualificatifList = () => {
         </div>
       </div>
 
-      <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)}>
+      <Dialog
+          style={{
+              width: '100vw !important',
+              maxWidth: 'none !important',
+              marginTop: '10px',
+              maxHieght: 'none',
+              height: '100vh'
+            }}
+          open={openAddDialog} onClose={() => setOpenAddDialog(false)}>
         <DialogTitle>Ajouter un couple qualificatif</DialogTitle>
         <DialogContent>
-        <form noValidate>
-        <TextField
-  id="minimal"
-  label="Minimal"
-  value={minimalValue}
-  onChange={(e) => setMinimalValue(e.target.value)}
-  onBlur={() => handleBlur(minimalValue, setMinimalValue, setMinimalError)}
-  fullWidth
-  variant="outlined"
-  error={minimalError}
-  helperText={minimalError ? "La valeur minimale est requise" : ""}
-  required
-  inputProps={{ maxLength: 16 }}
-/>
+        <form
+            style={{
+                paddingTop:'10px',
+                height:'21vh',
+                width :'30vw',
+                justifyContent:'space-between',
+                display:'flex',
+                flexDirection :'column'
+            }}
+            noValidate>
+            <TextField
+                id="minimal"
+                label="Minimal"
+                value={minimalValue}
+                onChange={(e) => setMinimalValue(e.target.value)}
+                onBlur={() => handleBlur(minimalValue, setMinimalValue, setMinimalError)}
+                fullWidth
+                variant="outlined"
+                error={minimalError}
+                helperText={minimalError ? "La valeur minimale est requise" : ""}
+                required
+                inputProps={{ maxLength: 16 }}
+                InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+                            {`${minimalValue.length}/16`}
+                        </InputAdornment>
+                    ),
+                }}
+            />
 <TextField
   id="maximal"
   label="Maximal"
@@ -296,6 +327,13 @@ const CoupleQualificatifList = () => {
   helperText={maximalError ? "La valeur maximale est requise" : ""}
   required
   inputProps={{ maxLength: 16 }}
+  InputProps={{
+      endAdornment: (
+          <InputAdornment position="end">
+              {`${maximalValue.length}/16`}
+          </InputAdornment>
+      ),
+  }}
 />
 </form>
 
@@ -304,16 +342,22 @@ const CoupleQualificatifList = () => {
 
         </DialogContent>
         <DialogActions>
-          <Button variant='contained' onClick={handleAddCouple} color="primary">
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleAddCouple} color="primary">
             Ajouter
           </Button>
-          <Button variant='contained' onClick={() => setOpenAddDialog(false)} color="secondary">
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={() => setOpenAddDialog(false)} color="secondary">
             Annuler
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+      <Dialog
+          style={{width: '50vw !important',
+              maxWidth: 'none !important',
+              marginTop: '10px',
+              maxHieght: 'none',
+              height: '100vh'}}
+          open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
         <DialogTitle>Modifier Couple</DialogTitle>
         <DialogContent>
         <TextField
@@ -328,6 +372,13 @@ const CoupleQualificatifList = () => {
   helperText={minimalError ? "Minimal value is required" : ""}
   required
   inputProps={{ maxLength: 16 }}
+  InputProps={{
+      endAdornment: (
+          <InputAdornment position="end">
+              {`${minimalValue.length}/16`}
+          </InputAdornment>
+      ),
+  }}
 />
 
 <TextField
@@ -342,14 +393,21 @@ const CoupleQualificatifList = () => {
   helperText={maximalError ? "Maximal value is required" : ""}
   required
   inputProps={{ maxLength: 16 }}
+  InputProps={{
+      endAdornment: (
+          <InputAdornment position="end">
+              {`${maximalValue.length}/16`}
+          </InputAdornment>
+      ),
+  }}
 />
 
         </DialogContent>
         <DialogActions>
-          <Button variant='contained' onClick={handleUpdateQualificatif} color="primary">
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleUpdateQualificatif} color="primary">
             Modifier
           </Button>
-          <Button variant='contained' onClick={() => setOpenEditDialog(false)} color="secondary">
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={() => setOpenEditDialog(false)} color="secondary">
             Annuler
           </Button>
         </DialogActions>
@@ -361,10 +419,10 @@ const CoupleQualificatifList = () => {
           <div>Êtes-vous sûr de vouloir supprimer ce couple qualificatif ?</div>
         </DialogContent>
         <DialogActions>
-          <Button variant='contained' onClick={handleDeleteCancel} color="primary">
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleDeleteCancel} color="primary">
             Annuler
           </Button>
-          <Button variant='contained' onClick={handleDeleteConfirm} color="secondary">
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleDeleteConfirm} color="secondary">
             Confirmer
           </Button>
         </DialogActions>

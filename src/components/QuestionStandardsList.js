@@ -27,6 +27,7 @@ import { useStepContext } from '@mui/material';
 import { fetchQualificatifById } from '../api/fetchCoupleById';
 import { getQuestionById } from '../api/fetchQuestionById';
 import CloseIcon from '@mui/icons-material/Close';
+import InputAdornment from "@mui/material/InputAdornment";
 
 
 
@@ -59,6 +60,7 @@ const DataTable = () => {
   const userString = sessionStorage.getItem('user');
   const userObject = userString
   const accessToken = userObject.accessToken;
+
 
   const localizedTextsMap = {
     columnMenuUnsort: "non classé",
@@ -395,6 +397,16 @@ return (
       <Dialog open={openAjouterModal} onClose={handleAjouterModalClose}>
         <DialogTitle>Ajouter une question standard</DialogTitle>
         <DialogContent>
+            <form
+                style={{
+                    height:'21vh',
+                    width :'30vw',
+                    justifyContent:'space-between',
+                    display:'flex',
+                    flexDirection :'column'
+                }}
+                noValidate>
+
         <TextField
   label="Intitulé"
   fullWidth
@@ -409,6 +421,13 @@ return (
   style={{ width: '100%', margin: 'auto' }}
   required
   inputProps={{ maxLength: 64 }}
+  InputProps={{
+      endAdornment: (
+          <InputAdornment position="end">
+              {`${newQuestionIntitule.length}/64`}
+          </InputAdornment>
+      ),
+  }}
 />
 
 
@@ -431,7 +450,7 @@ return (
     </MenuItem>
   ))}
 </TextField>
-
+            </form>
         </DialogContent>
         <DialogActions>
         <Button
@@ -492,11 +511,35 @@ return (
       <Dialog open={openModifyModal} onClose={handleModifyModalClose}>
         <DialogTitle>Modifier une question standard</DialogTitle>
         <DialogContent>
+            <form
+                style={{
+                    paddingTop:'10px',
+                    height:'21vh',
+                    width :'30vw',
+                    justifyContent:'space-between',
+                    display:'flex',
+                    flexDirection :'column'
+                }}
+                noValidate>
           <TextField
-            label="Intitulé"
-            fullWidth
-            value={modifiedIntitule}
-            onChange={(e) => setModifiedIntitule(e.target.value)}
+              label="Intitulé"
+              fullWidth
+              value={modifiedIntitule}
+              onChange={(e) => {
+                  setModifiedIntitule(e.target.value);
+                  setIntituleError(false); // Reset error state when value changes
+              }}
+              onBlur={() => handleBlur(modifiedIntitule, setModifiedIntitule, setIntituleError)}
+              error={intituleError}
+              helperText={intituleError ? "L'intitulé est requis" : ""}
+              inputProps={{ maxLength: 64 }}
+              InputProps={{
+                  endAdornment: (
+                      <InputAdornment position="end">
+                          {`${modifiedIntitule.length}/64`}
+                      </InputAdornment>
+                  ),
+              }}
           />
           <TextField
   select
@@ -512,15 +555,16 @@ return (
   ))}
 </TextField>
 
-
+                </form>
         </DialogContent>
         <DialogActions>
-          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleModifyModalClose} color="primary">
+            <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleUpdate} color="primary">
+                Modifier
+            </Button>
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleModifyModalClose} color="secondary">
             Annuler
           </Button>
-          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleUpdate} color="secondary">
-            Modifier
-          </Button>
+
         </DialogActions>
       </Dialog>
       {showAlert && latestAction === 'delete' && (

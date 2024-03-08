@@ -455,18 +455,18 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
   background-color: #85afc2;
   margin: 0;/* Adjust the height of the header row as needed */
 }
-.css-1t1j96h-MuiPaper-root-MuiDialog-paper{
+/*.css-1t1j96h-MuiPaper-root-MuiDialog-paper{
   width: 50vw !important;
   max-width: none !important;
   margin-top: 10px;
   max-height: none ;
   height: 45vh;
-}
-.css-1t1j96h-MuiPaper-root-MuiDialog-paper form{
+}*/
+/*.css-1t1j96h-MuiPaper-root-MuiDialog-paper form{
   height: 90%;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
 
 }
-
+*/
