@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import uboLogo from '../img/ubo-logo.png';
 import image1 from '../img/homeBtn.png';
 import image2 from '../img/rubrique.png';
@@ -10,11 +10,26 @@ import { ArrowForward } from '@mui/icons-material'; // Import icon
 
 function Sidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar visibility
+  const sidebarRef = useRef(null); // Reference to the sidebar element
 
   // Function to toggle sidebar visibility
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  // Effect to add click event listener to document
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   // Retrieve user information from sessionStorage
   const userInfo = sessionStorage.getItem('user');
@@ -26,7 +41,7 @@ function Sidebar() {
   // If user is not admin, render only one item
   if (!isAdmin) {
     return (
-      <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+      <div ref={sidebarRef} className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <IconButton style={{ position: 'absolute', right: '-20px', bottom: '50%', transform: 'translateY(50%)', backgroundColor: '#7296A5', borderRadius: '50%', padding: '10px' }} size="large" onClick={toggleSidebar}>
           <ArrowForward style={{ color: 'white', transform: isSidebarOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
         </IconButton>
@@ -53,10 +68,10 @@ function Sidebar() {
 
   // If user is admin, render all items
   return (
-    <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <IconButton style={{ position: 'absolute', right: '-20px', bottom: '50%', transform: 'translateY(50%)', backgroundColor: '#7296A5', borderRadius: '50%', padding: '10px' }} size="large" onClick={toggleSidebar}>
-          <ArrowForward style={{ color: 'white', transform: isSidebarOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-        </IconButton>
+    <div ref={sidebarRef} className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+      <IconButton style={{ position: 'absolute', right: '-20px', bottom: '50%', transform: 'translateY(50%)', backgroundColor: '#7296A5', borderRadius: '50%', padding: '10px' }} size="large" onClick={toggleSidebar}>
+        <ArrowForward style={{ color: 'white', transform: isSidebarOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+      </IconButton>
       <div className="logo-container">
         <img className="logo" src={uboLogo} alt="ubo-logo" />
       </div>

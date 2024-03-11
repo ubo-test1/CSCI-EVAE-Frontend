@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+*{
+  font-family: 'Roboto', sans-serif;
+}
 .App {
   text-align: center;
 }
@@ -347,13 +351,12 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
 /*Evaluation */
 
 .evaluationContainer {
+  height: 68vh ;
   display: flex;
-  justify-content: center; /* Center the content horizontally */
-  align-items: center; /* Center the content vertically */
-  margin-top: 25vh; /* Adjust as needed to account for the height of the navbar */
-  margin-left: 300px; /* Distance from the sidebar */
-  margin-right: 50px; /* Distance from the right edge */
-  margin-bottom: 20px; /* Distance from the bottom */
+  justify-content: space-around ; /* Center the content horizontally */
+  align-items: center ; /* Center the content vertically */
+  flex-direction: column ;
+
 }
 
 .tableWrapper {
@@ -382,12 +385,6 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
   margin: auto;
 }
 
-.evaluationContainer{
-  margin-top: 18vh;
-  display: flex;
-  flex-direction: column;
-  margin-left: 20vw ;
-}
 
 .container {
   display: flex;
@@ -458,6 +455,6 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
 
 
 .css-1t1j96h-MuiPaper-root-MuiDialog-paper{
-  width: 70% ;
+  width:auto ;
   max-width: none !important;
 }

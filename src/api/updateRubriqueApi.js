@@ -1,5 +1,6 @@
 // updateRubriqueApi.js
 export const updateRubriqueApi = async (rubrique) => {
+  console.log("this is the rubrique :::: " + JSON.stringify(rubrique))
     try {
       const response = await fetch('http://localhost:8080/rub/update', {
         method: 'POST',

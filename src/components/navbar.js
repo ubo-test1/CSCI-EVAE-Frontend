@@ -42,7 +42,14 @@ function Navbar() {
           const displayName = emailParts[0].charAt(0).toUpperCase() + emailParts[0].slice(1);
           const domainName = emailParts[1].split("@")[0].toUpperCase();
           displayText = `${domainName}  ${displayName}`;
-        }else{
+        }else if(sessionStorage.getItem('user') && JSON.parse(sessionStorage.getItem('user')).roles.includes("ROLE_ETU")){
+          const user = JSON.parse(sessionStorage.getItem('user'));
+          const emailParts = user.email.split(".");
+          const displayName = emailParts[0].charAt(0).toUpperCase() + emailParts[0].slice(1);
+          const domainName = emailParts[1].split("@")[0].toUpperCase();
+          displayText = `${domainName}  ${displayName}`;
+        }
+        else{
           displayText = "Administrateur"
         }
   return (

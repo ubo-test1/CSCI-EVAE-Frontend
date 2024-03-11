@@ -4,6 +4,9 @@ import Sidebar from './sideBar';
 import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid from MUI
 import { fetchEvaluations } from '../api/fetchEvaluations';
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import { localizedTextsMap } from './dataGridLanguage';
+import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
 
 function Evaluation() {
   const [evaluations, setEvaluations] = useState([]);
@@ -23,18 +26,57 @@ function Evaluation() {
   // Define columns for DataGrid
   const columns = [
     { field: 'designation', headerName: 'Designation', flex: 1 },
-    { field: 'etat', headerName: 'Etat', flex: 1 },
-    { field: 'periode', headerName: 'Période', flex: 1 },
-    { field: 'debutReponse', headerName: 'Début Réponse', flex: 1 },
-    { field: 'finReponse', headerName: 'Fin Réponse', flex: 1 },
+    { 
+      field: 'etat', 
+      headerName: 'Etat', 
+      flex: 1,
+      valueGetter: (params) => {
+        const etatValue = params.row.etat;
+        if (etatValue === 'CLO') {
+          return 'Cloturé';
+        } else if (etatValue === 'ELA') {
+          return 'En cours d\'élaboration';
+        } else if (etatValue === 'DIS') {
+          return 'Mise à disposition';
+        } else {
+          return etatValue; // Return the original value if it's not one of the specified values
+        }
+      }
+    },    { field: 'periode', headerName: 'Période', flex: 1 },
+    { 
+      field: 'debutReponse', 
+      headerName: 'Début Réponse', 
+      flex: 1,
+      valueGetter: (params) => {
+        const debutReponse = new Date(params.row.debutReponse);
+        return debutReponse.toLocaleDateString('fr-FR'); // Format date as DD/MM/YYYY
+      }
+    },
+    { 
+      field: 'finReponse', 
+      headerName: 'Fin Réponse', 
+      flex: 1,
+      valueGetter: (params) => {
+        const finReponse = new Date(params.row.finReponse);
+        return finReponse.toLocaleDateString('fr-FR'); // Format date as DD/MM/YYYY
+      }
+    },
   ];
 
   return (
-    <div className="evaluationContainer">
+    <div>
       <Navbar />
       <Sidebar />
-      <div style={{ height: 400, width: '100%' }}> {/* Set height and width for DataGrid */}
+      <div style={{ position: 'absolute', right: '17vh', marginTop: '17vh', marginBottom: '0', }}>
+      <Button style={{ textTransform: 'none' }} variant='contained' color="primary" startIcon={<AddIcon />}>
+        Ajouter
+      </Button>
+      </div>
+      <div style={{ position: 'absolute', left: '12vw', top: '25vh', width: '80%', margin: 'auto' }}>
+        <div style={{ height: 450, width: '100%' }}>
         <DataGrid
+        localeText={localizedTextsMap}
+        hideFooter={true}
           rows={evaluations}
           columns={columns}
           pageSize={5}
@@ -50,6 +92,7 @@ function Evaluation() {
           }}
         />
       </div>
+    </div>
     </div>
   );
 }

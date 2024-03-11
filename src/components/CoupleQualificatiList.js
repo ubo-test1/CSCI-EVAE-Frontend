@@ -20,6 +20,7 @@ import Tooltip from '@mui/material/Tooltip';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import InputAdornment from '@mui/material/InputAdornment';
+import { localizedTextsMap } from './dataGridLanguage';
 
 
 
@@ -42,14 +43,6 @@ const CoupleQualificatifList = () => {
   const [latestAction, setLatestAction] = useState(null);
   const [showAlert, setShowAlert] = useState(true);
 
-  const localizedTextsMap = {
-    columnMenuUnsort: "non classé",
-    columnMenuSortAsc: "Trier par ordre croissant",
-    columnMenuSortDesc: "Trier par ordre décroissant",
-    columnMenuFilter: "Filtre",
-    columnMenuHideColumn: "Cacher",
-    columnMenuManageColumns: "Gérer les colonnes", // Add translation for "Manage Columns"
-  };
 
  const handleHideAlert = () => {
     setShowAlert(false);
@@ -287,10 +280,9 @@ const CoupleQualificatifList = () => {
         <DialogContent>
         <form
             style={{
-                paddingTop:'10px',
                 height:'21vh',
                 width :'30vw',
-                justifyContent:'space-between',
+                justifyContent:'space-around',
                 display:'flex',
                 flexDirection :'column'
             }}

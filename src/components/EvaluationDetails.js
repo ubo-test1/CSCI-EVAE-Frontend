@@ -79,33 +79,38 @@ function EvaluationDetails() {
     <div>
       <Navbar />
       <Sidebar />
-      <div className="evaluationContainer" style={{ marginLeft: '300px',  marginRight: '50px' }}>
-      <TableContainer component={Paper} style={{ marginBottom: '20px' }}>
-  <Table>
-    <TableHead>
-      <TableRow>
-        <TableCell>Designation</TableCell>
-        <TableCell>Promotion</TableCell>
-        <TableCell>Nom de Formation</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      <TableRow>
-        <TableCell>{evaluationDetails.designation}</TableCell>
-        <TableCell>{evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</TableCell>
-        <TableCell>{evaluationDetails.promotion.codeFormation.nomFormation}</TableCell>
-      </TableRow>
-    </TableBody>
-  </Table>
+<div className="evaluationContainer" style={{ position: 'absolute', left: '12vw', top: '17vh', width: '80%', margin: 'auto', marginLeft: '0' }}>
+      <TableContainer component={Paper} style={{width: '80%',  marginLeft: '0', textAlign: 'left' }}>
+      <Table>
+  <TableHead>
+    <TableRow>
+      <TableCell style={{ background: 'lightblue', fontWeight: 'bold', border: '1px solid black' }}>Designation</TableCell>
+      <TableCell style={{ background: 'lightblue', fontWeight: 'bold', border: '1px solid black' }}>Promotion</TableCell>
+      <TableCell style={{ background: 'lightblue', fontWeight: 'bold', border: '1px solid black' }}>Element Constitutif</TableCell>
+      <TableCell style={{ background: 'lightblue', fontWeight: 'bold', border: '1px solid black' }}>Unité d'enseignement</TableCell>
+    </TableRow>
+  </TableHead>
+  <TableBody>
+    <TableRow>
+      <TableCell style={{ border: '1px solid black' }}>{evaluationDetails.designation}</TableCell>
+      <TableCell style={{ border: '1px solid black' }}>{evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</TableCell>
+      <TableCell style={{ border: '1px solid black' }}>{evaluationDetails.elementConstitutif ? evaluationDetails.elementConstitutif.id.codeEc : ""}</TableCell>
+      <TableCell style={{ border: '1px solid black' }}>{evaluationDetails.uniteEnseignement.id.codeUe}</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+
 </TableContainer>
+
 
 <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="droppable">
         {(provided) => (
-          <div {...provided.droppableProps} ref={provided.innerRef}>
-            <Typography variant="h5" style={{ marginTop: '20px', marginBottom: '20px' }} align="left">
-              Rubriques:
-            </Typography>
+          <div
+          {...provided.droppableProps}
+          ref={provided.innerRef}
+          style={{ width: '50%' }} // Adjust the width as needed
+        >
             {rubriques.map((rubrique, index) => (
               <Draggable key={rubrique.rubrique.id} draggableId={rubrique.rubrique.id.toString()} index={index}>
                 {(provided) => (
@@ -115,14 +120,13 @@ function EvaluationDetails() {
                         <Typography>{rubrique.rubrique.designation}</Typography>
                       </AccordionSummary>
                       <AccordionDetails>
-                      <AccordionDetails style={{ maxHeight: '400px',zIndex:'-2', overflow: 'auto' }}>
+                      <AccordionDetails style={{ maxHeight: '400px', overflow: 'auto' }}>
       {rubrique.questions.length > 0 ? (
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>Intitulé</TableCell>
-                <TableCell>Type</TableCell>
                 <TableCell>Minimal</TableCell>
                 <TableCell>Maximal</TableCell>
               </TableRow>
@@ -131,7 +135,6 @@ function EvaluationDetails() {
               {rubrique.questions.map((question, qIndex) => (
                 <TableRow key={qIndex}>
                   <TableCell>{question.intitule}</TableCell>
-                  <TableCell>{question.type}</TableCell>
                   <TableCell>{question.idQualificatif.minimal}</TableCell>
                   <TableCell>{question.idQualificatif.maximal}</TableCell>
                 </TableRow>

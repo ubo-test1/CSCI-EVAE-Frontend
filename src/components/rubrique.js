@@ -24,6 +24,10 @@ import { delQfromRubApi } from '../api/delQfromRubApi';
 import AddIcon from '@mui/icons-material/Add';
 import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress'; 
+import Alert from '@mui/material/Alert';
+import CloseIcon from '@mui/icons-material/Close';
+import InputAdornment from '@mui/material/InputAdornment';
+import { localizedTextsMap } from './dataGridLanguage';
 
 
 const RubriqueList = () => {
@@ -41,17 +45,29 @@ const RubriqueList = () => {
     const [initialCheckState, setInitialCheckState] = useState(false);
     const [checkedQuestions, setCheckedQuestions] = useState([]);
     const [srvQuestions, setSrvQuestions] = useState([]);
+    const [toAdd, setToAdd] = useState([])
+    const [toDel, setToDel] = useState([])
+    const [latestAction, setLatestAction] = useState(null);
+    const [showAlert, setShowAlert] = useState(true);
+  const [designationError, setDesignationError] = useState(false);
 
-    const localizedTextsMap = {
-        columnMenuUnsort: "non classé",
-        columnMenuSortAsc: "Trier par ordre croissant",
-        columnMenuSortDesc: "Trier par ordre décroissant",
-        columnMenuFilter: "Filtre",
-        columnMenuHideColumn: "Cacher",
-        columnMenuManageColumns: "Gérer les colonnes", // Add translation for "Manage Columns"
+
+
+
+      const handleBlur = () => {
+        // Remove leading and trailing spaces and update the state
+        const trimmedValue = designation.trim();
+        setDesignation(trimmedValue);
+        // Set error state if the trimmed value is invalid
+        if (trimmedValue === '' || trimmedValue.length <= 64) {
+          setDesignationError(false); // Reset error state when value is valid
+        } else {
+          setDesignationError(true); // Set error state when value is invalid
+        }
       };
-
-
+      const handleHideAlert = () => {
+        setShowAlert(false);
+      };
     useEffect(() => {
         fetchRubriques();
         sessionStorage.setItem('toAdd', JSON.stringify([]));
@@ -97,10 +113,10 @@ const RubriqueList = () => {
                 ...question,
                 received: true
             }));
-            console.log("this is the modified quesitons " + JSON.stringify(modifiedQuestions))
+            console.log("Modified")
+            console.log(modifiedQuestions)
             let mergedQuestions = [];
             const data = await fetchQuestionStandards();
-            console.log(data)
             const filteredData = data.filter(question => !modifiedQuestions.some(modifiedQuestion => modifiedQuestion.intitule === question.question.intitule));
             console.log(filteredData)
 
@@ -113,6 +129,7 @@ const RubriqueList = () => {
             // Concatenate the selected questions with the merged questions
             mergedQuestions = [...modifiedQuestions, ...test1];
 
+            console.log("Merged")
             console.log(mergedQuestions)
     
             // Update state
@@ -120,6 +137,9 @@ const RubriqueList = () => {
             setFullQuestions(mergedQuestions);
             setCheckedQuestions(modifiedQuestions)
             setSrvQuestions(modifiedQuestions)
+
+            console.log("Srv questions")
+            console.log(srvQuestions)
             
             console.log(rubriqueDetails.rubrique)
             setQuestionStandards(data);
@@ -132,17 +152,14 @@ const RubriqueList = () => {
     
 
     const handleEditConfirmed = async () => {
-        // Handle edit confirmation logic here
-        // You can update the rubrique details with the new designation and questions
-        // Make API call to update the rubrique with the new details
         try {
             setLoading(true);
-            // Example API call to update the rubrique
+            console.log("this is the new designation ::: " + selectedRubrique.designation)
             let updateReq = {
                 "id" : selectedRubrique.id,
                 "type" : selectedRubrique.type,
                 "noEnseignant" : selectedRubrique.noEnseignant,
-                "designation" : selectedRubrique.designation,
+                "designation" : designation,
                 "ordre" : selectedRubrique.ordre
             }
 
@@ -160,8 +177,12 @@ const RubriqueList = () => {
                 if (addq) {
                     console.log('questions added successfully');
                     fetchRubriques();
+                    setShowAlert(true);
+                    setLatestAction("edit")
                 } else {
                     alert('Failed to add quests');
+                    setShowAlert(true);
+                    setLatestAction("editError")
                 }
             }
 
@@ -170,8 +191,12 @@ const RubriqueList = () => {
                 if (delq) {
                     console.log('questions deleted successfully');
                     fetchRubriques();
+                    setShowAlert(true);
+                    setLatestAction("edit")
                 } else {
                     alert('Failed to update rubrique');
+                    setShowAlert(true);
+                    setLatestAction("editError")
                 }
             }
 
@@ -179,11 +204,14 @@ const RubriqueList = () => {
                 if (update) {
                     console.log('rubrique updated successfully');
                     fetchRubriques();
+                    setShowAlert(true);
+                    setLatestAction("edit")
                 } else {
                     alert('Failed to delete quests');
+                    setShowAlert(true);
+                    setLatestAction("editError")
                 }
                 
-            location.reload()
             
         } catch (error) {
             console.error('Error updating rubrique:', error);
@@ -211,18 +239,33 @@ const RubriqueList = () => {
     const handleAddRubrique = async () => {
         try {
             setLoading(true);
+            if(designation.trim()==""){
+                console.log("i am in the empty designation ::::: ")
+                setDesignationError(true);
+                setOpenDialog(true);
+                return;
+            }
             const success = await createRubriqueAndAssignQuestions(designation, selectedQuestions.map(question => question.question.id), sessionStorage.getItem('accessToken'));
             if (success) {
                 console.log('Rubrique created and questions assigned successfully');
                 fetchRubriques(); // Refresh the rubriques data after adding a rubrique
+                setShowAlert(true);
+                setLatestAction("add")
+                handleCloseDialog();
+
             } else {
                 console.error('Failed to create rubrique or assign questions');
+                setShowAlert(true);
+                setLatestAction("addError")
+
             }
         } catch (error) {
             console.error('Error creating rubrique and assigning questions:', error);
+            setShowAlert(true);
+            setLatestAction("addError")
+
         } finally {
             setLoading(false);
-            handleCloseDialog();
         }
     };
 
@@ -237,11 +280,18 @@ const RubriqueList = () => {
             if (success) {
                 console.log('Rubrique deleted successfully');
                 fetchRubriques(); // Refresh the rubriques data after deleting a rubrique
+                setShowAlert(true);
+                setLatestAction("delete")
+
             } else {
                 console.error('Error deleting rubrique:', error);
+                setShowAlert(true);
+                setLatestAction("deleteError")
             }
         } catch (error) {
             console.error('Error deleting rubrique:', error);
+            setShowAlert(true);
+            setLatestAction("deleteError")
         } finally {
             setDeleteDialogOpen(false);
             setRubriqueToDelete(null);
@@ -249,15 +299,33 @@ const RubriqueList = () => {
     };
 
     const handleCloseDialog = () => {
+        console.log("i am here")
         setOpenDialog(false);
+        setEditDialogOpen(false)
         setDesignation('');
         setSelectedQuestions([]);
         setSelectedRubrique(null);
     };
-
     const handleDesignationChange = (event) => {
+        const newValue = event.target.value;
+        // Update the state with the new value
+        setDesignation(newValue);
+        // Reset error state when value changes
+        setDesignationError(false);
+      };
+      
+    /*const handleDesignationChange = (event) => {
         setDesignation(event.target.value);
-    };
+    };*/
+
+    function isSrv(question, array) {
+        return array.some(element => {
+            if (element.id === question.id) {
+                return true;
+            }
+        });
+    }
+    
 
     const handleCheckboxChange = (event, question) => {
         if (initialCheckState === false) setInitialCheckState(true);
@@ -273,7 +341,7 @@ const RubriqueList = () => {
     
         if (isChecked) {
             setCheckedQuestions(prevChecked => [...prevChecked, question]);
-            if (!srvQuestions.includes(question)) {
+            if (isSrv(question,srvQuestions)===false) {
                 // Add question.id to toAdd
                 toAdd = [...toAdd, question.id];
                 sessionStorage.setItem('toAdd', JSON.stringify(toAdd));
@@ -286,24 +354,34 @@ const RubriqueList = () => {
             setCheckedQuestions(prevChecked =>
                 prevChecked.filter(selected => selected.id !== question.id)
             );
-            // Remove question.id from toAdd if it exists
-            if (toAdd.includes(question.id)) {
-                toAdd = toAdd.filter(id => id !== question.id);
-                sessionStorage.setItem('toAdd', JSON.stringify(toAdd));
+
+            if(isSrv(question,srvQuestions)===false){
+                if (toAdd.includes(question.id)) {
+                    toAdd = toAdd.filter(id => id !== question.id);
+                    sessionStorage.setItem('toAdd', JSON.stringify(toAdd));
+                }
+                else{
+                    alert("Err 306")
+                }
             }
-            // Add question.id to toDel if the question is in srvQuestions
-            if (srvQuestions.includes(question)) {
+            else{
                 toDel = [...toDel, question.id];
                 sessionStorage.setItem('toDel', JSON.stringify(toDel));
             }
+        
         }
-    
-        // For debugging purposes
-        console.log("To add", JSON.parse(sessionStorage.getItem('toAdd')));
-        console.log("To del", JSON.parse(sessionStorage.getItem('toDel')));
+        console.log("To add:")
+        console.log(toAdd)
+        console.log("To delete")
+        console.log(toDel)
     
         event.target.checked = isChecked;
     };
+    
+    
+    
+    
+    
     
     
 
@@ -322,9 +400,9 @@ const RubriqueList = () => {
 
     const renderQuestionStandardsTable = () => {
         const columns = [
-            { field: 'intitule', headerName: 'Intitule',width: 400 },
-            { field: 'minimal', headerName: 'Minimal', flex: 1 },
-            { field: 'maximal', headerName: 'Maximal', flex: 1 },
+            { field: 'intitule', headerName: 'Intitule',flex : 4 },
+            { field: 'minimal', headerName: 'Minimal', flex :2 },
+            { field: 'maximal', headerName: 'Maximal', flex:  2},
             {
                 field: 'action',
                 headerName: 'Ajouter',
@@ -351,7 +429,6 @@ const RubriqueList = () => {
                 <h3>Question Standards</h3>
                 <DataGrid
                     localeText={localizedTextsMap}
-                    rowHeight={30}
                     hideFooter={true}
                     rows={questionStandards.map(question => ({
                         id: question.question.id, // Assuming each question has a unique id property
@@ -367,45 +444,61 @@ const RubriqueList = () => {
         );
     };
     const renderEditRubrique = () => {
-    if (loading) {
-        return <CircularProgress />;
-    }
-
-    const columns = [
-        { field: 'intitule', headerName: 'Intitule', width: 400 },
-        { field: 'minimal', headerName: 'Minimal', flex: 1 },
-        { field: 'maximal', headerName: 'Maximal', flex: 1 },
-        {
-            field: 'action',
-            headerName: 'Ajouter',
-            flex: 1,
-            sortable: false,
-            filterable: false,
-            renderCell: (params) => (
-                <Checkbox
-                    checked={checkedQuestions.some(q => q.id === params.row.id)}
-                    onChange={(event) => handleCheckboxChange(event, params.row)}
+        if (loading) {
+            return <CircularProgress />;
+        }
+    
+        // Sort fullQuestions array based on whether the question is checked and its intitule
+        const sortedQuestions = fullQuestions.sort((a, b) => {
+            // If a is checked and b is not, a comes first
+            if (checkedQuestions.some(q => q.id === a.id) && !checkedQuestions.some(q => q.id === b.id)) {
+                return -1;
+            }
+            // If b is checked and a is not, b comes first
+            if (!checkedQuestions.some(q => q.id === a.id) && checkedQuestions.some(q => q.id === b.id)) {
+                return 1;
+            }
+            // Otherwise, sort alphabetically
+            return a.intitule.localeCompare(b.intitule);
+        });
+    
+        const columns = [
+            { field: 'intitule', headerName: 'Intitule', flex: 4 },
+            { field: 'minimal', headerName: 'Minimal', flex: 2 },
+            { field: 'maximal', headerName: 'Maximal', flex: 2 },
+            {
+                field: 'action',
+                headerName: 'Ajouter',
+                flex: 1,
+                sortable: false,
+                filterable: false,
+                renderCell: (params) => (
+                    <Checkbox
+                        checked={checkedQuestions.some(q => q.id === params.row.id)}
+                        onChange={(event) => handleCheckboxChange(event, params.row)}
+                    />
+                ),
+            },
+        ];
+    
+        return (
+            <div style={{ height: 400, width: '100%' }}>
+                <h3>Question Standards</h3>
+                <DataGrid
+                    hideFooter={true}
+                    rows={sortedQuestions.map((question) => ({
+                        id: question.id,
+                        intitule: question.intitule,
+                        minimal: question.idQualificatif.minimal,
+                        maximal: question.idQualificatif.maximal,
+                    }))}
+                    columns={columns}
+                    pageSize={5}
                 />
-            ),
-        },
-    ];
-
-    return (
-        <div style={{ height: 400, width: '100%' }}>
-            <h3>Question Standards</h3>
-            <DataGrid
-                rows={fullQuestions.map((question) => ({
-                    id: question.id,
-                    intitule: question.intitule,
-                    minimal: question.idQualificatif.minimal,
-                    maximal: question.idQualificatif.maximal,
-                }))}
-                columns={columns}
-                pageSize={5}
-            />
-        </div>
-    );
-};
+            </div>
+        );
+    };
+    
 
     
     
@@ -415,10 +508,12 @@ const RubriqueList = () => {
             field: 'actions',
             headerName: 'Actions',
             width: 150,
+            sortable: false,
+            filterable: false,
             renderCell: (params) => (
                 <div>
                     {params.row.associated ? (
-                        <Tooltip title="Referencé">
+                        <Tooltip title="Rubrique associé à une évaluation">
                             <span>
                                 <IconButton
                                     disabled
@@ -439,7 +534,7 @@ const RubriqueList = () => {
                         </Tooltip>
                     )}
                     {params.row.associated ? (
-                        <Tooltip title="Referencé">
+                        <Tooltip title="Rubrique associé à une évaluation">
                             <span>
                                 <IconButton
                                     disabled
@@ -465,7 +560,7 @@ const RubriqueList = () => {
     ];
 
     return (
-        <div>
+        <>
             <Navbar />
             <Sidebar />
             <div style={{ position: 'absolute', right: '17vh', marginTop: '17vh', marginBottom: '0', }}>
@@ -481,14 +576,16 @@ const RubriqueList = () => {
             <Dialog 
                 open={openDialog} 
                 onClose={handleCloseDialog}
-                style={{
-                    position:'absolute !important',
-                    width: '100vw !important',
-                    maxWidth: 'none !important',
-                    marginTop: '10px',
-                    maxHieght: 'none',
-                    height: '100vh',
-                  }}
+                PaperProps={{
+                    style: {
+                        position: 'absolute',
+                        width: '70vw', // Set width to 100vw
+                        maxWidth: 'none',
+                        marginTop: '10px',
+                        maxHeight: 'none',
+                        height: '80vh',
+                    },
+                }}
             >
     <DialogTitle>Ajouter une rubrique standard</DialogTitle>
     <DialogContent>
@@ -502,14 +599,26 @@ const RubriqueList = () => {
             }}
             noValidate>
         <TextField
-            autoFocus
-            margin="dense"
-            id="designation"
-            label="Designation"
-            fullWidth
-            value={designation}
-            onChange={handleDesignationChange}
-        />
+      autoFocus
+      margin="dense"
+      id="designation"
+      label="Designation"
+      fullWidth
+      value={designation}
+      onChange={handleDesignationChange}
+      onBlur={handleBlur}
+      error={designationError}
+      helperText={designationError ? "La désignation est requise (max 64 caractères)" : ""}
+      inputProps={{ maxLength: 32 }}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            {`${designation.length}/32`}
+          </InputAdornment>
+        ),
+      }}
+      required
+    />
         {renderQuestionStandardsTable()}
         </form>
     </DialogContent>
@@ -518,8 +627,19 @@ const RubriqueList = () => {
         <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleAddRubrique} color="primary">Ajouter</Button>
     </DialogActions>
 </Dialog>
-<Dialog open={editDialogOpen} onClose={handleCloseDialog}>
-    <DialogTitle>Edit Rubrique</DialogTitle>
+<Dialog
+PaperProps={{
+    style: {
+        position: 'absolute',
+        width: '70vw', // Set width to 100vw
+        maxWidth: 'none',
+        marginTop: '10px',
+        maxHeight: 'none',
+        height: '80vh',
+    },
+}}
+open={editDialogOpen} onClose={handleCloseDialog}>
+    <DialogTitle>Modifier la Rubrique</DialogTitle>
     <DialogContent>
         <TextField
             autoFocus
@@ -528,31 +648,81 @@ const RubriqueList = () => {
             label="Designation"
             fullWidth
             value={designation}
+            onBlur={handleBlur}
             onChange={handleDesignationChange}
+            inputProps={{ maxLength: 32 }}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            {`${designation.length}/32`}
+          </InputAdornment>
+        ),
+      }}
+      required
         />
         {renderEditRubrique()}
     </DialogContent>
     <DialogActions>
-        <Button style={{ textTransform: 'none' }} onClick={handleCloseDialog}>Annuler</Button>
-        <Button style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Sauvgarder</Button>
+        <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleCloseDialog} color="secondary">Annuler</Button>
+        <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Sauvgarder</Button>
     </DialogActions>
 </Dialog>
 
             <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-                <DialogTitle>Delete Rubrique</DialogTitle>
+                <DialogTitle>Supprimer une rubrique</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Are you sure you want to delete this rubrique?
+                    Etes-vous sûr de vouloir supprimer cette rubrique ?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-                    <Button onClick={handleDeleteConfirmed} color="primary" autoFocus>
-                        Delete
+                    <Button style={{ textTransform: 'none' }} variant="contained" onClick={() => setDeleteDialogOpen(false)} color="secondary">
+                    Annuler
+                    </Button>
+                    <Button style={{ textTransform: 'none' }} variant="contained" onClick={handleDeleteConfirmed} color="primary" autoFocus>
+                    Supprimer
                     </Button>
                 </DialogActions>
+
             </Dialog>
-        </div>
+            {showAlert && latestAction === 'delete' && (
+        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+          Rubrique standard supprimé avec succès !
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+      )}
+{showAlert && latestAction === 'deleteError' && (
+  <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+    Échec de la suppression de la Rubrique standard !
+    <Button onClick={handleHideAlert}><CloseIcon /></Button>
+  </Alert>
+)}
+{showAlert && latestAction === 'add' && (
+        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+          Rubrique standard ajouté avec succès !
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+      )}
+{showAlert && latestAction === 'addError' && (
+  <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+    Échec de l'ajout de la Rubrique standard (la rubrique existe déjà) !
+    <Button onClick={handleHideAlert}><CloseIcon /></Button>
+  </Alert>
+)}
+{showAlert && latestAction === 'edit' && (
+        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+          Rubrique standard modifié avec succès !
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+      )}
+{showAlert && latestAction==='editError' && (
+  <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+    Échec de la modification de la Rubrique standard (la rubrique existe déjà) !
+    <Button onClick={handleHideAlert}><CloseIcon /></Button>
+  </Alert>
+)}
+        </>
+        
     );
 };
 

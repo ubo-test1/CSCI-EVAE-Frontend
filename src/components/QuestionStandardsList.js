@@ -28,6 +28,7 @@ import { fetchQualificatifById } from '../api/fetchCoupleById';
 import { getQuestionById } from '../api/fetchQuestionById';
 import CloseIcon from '@mui/icons-material/Close';
 import InputAdornment from "@mui/material/InputAdornment";
+import { localizedTextsMap } from './dataGridLanguage';
 
 
 
@@ -60,16 +61,6 @@ const DataTable = () => {
   const userString = sessionStorage.getItem('user');
   const userObject = userString
   const accessToken = userObject.accessToken;
-
-
-  const localizedTextsMap = {
-    columnMenuUnsort: "non classé",
-    columnMenuSortAsc: "Trier par ordre croissant",
-    columnMenuSortDesc: "Trier par ordre décroissant",
-    columnMenuFilter: "Filtre",
-    columnMenuHideColumn: "Cacher",
-    columnMenuManageColumns: "Gérer les colonnes", // Add translation for "Manage Columns"
-  };
 
 
   const handleHideAlert = () => {
@@ -408,27 +399,27 @@ return (
                 noValidate>
 
         <TextField
-  label="Intitulé"
-  fullWidth
-  value={newQuestionIntitule}
-  onChange={(e) => {
-    setNewQuestionIntitule(e.target.value);
-    setIntituleError(false); // Reset error state when value changes
-  }}
-  onBlur={() => handleBlur(newQuestionIntitule, setNewQuestionIntitule, setIntituleError)}
-  error={intituleError}
-  helperText={intituleError ? "L'intitulé est requis" : ""}
-  style={{ width: '100%', margin: 'auto' }}
-  required
-  inputProps={{ maxLength: 64 }}
-  InputProps={{
-      endAdornment: (
-          <InputAdornment position="end">
-              {`${newQuestionIntitule.length}/64`}
-          </InputAdornment>
-      ),
-  }}
-/>
+          label="Intitulé"
+          fullWidth
+          value={newQuestionIntitule}
+          onChange={(e) => {
+            setNewQuestionIntitule(e.target.value);
+            setIntituleError(false); // Reset error state when value changes
+          }}
+          onBlur={() => handleBlur(newQuestionIntitule, setNewQuestionIntitule, setIntituleError)}
+          error={intituleError}
+          helperText={intituleError ? "L'intitulé est requis" : ""}
+          style={{ width: '100%', margin: 'auto' }}
+          required
+          inputProps={{ maxLength: 64 }}
+          InputProps={{
+              endAdornment: (
+                  <InputAdornment position="end">
+                      {`${newQuestionIntitule.length}/64`}
+                  </InputAdornment>
+              ),
+        }}
+      />
 
 
 <TextField
