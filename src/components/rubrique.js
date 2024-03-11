@@ -97,10 +97,10 @@ const RubriqueList = () => {
                 ...question,
                 received: true
             }));
-            console.log("this is the modified quesitons " + JSON.stringify(modifiedQuestions))
+            console.log("Modified")
+            console.log(modifiedQuestions)
             let mergedQuestions = [];
             const data = await fetchQuestionStandards();
-            console.log(data)
             const filteredData = data.filter(question => !modifiedQuestions.some(modifiedQuestion => modifiedQuestion.intitule === question.question.intitule));
             console.log(filteredData)
 
@@ -113,6 +113,7 @@ const RubriqueList = () => {
             // Concatenate the selected questions with the merged questions
             mergedQuestions = [...modifiedQuestions, ...test1];
 
+            console.log("Merged")
             console.log(mergedQuestions)
     
             // Update state
@@ -120,6 +121,9 @@ const RubriqueList = () => {
             setFullQuestions(mergedQuestions);
             setCheckedQuestions(modifiedQuestions)
             setSrvQuestions(modifiedQuestions)
+
+            console.log("Srv questions")
+            console.log(srvQuestions)
             
             console.log(rubriqueDetails.rubrique)
             setQuestionStandards(data);
@@ -259,6 +263,15 @@ const RubriqueList = () => {
         setDesignation(event.target.value);
     };
 
+    function isSrv(question, array) {
+        return array.some(element => {
+            if (element.id === question.id) {
+                return true;
+            }
+        });
+    }
+    
+
     const handleCheckboxChange = (event, question) => {
         if (initialCheckState === false) setInitialCheckState(true);
         const isChecked = event.target.checked;
@@ -273,7 +286,7 @@ const RubriqueList = () => {
     
         if (isChecked) {
             setCheckedQuestions(prevChecked => [...prevChecked, question]);
-            if (!srvQuestions.includes(question)) {
+            if (isSrv(question,srvQuestions)===false) {
                 // Add question.id to toAdd
                 toAdd = [...toAdd, question.id];
                 sessionStorage.setItem('toAdd', JSON.stringify(toAdd));
@@ -286,21 +299,26 @@ const RubriqueList = () => {
             setCheckedQuestions(prevChecked =>
                 prevChecked.filter(selected => selected.id !== question.id)
             );
-            // Remove question.id from toAdd if it exists
-            if (toAdd.includes(question.id)) {
-                toAdd = toAdd.filter(id => id !== question.id);
-                sessionStorage.setItem('toAdd', JSON.stringify(toAdd));
+
+            if(isSrv(question,srvQuestions)===false){
+                if (toAdd.includes(question.id)) {
+                    toAdd = toAdd.filter(id => id !== question.id);
+                    sessionStorage.setItem('toAdd', JSON.stringify(toAdd));
+                }
+                else{
+                    alert("Err 306")
+                }
             }
-            // Add question.id to toDel if the question is in srvQuestions
-            if (srvQuestions.includes(question)) {
+            else{
                 toDel = [...toDel, question.id];
                 sessionStorage.setItem('toDel', JSON.stringify(toDel));
             }
+        
         }
-    
-        // For debugging purposes
-        console.log("To add", JSON.parse(sessionStorage.getItem('toAdd')));
-        console.log("To del", JSON.parse(sessionStorage.getItem('toDel')));
+        console.log("To add:")
+        console.log(toAdd)
+        console.log("To delete")
+        console.log(toDel)
     
         event.target.checked = isChecked;
     };
