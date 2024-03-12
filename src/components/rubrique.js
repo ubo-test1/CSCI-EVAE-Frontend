@@ -201,13 +201,12 @@ const RubriqueList = () => {
             }
 
             const update = await updateRubriqueApi(updateReq);
-                if (update) {
+                if (update.success) {
                     console.log('rubrique updated successfully');
                     fetchRubriques();
                     setShowAlert(true);
                     setLatestAction("edit")
                 } else {
-                    alert('Failed to delete quests');
                     setShowAlert(true);
                     setLatestAction("editError")
                 }
