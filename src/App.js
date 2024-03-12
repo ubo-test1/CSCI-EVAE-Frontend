@@ -10,6 +10,7 @@ import EvaluationDetails from './components/EvaluationDetails';
 import CoupleQualificatifList from './components/CoupleQualificatiList';
 import RubriqueList from './components/rubrique';
 import RubriqueDetails from './components/RubriqueDetails';
+import EvaluationEtudiant from './components/EvaluationEtudiant';
 
 class App extends Component {
   render() {
@@ -21,12 +22,11 @@ class App extends Component {
           <Route path="/questionStandards" element={<QuestionStandardsList />} />
           <Route path="/home" element={<Home />} />
           <Route path="/Evaluation" element={<EvaluationList />} />
+          <Route path="/evaluationetudiant" element={<EvaluationEtudiant />} />
           <Route path="/Evaluation/:id" element={<EvaluationDetails />} />
           <Route path="/coupleQualificaitf" element={<CoupleQualificatifList />} />
           <Route path="/rubriqueStandard" element={<RubriqueList />} />
           <Route path="/rubriqueStandard/:id" element={<RubriqueDetails />} />
-
-
 
         </Routes>
       </Router>
