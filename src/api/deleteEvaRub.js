@@ -7,7 +7,7 @@ export const deleteEvaRub = async (rubID) => {
                 'Content-Type': 'application/json',
                 'Authorization':` Bearer ${sessionStorage.getItem('accessToken')}`
             },
-            method: 'DELETE',
+            method: 'GET',
 
         });
 

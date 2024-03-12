@@ -119,6 +119,12 @@ function EvaluationModifier() {
         const isConfirmed = window.confirm(`Voulez-vous vraiment supprimer la rubrique ${desi}?`);
         if (isConfirmed) {
             deleteEvaRub(rubriqueId)
+                .then(response => {
+                    location.reload()
+                })
+                .catch(error => {
+                    alert("Rubrique liee, suppression impossible!");
+                });
         }
     };
 
