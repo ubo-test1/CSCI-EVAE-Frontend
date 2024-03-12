@@ -167,7 +167,7 @@ flex-shrink: 0;
 
 .sidebar {
   width: 200px; /* Adjust width as needed */
-  background-color: #093356;
+  background-color: #093356; 
   color: white;
   padding: 20px;
   z-index: 3;
@@ -351,11 +351,12 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
 /*Evaluation */
 
 .evaluationContainer {
+  width: 90vw !important;
   height: 68vh ;
   display: flex;
-  justify-content: space-around ; /* Center the content horizontally */
+  justify-content: space-between ; /* Center the content horizontally */
   align-items: center ; /* Center the content vertically */
-  flex-direction: column ;
+  flex-direction: row !important ;
 
 }
 
@@ -458,3 +459,38 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
   width:auto ;
   max-width: none !important;
 }
+
+
+.evaluationImage img{
+  height: 55vh;
+  width: 30%;
+  position: fixed;
+  top: 30vh;
+  left: 6vw;
+
+}
+
+.evaluationInfo{
+  position: fixed;
+  width: auto; 
+  text-align: left; 
+  top: 38vh; 
+  left: 12.5vw;
+  margin-bottom:50px; 
+  height:40%; 
+  display:flex; 
+  justify-content:space-around; 
+  flex-direction:column; 
+  font-family: "Dancing Script", cursive;
+}
+
+.evaluationInfo div strong{
+  text-decoration: underline;
+  font-family: "Dancing Script", cursive;
+}
+.evaluationInfo div strong::after{
+  content: '';
+}
+ .evaluationInfo div {
+  font-family: "Dancing Script", cursive;
+} 
