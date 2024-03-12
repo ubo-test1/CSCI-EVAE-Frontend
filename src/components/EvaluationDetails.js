@@ -56,124 +56,124 @@ function EvaluationDetails() {
       return;
     }
     const items = reorder(
-      rubriques,
-      result.source.index,
-      result.destination.index
+        rubriques,
+        result.source.index,
+        result.destination.index
     );
     setRubriques(items);
   };
 
   return (
-    <>
-      <Navbar/>
-      <SideBar/>
-      <div className="evaluationContainer" style={{ position: 'absolute', left: '0vw', top: '17vh', width: '80%', margin: 'auto', display: 'flex' }}>
-      <div style={{ position: 'fixed', left:'10vw', top: '17vh', zIndex: '1', textAlign: 'left', width: '100%' }}>
-          <Button variant="contained" color="primary" startIcon={<ArrowBackIcon />} onClick={handleRetourClick}>
-            Retour
-          </Button>
-        </div>
-        <div className='evaluationImage'>
-          <img src={evaluationBackgroundImg}/>
-        </div>
-        <div className='evaluationInfo'>
-          <div style={{ margin: '4px', padding: '8px' }}><strong>Désignation:</strong> {evaluationDetails.designation}</div>
-          <div style={{ margin: '4px', padding: '8px' }}><strong> Promotion:</strong> {evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</div>
-          <div style={{ margin: '4px', padding: '8px' }}> <strong>Element Constitutif:</strong> {evaluationDetails.elementConstitutif ? evaluationDetails.elementConstitutif.id.codeEc : ""}</div>
-          <div style={{ margin: '4px', padding: '8px' }}><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
-        </div>
-
-        <div style={{ marginTop: '70px', overflowX: 'auto', width: '50%' }}>
-        <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #ccc', borderRadius: '5px' }}>
-
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="droppable">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {rubriques.map((rubrique, index) => (
-                    <Draggable key={rubrique.rubrique.id} draggableId={rubrique.rubrique.id.toString()} index={index}>
-                      {(provided) => (
-                        <div ref={provided.innerRef} {...provided.draggableProps}>
-                          <Accordion style={{ marginBottom: '10px' }}>
-                            <AccordionSummary expandIcon={<ExpandMoreIcon />} {...provided.dragHandleProps}>
-                              <Typography>{rubrique.rubrique.designation}</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                              <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
-                                {rubrique.questions.length > 0 ? (
-                                  <TableContainer component={Paper}>
-                                    <Table>
-                                      <TableHead>
-                                        <TableRow>
-                                          <TableCell>Intitulé</TableCell>
-                                          <TableCell>Minimal</TableCell>
-                                          <TableCell>Maximal</TableCell>
-                                        </TableRow>
-                                      </TableHead>
-                                      <TableBody>
-                                        {rubrique.questions.map((question, qIndex) => (
-                                          <TableRow key={qIndex}>
-                                            <TableCell>{question.intitule}</TableCell>
-                                            <TableCell>{question.idQualificatif.minimal}</TableCell>
-                                            <TableCell>{question.idQualificatif.maximal}</TableCell>
-                                          </TableRow>
-                                        ))}
-                                      </TableBody>
-                                    </Table>
-                                  </TableContainer>
-                                ) : (
-                                  <Typography variant="body1" style={{ margin: '10px' }}>
-                                    Aucune question
-                                  </Typography>
-                                )}
-                              </div>
-                            </AccordionDetails>
-                          </Accordion>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </div>
-        </div>
-      </div>
-
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md">
-        <DialogTitle>Questions</DialogTitle>
-        <DialogContent>
-          <div style={{ height: 400, width: '100%' }}>
-            <DataGrid
-              rows={selectedRubriqueQuestions}
-              columns={[
-                { field: 'intitule', headerName: 'Intitule', flex: 1 },
-                { 
-                  field: 'idQualificatif.maximal',
-                  headerName: 'Maximal',
-                  flex: 1,
-                  valueGetter: (params) => params.row.idQualificatif.maximal
-                },
-                { 
-                  field: 'idQualificatif.minimal',
-                  headerName: 'Minimal',
-                  flex: 1,
-                  valueGetter: (params) => params.row.idQualificatif.minimal
-                },
-              ]}
-              pageSize={5}
-            />
+      <>
+        <Navbar/>
+        <SideBar/>
+        <div className="evaluationContainer" style={{ position: 'absolute', left: '0vw', top: '17vh', width: '80%', margin: 'auto', display: 'flex' }}>
+          <div style={{ position: 'fixed', left:'10vw', top: '17vh', zIndex: '1', textAlign: 'left', width: '100%' }}>
+            <Button variant="contained" color="primary" startIcon={<ArrowBackIcon />} onClick={handleRetourClick}>
+              Retour
+            </Button>
           </div>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogOpen(false)} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+          <div className='evaluationImage'>
+            <img src={evaluationBackgroundImg}/>
+          </div>
+          <div className='evaluationInfo'>
+            <div style={{ margin: '4px', padding: '8px' }}><strong>Désignation:</strong> {evaluationDetails.designation}</div>
+            <div style={{ margin: '4px', padding: '8px' }}><strong> Promotion:</strong> {evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</div>
+            <div style={{ margin: '4px', padding: '8px' }}> <strong>Element Constitutif:</strong> {evaluationDetails.elementConstitutif ? evaluationDetails.elementConstitutif.id.codeEc : ""}</div>
+            <div style={{ margin: '4px', padding: '8px' }}><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
+          </div>
+
+          <div style={{ marginTop: '70px', overflowX: 'auto', width: '50%' }}>
+            <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #ccc', borderRadius: '5px' }}>
+
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="droppable">
+                  {(provided) => (
+                      <div {...provided.droppableProps} ref={provided.innerRef}>
+                        {rubriques.map((rubrique, index) => (
+                            <Draggable key={rubrique.rubrique.id} draggableId={rubrique.rubrique.id.toString()} index={index}>
+                              {(provided) => (
+                                  <div ref={provided.innerRef} {...provided.draggableProps}>
+                                    <Accordion style={{ marginBottom: '10px' }}>
+                                      <AccordionSummary expandIcon={<ExpandMoreIcon />} {...provided.dragHandleProps}>
+                                        <Typography>{rubrique.rubrique.designation}</Typography>
+                                      </AccordionSummary>
+                                      <AccordionDetails>
+                                        <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
+                                          {rubrique.questions.length > 0 ? (
+                                              <TableContainer component={Paper}>
+                                                <Table>
+                                                  <TableHead>
+                                                    <TableRow>
+                                                      <TableCell>Intitulé</TableCell>
+                                                      <TableCell>Minimal</TableCell>
+                                                      <TableCell>Maximal</TableCell>
+                                                    </TableRow>
+                                                  </TableHead>
+                                                  <TableBody>
+                                                    {rubrique.questions.map((question, qIndex) => (
+                                                        <TableRow key={qIndex}>
+                                                          <TableCell>{question.intitule}</TableCell>
+                                                          <TableCell>{question.idQualificatif.minimal}</TableCell>
+                                                          <TableCell>{question.idQualificatif.maximal}</TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                  </TableBody>
+                                                </Table>
+                                              </TableContainer>
+                                          ) : (
+                                              <Typography variant="body1" style={{ margin: '10px' }}>
+                                                Aucune question
+                                              </Typography>
+                                          )}
+                                        </div>
+                                      </AccordionDetails>
+                                    </Accordion>
+                                  </div>
+                              )}
+                            </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </div>
+          </div>
+        </div>
+
+        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md">
+          <DialogTitle>Questions</DialogTitle>
+          <DialogContent>
+            <div style={{ height: 400, width: '100%' }}>
+              <DataGrid
+                  rows={selectedRubriqueQuestions}
+                  columns={[
+                    { field: 'intitule', headerName: 'Intitule', flex: 1 },
+                    {
+                      field: 'idQualificatif.maximal',
+                      headerName: 'Maximal',
+                      flex: 1,
+                      valueGetter: (params) => params.row.idQualificatif.maximal
+                    },
+                    {
+                      field: 'idQualificatif.minimal',
+                      headerName: 'Minimal',
+                      flex: 1,
+                      valueGetter: (params) => params.row.idQualificatif.minimal
+                    },
+                  ]}
+                  pageSize={5}
+              />
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDialogOpen(false)} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </>
   );
 }
 
