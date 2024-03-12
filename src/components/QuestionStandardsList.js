@@ -131,7 +131,7 @@ const DataTable = () => {
   
       // Close the modal
       handleAjouterModalClose();
-  
+      setIntituleValue('')
       // Fetch the updated list of questions
       fetchQuestionStandards()
         .then(questionStandards => {
@@ -182,14 +182,14 @@ const DataTable = () => {
       filterable: false,
       renderCell: (params) => (
         <div>
-          <Tooltip title="Modifier la question" arrow placement="top">
+          <Tooltip title={params.row.associated ? "Question associé à une rubrique" : "Modifier"}>
             <span>
               <IconButton onClick={() => handleModify(params.row.id)} color="primary" disabled={params.row.associated}>
                 <EditIcon />
               </IconButton>
             </span>
           </Tooltip>
-          <Tooltip title="Supprimer la question" arrow placement="top">
+          <Tooltip title={params.row.associated ? "Question associé à une rubrique" : "Supprimer"}>
   <span>
     <IconButton onClick={() => handleOpenDeleteDialog(params.row.id)} color="secondary" disabled={params.row.associated}>
       <DeleteIcon />
@@ -249,6 +249,7 @@ const DataTable = () => {
 
 
   const handleAjouterModalOpen = () => {
+    setIntituleValue('')
     setOpenAjouterModal(true);
   };
 
@@ -365,9 +366,21 @@ return (
 
 
       <div style={{ position: 'absolute', right: '17vh', marginTop: '17vh', marginBottom: '0', }}>
-        <Button style={{ textTransform: 'none' }} variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleAjouterModalOpen}>
-          Ajouter
-        </Button>
+      <Button
+  style={{ textTransform: 'none' }}
+  variant="contained"
+  color="primary"
+  startIcon={<AddIcon />}
+  onClick={() => {
+    // Reset the state variables to empty strings when "Ajouter" is clicked
+    setNewQuestionIntitule('');
+    setModifiedCoupleQualificatif('');
+    setOpenAjouterModal(true); // Open the "Ajouter" modal
+  }}
+>
+  Ajouter
+</Button>
+
       </div>
       <div style={{ position: 'absolute', left: '12vw', top: '25vh', width: '80%', margin: 'auto' }}>
         <div style={{ height: 450, width: '100%' }}>
@@ -390,11 +403,12 @@ return (
         <DialogContent>
             <form
                 style={{
-                    height:'21vh',
+                    height:'20vh',
                     width :'30vw',
-                    justifyContent:'space-between',
+                    justifyContent:'space-around',
                     display:'flex',
-                    flexDirection :'column'
+                    flexDirection :'column',
+                    margin:'0 !important'
                 }}
                 noValidate>
 
@@ -409,7 +423,7 @@ return (
           onBlur={() => handleBlur(newQuestionIntitule, setNewQuestionIntitule, setIntituleError)}
           error={intituleError}
           helperText={intituleError ? "L'intitulé est requis" : ""}
-          style={{ width: '100%', margin: 'auto' }}
+          style={{ width: '100%' }}
           required
           inputProps={{ maxLength: 64 }}
           InputProps={{
@@ -503,15 +517,15 @@ return (
         <DialogTitle>Modifier une question standard</DialogTitle>
         <DialogContent>
             <form
-                style={{
-                    paddingTop:'10px',
-                    height:'21vh',
-                    width :'30vw',
-                    justifyContent:'space-between',
-                    display:'flex',
-                    flexDirection :'column'
-                }}
-                noValidate>
+                 style={{
+                  height:'20vh',
+                  width :'30vw',
+                  justifyContent:'space-around',
+                  display:'flex',
+                  flexDirection :'column',
+                  margin:'0 !important'
+              }}
+              noValidate>
           <TextField
               label="Intitulé"
               fullWidth

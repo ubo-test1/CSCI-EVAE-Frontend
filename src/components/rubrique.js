@@ -589,12 +589,13 @@ const RubriqueList = () => {
     <DialogTitle>Ajouter une rubrique standard</DialogTitle>
     <DialogContent>
     <form
-            style={{
-                height:'100%',
+             style={{
+                height:'85%',
                 width :'100%',
-                justifyContent:'space-between',
-                display:'flex',
-                flexDirection :'column'
+                justifyContent:'space-evenly !important',
+                  display:'flex',
+                  flexDirection :'column',
+                  margin:'0 !important'
             }}
             noValidate>
         <TextField

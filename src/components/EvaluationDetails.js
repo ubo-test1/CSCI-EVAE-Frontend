@@ -3,14 +3,16 @@ import { useParams } from 'react-router-dom';
 import { fetchEvaluationDetails } from '../api/fetchEvaluationInfo';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'; // Import Material-UI components
 import { Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Navbar from './navbar';
 import SideBar from './sideBar';
 import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid from MUI
-import evaluationBackgroundImg from '../img/evaluationContentBackground.png'
-
+import evaluationBackgroundImg from '../img/evaluationContentBackground.png';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 const handleRetourClick = () => {
   window.history.back();
   console.log('Retour button clicked');
@@ -29,6 +31,7 @@ function EvaluationDetails() {
   const [selectedRubriqueQuestions, setSelectedRubriqueQuestions] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [rubriques, setRubriques] = useState([]);
+  const [expanded, setExpanded] = useState([]); // State variable to manage expanded state of each accordion
 
   useEffect(() => {
     const getEvaluationDetails = async () => {
@@ -62,7 +65,20 @@ function EvaluationDetails() {
     );
     setRubriques(items);
   };
-
+  const handleExpandAll = () => {
+    const allIndexes = Array.from({ length: rubriques.length }, (_, index) => index);
+    setExpanded(allIndexes);
+  };
+  const handleCollapseAll = () => {
+    setExpanded([]);
+  };
+  const handleAccordionToggle = (index) => {
+    if (expanded.includes(index)) {
+      setExpanded((prevExpanded) => prevExpanded.filter((item) => item !== index));
+    } else {
+      setExpanded((prevExpanded) => [...prevExpanded, index]);
+    }
+  };
   return (
     <>
       <Navbar/>
@@ -85,59 +101,57 @@ function EvaluationDetails() {
 
         <div style={{ marginTop: '70px', overflowX: 'auto', width: '50%' }}>
         <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #ccc', borderRadius: '5px' }}>
-
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="droppable">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {rubriques.map((rubrique, index) => (
-                    <Draggable key={rubrique.rubrique.id} draggableId={rubrique.rubrique.id.toString()} index={index}>
-                      {(provided) => (
-                        <div ref={provided.innerRef} {...provided.draggableProps}>
-                          <Accordion style={{ marginBottom: '10px' }}>
-                            <AccordionSummary expandIcon={<ExpandMoreIcon />} {...provided.dragHandleProps}>
-                              <Typography>{rubrique.rubrique.designation}</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                              <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
-                                {rubrique.questions.length > 0 ? (
-                                  <TableContainer component={Paper}>
-                                    <Table>
-                                      <TableHead>
-                                        <TableRow>
-                                          <TableCell>Intitulé</TableCell>
-                                          <TableCell>Minimal</TableCell>
-                                          <TableCell>Maximal</TableCell>
-                                        </TableRow>
-                                      </TableHead>
-                                      <TableBody>
-                                        {rubrique.questions.map((question, qIndex) => (
-                                          <TableRow key={qIndex}>
-                                            <TableCell>{question.intitule}</TableCell>
-                                            <TableCell>{question.idQualificatif.minimal}</TableCell>
-                                            <TableCell>{question.idQualificatif.maximal}</TableCell>
-                                          </TableRow>
-                                        ))}
-                                      </TableBody>
-                                    </Table>
-                                  </TableContainer>
-                                ) : (
-                                  <Typography variant="body1" style={{ margin: '10px' }}>
-                                    Aucune question
-                                  </Typography>
-                                )}
-                              </div>
-                            </AccordionDetails>
-                          </Accordion>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
+        <Button onClick={handleExpandAll} startIcon={<KeyboardArrowDownIcon />}>Développer tout</Button>
+      <Button onClick={handleCollapseAll} startIcon={<KeyboardArrowUpIcon />}>Réduire tout</Button>
+      <DragDropContext onDragEnd={onDragEnd}>
+  <Droppable droppableId="droppable">
+    {(provided) => (
+      <div {...provided.droppableProps} ref={provided.innerRef}>
+        {rubriques.map((rubrique, index) => (
+          <div key={rubrique.rubrique.id}>
+            <Accordion style={{ marginBottom: '10px' }} expanded={Array.isArray(expanded) && expanded.includes(index)} onChange={() => handleAccordionToggle(index)}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />} /* Add any necessary props here */>
+                <Typography>{rubrique.rubrique.designation}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
+                  {rubrique.questions.length > 0 ? (
+                    <TableContainer component={Paper}>
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Intitulé</TableCell>
+                            <TableCell>Minimal</TableCell>
+                            <TableCell>Maximal</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {rubrique.questions.map((question, qIndex) => (
+                            <TableRow key={qIndex}>
+                              <TableCell>{question.intitule}</TableCell>
+                              <TableCell>{question.idQualificatif.minimal}</TableCell>
+                              <TableCell>{question.idQualificatif.maximal}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  ) : (
+                    <Typography variant="body1" style={{ margin: '10px' }}>
+                      Aucune question
+                    </Typography>
+                  )}
                 </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+              </AccordionDetails>
+            </Accordion>
+          </div>
+        ))}
+        {provided.placeholder}
+      </div>
+    )}
+  </Droppable>
+</DragDropContext>
+
         </div>
         </div>
       </div>
