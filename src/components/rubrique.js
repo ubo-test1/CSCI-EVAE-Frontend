@@ -28,11 +28,12 @@ import Alert from '@mui/material/Alert';
 import CloseIcon from '@mui/icons-material/Close';
 import InputAdornment from '@mui/material/InputAdornment';
 import { localizedTextsMap } from './dataGridLanguage';
-
+import VisibilityIcon from '@material-ui/icons/Visibility';
 
 const RubriqueList = () => {
     const [rubriques, setRubriques] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
+    const [openDialog1, setOpenDialog1] = useState(false);
     const [designation, setDesignation] = useState('');
     const [questionStandards, setQuestionStandards] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -50,6 +51,12 @@ const RubriqueList = () => {
     const [latestAction, setLatestAction] = useState(null);
     const [showAlert, setShowAlert] = useState(true);
   const [designationError, setDesignationError] = useState(false);
+  const [selectedRubriqueQuestions, setSelectedRubriqueQuestions] = useState([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [rubriqueDetails, setRubriqueDetails] = useState(null);
+
+
+
 
 
 
@@ -79,24 +86,39 @@ const RubriqueList = () => {
             const data = await fetchAllStandardRubriques();
             const sortedRubriques = data.map((rubrique) => ({
                 ...rubrique.rubrique,
-                associated: rubrique.associated
+                associated: rubrique.associated,
+                hasQuestions: null // Initially set to null until we fetch details
             })).sort((a, b) => a.designation.localeCompare(b.designation));
-    
             setRubriques(sortedRubriques);
+            // Fetch rubrique details for each rubrique to determine if it has questions
+            fetchRubriqueQuestions(sortedRubriques);
         } catch (error) {
             console.error('Error fetching rubriques:', error);
         }
     };
-    
 
-    const fetchRubriqueDetailsById = async (id) => {
+    const fetchRubriqueQuestions = async (rubriques) => {
         try {
-            const data = await fetchRubriqueDetails(id);
-            return data;
+            for (const rubrique of rubriques) {
+                const rubriqueDetails = await fetchRubriqueDetails(rubrique.id);
+                const hasQuestions = rubriqueDetails.questions && rubriqueDetails.questions.length > 0;
+                setRubriques(prevRubriques => prevRubriques.map(prevRubrique => {
+                    if (prevRubrique.id === rubrique.id) {
+                        return {
+                            ...prevRubrique,
+                            hasQuestions
+                        };
+                    }
+                    return prevRubrique;
+                }));
+            }
         } catch (error) {
             console.error('Error fetching rubrique details:', error);
         }
     };
+    
+
+    
 
     const handleEditClick = async (rubriqueId) => {
         setEditDialogOpen(true);
@@ -442,6 +464,15 @@ const RubriqueList = () => {
             </div>
         );
     };
+    const handleConsultClick = async (rubriqueId) => {
+        try {
+            const rubriqueDetails = await fetchRubriqueDetails(rubriqueId);
+            setRubriqueDetails(rubriqueDetails);
+            setOpenDialog1(true);
+        } catch (error) {
+            console.error('Error fetching rubrique details:', error);
+        }
+    };
     const renderEditRubrique = () => {
         if (loading) {
             return <CircularProgress />;
@@ -502,61 +533,75 @@ const RubriqueList = () => {
     
     
     const columns = [
-        { field: 'designation', headerName: 'Désignation', width: 1050 },
+        { field: 'designation', headerName: 'Désignation', flex: 8 },
         {
             field: 'actions',
             headerName: 'Actions',
-            width: 150,
+            flex: 1,
             sortable: false,
             filterable: false,
             renderCell: (params) => (
                 <div>
+                    <Tooltip title={params.row.hasQuestions ? "Consulter" : "Cette rubrique n'a pas de questions"}>
+                        <span>
+                            <IconButton 
+                                disabled={!params.row.hasQuestions}
+                                onClick={() => params.row.hasQuestions && handleConsultClick(params.row.id)}
+                            >
+                                <VisibilityIcon style={{ color: params.row.hasQuestions ? 'green' : 'disabled' }} />
+                            </IconButton>
+                        </span>
+                    </Tooltip>
+
                     {params.row.associated ? (
-                        <Tooltip title="Rubrique associé à une évaluation">
-                            <span>
-                                <IconButton
-                                    disabled
-                                    style={{
-                                        color: 'rgba(0, 0, 0, 0.26)',
-                                        pointerEvents: 'none',
-                                    }}
-                                >
+                        <>
+                            <Tooltip title="Rubrique associé à une évaluation">
+                                <span>
+                                    <IconButton
+                                        disabled
+                                        style={{
+                                            color: 'rgba(0, 0, 0, 0.26)',
+                                            pointerEvents: 'none',
+                                        }}
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                            <Tooltip title="Rubrique associé à une évaluation">
+                                <span>
+                                    <IconButton
+                                        disabled
+                                        style={{
+                                            color: 'rgba(0, 0, 0, 0.26)',
+                                            pointerEvents: 'none',
+                                        }}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                        </>
+                    ) : (
+                        <>
+                            <Tooltip title="Modifier">
+                                <IconButton color="primary" onClick={() => handleEditClick(params.row.id)}>
                                     <EditIcon />
                                 </IconButton>
-                            </span>
-                        </Tooltip>
-                    ) : (
-                        <Tooltip title="Modifier">
-                            <IconButton color="primary" onClick={() => handleEditClick(params.row.id)}>
-                                <EditIcon />
-                            </IconButton>
-                        </Tooltip>
-                    )}
-                    {params.row.associated ? (
-                        <Tooltip title="Rubrique associé à une évaluation">
-                            <span>
-                                <IconButton
-                                    disabled
-                                    style={{
-                                        color: 'rgba(0, 0, 0, 0.26)',
-                                        pointerEvents: 'none',
-                                    }}
-                                >
+                            </Tooltip>
+                            <Tooltip title="Supprimer">
+                                <IconButton color="secondary" onClick={() => handleDeleteClick(params.row.id)}>
                                     <DeleteIcon />
                                 </IconButton>
-                            </span>
-                        </Tooltip>
-                    ) : (
-                        <Tooltip title="Supprimer">
-                            <IconButton color="secondary" onClick={() => handleDeleteClick(params.row.id)}>
-                                <DeleteIcon />
-                            </IconButton>
-                        </Tooltip>
+                            </Tooltip>
+                        </>
                     )}
                 </div>
             ),
+            
         },
     ];
+    
 
     return (
         <>
@@ -684,6 +729,34 @@ open={editDialogOpen} onClose={handleCloseDialog}>
                     </Button>
                 </DialogActions>
 
+            </Dialog>
+            <Dialog open={openDialog1} onClose={() => setOpenDialog1(false)}>
+                <DialogTitle>Questions de la rubrique</DialogTitle>
+                <DialogContent>
+                    {rubriqueDetails && (
+                        <div style={{ height: 400, width: '50vw' }}>
+                            <DataGrid
+                                rows={rubriqueDetails.questions.map(question => ({
+                                    id: question.id,
+                                    intitule: question.intitule,
+                                    minimal: question.idQualificatif.minimal,
+                                    maximal: question.idQualificatif.maximal,
+                                }))}
+                                hideFooter={true}
+                                columns={[
+                                    { field: 'intitule', headerName: 'Intitulé', flex: 5 },
+                                    { field: 'minimal', headerName: 'Minimal', flex: 1 },
+                                    { field: 'maximal', headerName: 'Maximal', flex: 1 },
+                                ]}
+                                localeText={localizedTextsMap}
+                                pageSize={5}
+                            />
+                        </div>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenDialog1(false)} color="primary">Fermer</Button>
+                </DialogActions>
             </Dialog>
             {showAlert && latestAction === 'delete' && (
         <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
