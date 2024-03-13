@@ -36,7 +36,7 @@ function EvaluationEtudiant() {
         headerName: 'Unité d\'enseignement', 
         flex: 1
     },
-    { field: 'periode', headerName: 'Période', flex: 1 },
+    { field: 'periode', headerName: 'Période', flex: 1.5 },
     { field: 'evaluation.debutReponse', 
       headerName: 'Début de réponse', 
       flex: 1,
@@ -56,10 +56,10 @@ function EvaluationEtudiant() {
     },
     {
         field: 'repondu', 
-        headerName: 'Statut', 
+        headerName: 'Actions', 
         flex: 1,
         valueGetter: (params) => {
-            return params.row.repondu == true ? "Déja répondu" : "À évaluer";
+            return params.row.repondu == true ? "Bouton" : "Bouton";
           }
       }
 
