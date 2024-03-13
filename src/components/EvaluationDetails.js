@@ -163,7 +163,7 @@ function EvaluationDetails() {
 
       {evaluationState === "DIS" && (
         <div style={{ position:'relative',right: '0',left:'30%', marginTop: '0', marginBottom: '0', }}>
-          <Button style={{ textTransform: 'none' }} variant='contained' color="primary" onClick={handleCloturerEvaluationClick}>
+          <Button style={{ textTransform: 'none' }} variant='contained' color="secondary" onClick={handleCloturerEvaluationClick}>
             Cloturer l'évaluation
           </Button>
         </div>
