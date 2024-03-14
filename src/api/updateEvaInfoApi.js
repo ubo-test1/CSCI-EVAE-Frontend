@@ -1,4 +1,5 @@
 export const updateEvaluation = async (evaluationId, updatedEvaluationData) => {
+    console.log("testtt ::: ")
     try {
         const response = await fetch('http://localhost:8080/eva/update', {
             method: 'PUT',
@@ -35,7 +36,7 @@ export const updateEvaluation = async (evaluationId, updatedEvaluationData) => {
                 }
             })
         });
-
+        console.log("this is the contentttt :::: " + body)
         if (!response.ok) {
             const errorMessage = await response.text();
             throw new Error(errorMessage || 'Failed to update evaluation');

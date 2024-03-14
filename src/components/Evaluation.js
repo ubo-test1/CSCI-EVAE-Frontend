@@ -93,22 +93,25 @@ const [anneeUniversitaire, setAnneeUniversitaire] = useState('')
 const handleConfirmation = async () => {
   console.log("this is the selected item idddd ::: +++++" + selectedItemId)
   console.log("this is the selected row info :::: " + JSON.stringify(selectedRow))
+  const codeFormation = selectedRow.codeFormation.codeFormation;
+  const codeUe = selectedRow.code_UE;
   try {
-    // Construct updatedEvaluationData object with the required information
     const updatedEvaluationData = {
-      codeFormation: selectedRow.codeFormation.codeFormation,
-      ue: ue,
-      ec: ec || null, // If ec is empty, set it to null
+      codeFormation: codeFormation,
+      codeUe: ue,
+      codeEc: ec || null, // If ec is empty, set it to null
       anneeUniversitaire: selectedRow.promotion.id.anneeUniversitaire,
       noEvaluation: selectedRow.noEvaluation,
       designation: designation,
       etat: etat,
       periode: periode || null, // If periode is empty, set it to null
       debutReponse: debutReponse,
-      finReponse: finReponse
+      finReponse: finReponse,
+      uniteEnseignement: {"id": {codeFormation,codeUe}}
     };
 
     // Call updateEvaluation function with authToken, evaluationId, and updatedEvaluationData
+    console.log("this is the information that i send ::!:!!! " + JSON.stringify(updatedEvaluationData))
     const updatedEvaluation = await updateEvaluation(selectedItemId, updatedEvaluationData);
     
     console.log('Updated evaluation:', updatedEvaluation);

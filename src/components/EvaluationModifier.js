@@ -13,6 +13,9 @@ import evaluationBackgroundImg from '../img/evaluationContentBackground.png'
 import { updateEvaOrdre } from '../api/updateEvaOrdre .js';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import { fetchRubriqueDetails } from '../api/fetchRubriqueDetailsApi.js';
+import { localizedTextsMap } from './dataGridLanguage';
 
 
 const handleRetourClick = () => {
@@ -35,6 +38,8 @@ function EvaluationModifier() {
     const [rubriques, setRubriques] = useState([]);
     const [initialRubriquesOrder, setInitialRubriquesOrder] = useState([]);
     const [showSaveButton, setShowSaveButton] = useState(false);
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [rubriqueQuestions, setRubriqueQuestions] = useState([]);
 
     useEffect(() => {
         const getEvaluationDetails = async () => {
@@ -54,6 +59,25 @@ function EvaluationModifier() {
             getEvaluationDetails();
         }
     }, [id]);
+
+    const handleEditClick = async (rubriqueId) => {
+        try {
+            // Call the fetchRubriqueDetails API
+            const response = await fetchRubriqueDetails(rubriqueId);
+            // Extract rubrique and questions from the response
+            const { rubrique, questions } = response;
+            // Set the rubrique questions in the state
+            setRubriqueQuestions(questions);
+            console.log("these are the rubrique questions :::: " + JSON.stringify(rubriqueQuestions))
+            // Open the edit dialog
+            setEditDialogOpen(true);
+        } catch (error) {
+            console.error('Error fetching rubrique details:', error);
+        }
+    };
+    const handleEditDialogClose = () => {
+        setEditDialogOpen(false);
+    };
 
     if (details === null) {
         return null;
@@ -159,25 +183,44 @@ function EvaluationModifier() {
                                                 {(provided) => (
                                                     <div ref={provided.innerRef} {...provided.draggableProps}>
                                                         <Accordion style={{ marginBottom: '10px' }}>
-                                                            <AccordionSummary expandIcon={<ExpandMoreIcon />} {...provided.dragHandleProps}>
-                                                                <Typography>{rubrique.rubrique.designation}</Typography>
-                                                                <IconButton
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation(); // Prevent accordion from expanding
-                                                                        rmRub(rubrique.rubrique.id, rubrique.rubrique.designation); // Call the deletion handler
-                                                                    }}
-                                                                    style={{
-                                                                        cursor: 'pointer',
-                                                                        position: 'absolute',
-                                                                        top: '50%',
-                                                                        right: '50px',
-                                                                        transform: 'translateY(-50%)',
-                                                                    }}
-                                                                    color="error" // Set the color of the IconButton
-                                                                >
-                                                                    <DeleteIcon />
-                                                                </IconButton>
-                                                            </AccordionSummary>
+                                                        <AccordionSummary expandIcon={<ExpandMoreIcon />} {...provided.dragHandleProps}>
+                                                            <Typography>{rubrique.rubrique.designation}</Typography>
+                                                            {/* Edit Icon */}
+                                                            <IconButton
+                                                                style={{
+                                                                    cursor: 'pointer',
+                                                                    position: 'absolute',
+                                                                    top: '50%',
+                                                                    right: '90px', // Adjust the position for the edit icon
+                                                                    transform: 'translateY(-50%)',
+                                                                }}
+                                                                color="primary" // Set the color of the Edit IconButton
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation(); // Prevent accordion from expanding
+                                                                    handleEditClick(rubrique.rubrique.id); // Call handleEditClick function with rubrique id
+                                                                }}
+                                                            >
+                                                                <EditIcon />
+                                                            </IconButton>
+                                                            {/* Delete Icon */}
+                                                            <IconButton
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation(); // Prevent accordion from expanding
+                                                                    rmRub(rubrique.rubrique.id, rubrique.rubrique.designation); // Call the deletion handler
+                                                                }}
+                                                                style={{
+                                                                    cursor: 'pointer',
+                                                                    position: 'absolute',
+                                                                    top: '50%',
+                                                                    right: '50px',
+                                                                    transform: 'translateY(-50%)',
+                                                                }}
+                                                                color="error" // Set the color of the Delete IconButton
+                                                            >
+                                                                <DeleteIcon />
+                                                            </IconButton>
+                                                        </AccordionSummary>
+
                                                             <AccordionDetails>
                                                                 <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
                                                                     {rubrique.questions.length > 0 ? (
@@ -220,6 +263,44 @@ function EvaluationModifier() {
                         </DragDropContext>
                     </div>
                 </div>
+                <Dialog open={editDialogOpen} onClose={handleEditDialogClose} maxWidth="md">
+                <DialogTitle>Modifier les questions</DialogTitle>
+                <DialogContent>
+                    <div style={{ height: 400, width: '50vw' }}>
+                        <DataGrid
+                            rows={rubriqueQuestions}
+                            columns={[
+                                { field: 'intitule', headerName: 'Intitulé', flex: 2 },
+                                { 
+                                    field: 'idQualificatif.minimal', 
+                                    headerName: 'Minimal', 
+                                    flex: 1,
+                                    valueGetter: (params) => params.row.idQualificatif.minimal 
+                                },
+                                { 
+                                    field: 'idQualificatif.maximal', 
+                                    headerName: 'Maximal', 
+                                    flex: 1,
+                                    valueGetter: (params) => params.row.idQualificatif.maximal 
+                                },
+                            ]}
+                            pageSize={5}
+                            hideFooter={true}
+                            localeText={localizedTextsMap}
+
+                        />
+                    </div>
+                </DialogContent>
+
+
+
+                <DialogActions>
+                    {/* Button to close the edit dialog */}
+                    <Button onClick={handleEditDialogClose} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
                 {showSaveButton && (
                     <Button
                         variant="contained"
