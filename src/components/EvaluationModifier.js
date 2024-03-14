@@ -16,6 +16,7 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import { fetchRubriqueDetails } from '../api/fetchRubriqueDetailsApi.js';
 import { localizedTextsMap } from './dataGridLanguage';
+import {fetchRubEvaDetailsApi} from "../api/fetchRubEvaDetailsApi";
 
 
 const handleRetourClick = () => {
@@ -62,15 +63,17 @@ function EvaluationModifier() {
 
     const handleEditClick = async (rubriqueId) => {
         try {
-            // Call the fetchRubriqueDetails API
-            const response = await fetchRubriqueDetails(rubriqueId);
-            // Extract rubrique and questions from the response
-            const { rubrique, questions } = response;
+            alert(rubriqueId)
+            const response = await fetchRubEvaDetailsApi(rubriqueId);
+            console.log(response)
+
+            const questions = response.questions ? response.questions : [];
+            console.log(questions)
             // Set the rubrique questions in the state
             setRubriqueQuestions(questions);
             console.log("these are the rubrique questions :::: " + JSON.stringify(rubriqueQuestions))
             // Open the edit dialog
-            setEditDialogOpen(true);
+            //setEditDialogOpen(true);
         } catch (error) {
             console.error('Error fetching rubrique details:', error);
         }
