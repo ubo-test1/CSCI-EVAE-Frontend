@@ -18,6 +18,7 @@ import { fetchRubriqueDetails } from '../api/fetchRubriqueDetailsApi.js';
 import { localizedTextsMap } from './dataGridLanguage';
 import {fetchEvaRubQuesDetails} from "../api/fetchEvaRubQuesDetails";
 import {fetchRubEvaDetailsApi} from "../api/fetchRubEvaDetailsApi";
+import { useNavigate } from 'react-router-dom';
 
 
 const handleRetourClick = () => {
@@ -33,6 +34,7 @@ const reorder = (list, startIndex, endIndex) => {
 };
 
 function EvaluationModifier() {
+    const navigate = useNavigate();
     const { id } = useParams();
     const [details, setDetails] = useState(null);
     const [selectedRubriqueQuestions, setSelectedRubriqueQuestions] = useState([]);
@@ -64,6 +66,7 @@ function EvaluationModifier() {
 
     const handleEditClick = async (rubriqueId) => {
         try {
+            navigate(`/QevEdit/${rubriqueId}`);
             alert(rubriqueId)
             const response = await fetchRubEvaDetailsApi(rubriqueId);
             console.log("dataaaaaaaaaaaaa")
