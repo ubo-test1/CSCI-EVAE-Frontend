@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchEvaluationDetails } from '../api/fetchEvaluationInfo';
+import {fetchEvaRubQuesDetails} from "../api/fetchEvaRubQuesDetails";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'; // Import Material-UI components
 import { Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -25,7 +25,9 @@ function EvaluationDetails({ id }) {
   useEffect(() => {
     const getEvaluationDetails = async () => {
       try {
-        const data = await fetchEvaluationDetails(id);
+        const data = await fetchEvaRubQuesDetails(id);
+        console.log("Dataaaaaaaaaa")
+        console.log(data)
         setDetails(data);
         setRubriques(data?.rubriques || []);
       } catch (error) {
@@ -111,7 +113,7 @@ function EvaluationDetails({ id }) {
     <div key={rubrique.rubrique.id}>
       <Accordion expanded={Array.isArray(expanded) && expanded.includes(index)} onChange={() => handleAccordionToggle(index)}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />} /* Add any necessary props here */>
-                <Typography>{rubrique.rubrique.designation}</Typography>
+                <Typography>{rubrique.rubrique.idRubrique.designation}</Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
@@ -128,9 +130,9 @@ function EvaluationDetails({ id }) {
                         <TableBody>
                           {rubrique.questions.map((question, qIndex) => (
                             <TableRow key={qIndex}>
-                              <TableCell>{question.intitule}</TableCell>
-                              <TableCell>{question.idQualificatif.minimal}</TableCell>
-                              <TableCell>{question.idQualificatif.maximal}</TableCell>
+                              <TableCell>{question.idQuestion.intitule}</TableCell>
+                              <TableCell>{question.idQuestion.idQualificatif.minimal}</TableCell>
+                              <TableCell>{question.idQuestion.idQualificatif.maximal}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>

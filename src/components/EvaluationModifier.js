@@ -16,6 +16,7 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import { fetchRubriqueDetails } from '../api/fetchRubriqueDetailsApi.js';
 import { localizedTextsMap } from './dataGridLanguage';
+import {fetchEvaRubQuesDetails} from "../api/fetchEvaRubQuesDetails";
 import {fetchRubEvaDetailsApi} from "../api/fetchRubEvaDetailsApi";
 
 
@@ -45,7 +46,7 @@ function EvaluationModifier() {
     useEffect(() => {
         const getEvaluationDetails = async () => {
             try {
-                const data = await fetchEvaluationDetails(id);
+                const data = await fetchEvaRubQuesDetails(id);
                 if (data?.rubriques) {
                     const sortedRubriques = data.rubriques.sort((a, b) => a.rubrique.ordre - b.rubrique.ordre);
                     setRubriques(sortedRubriques);
@@ -65,6 +66,7 @@ function EvaluationModifier() {
         try {
             alert(rubriqueId)
             const response = await fetchRubEvaDetailsApi(rubriqueId);
+            console.log("dataaaaaaaaaaaaa")
             console.log(response)
 
             const questions = response.questions ? response.questions : [];
@@ -73,7 +75,7 @@ function EvaluationModifier() {
             setRubriqueQuestions(questions);
             console.log("these are the rubrique questions :::: " + JSON.stringify(rubriqueQuestions))
             // Open the edit dialog
-            //setEditDialogOpen(true);
+            setEditDialogOpen(true);
         } catch (error) {
             console.error('Error fetching rubrique details:', error);
         }
@@ -187,7 +189,7 @@ function EvaluationModifier() {
                                                     <div ref={provided.innerRef} {...provided.draggableProps}>
                                                         <Accordion style={{ marginBottom: '10px' }}>
                                                         <AccordionSummary expandIcon={<ExpandMoreIcon />} {...provided.dragHandleProps}>
-                                                            <Typography>{rubrique.rubrique.designation}</Typography>
+                                                            <Typography>{rubrique.rubrique.idRubrique.designation}</Typography>
                                                             {/* Edit Icon */}
                                                             <IconButton
                                                                 style={{
@@ -239,9 +241,9 @@ function EvaluationModifier() {
                                                                                 <TableBody>
                                                                                     {rubrique.questions.map((question, qIndex) => (
                                                                                         <TableRow key={qIndex}>
-                                                                                            <TableCell>{question.intitule}</TableCell>
-                                                                                            <TableCell>{question.idQualificatif.minimal}</TableCell>
-                                                                                            <TableCell>{question.idQualificatif.maximal}</TableCell>
+                                                                                            <TableCell>{question.idQuestion.intitule}</TableCell>
+                                                                                            <TableCell>{question.idQuestion.idQualificatif.minimal}</TableCell>
+                                                                                            <TableCell>{question.idQuestion.idQualificatif.maximal}</TableCell>
                                                                                         </TableRow>
                                                                                     ))}
                                                                                 </TableBody>
@@ -273,18 +275,18 @@ function EvaluationModifier() {
                         <DataGrid
                             rows={rubriqueQuestions}
                             columns={[
-                                { field: 'intitule', headerName: 'Intitulé', flex: 2 },
-                                { 
-                                    field: 'idQualificatif.minimal', 
-                                    headerName: 'Minimal', 
+                                { field: 'intitule', headerName: 'Intitulé', flex: 2,  valueGetter: (params) => params.row.idQuestion.intitule},
+                                {
+                                    field: 'idQualificatif.minimal',
+                                    headerName: 'Minimal',
                                     flex: 1,
-                                    valueGetter: (params) => params.row.idQualificatif.minimal 
+                                    valueGetter: (params) => params.row.idQuestion.idQualificatif.minimal
                                 },
-                                { 
-                                    field: 'idQualificatif.maximal', 
-                                    headerName: 'Maximal', 
+                                {
+                                    field: 'idQualificatif.maximal',
+                                    headerName: 'Maximal',
                                     flex: 1,
-                                    valueGetter: (params) => params.row.idQualificatif.maximal 
+                                    valueGetter: (params) => params.row.idQuestion.idQualificatif.maximal
                                 },
                             ]}
                             pageSize={5}
