@@ -7,6 +7,7 @@ import { localizedTextsMap } from './dataGridLanguage';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import { Tooltip } from '@mui/material';
+
 function EvaluationEtudiant() {
   const [evaluations, setEvaluations] = useState([]);
 
@@ -20,84 +21,84 @@ function EvaluationEtudiant() {
       }
     }
     getEvaluations();
-
   }, []);
 
   // Define columns for DataGrid
-  
+  const columns = [
+    { field: 'designation', headerName: 'Designation', flex: 0.7 },
+    { field: 'formation', headerName: 'Formation', flex: 0.6 },
+    { field: 'ue', headerName: 'UE', flex: 0.5 },
+    { field: 'ec', headerName: 'EC', flex: 0.5 },
+    { field: 'periode', headerName: 'Période', flex: 1.5 },
+    { field: 'debutReponse', headerName: 'Début de réponse', flex: 1 },
+    { field: 'finReponse', headerName: 'Fin de réponse', flex: 1 },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      flex: 1.5,
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          color={params.row.repondu ? "secondary" : "primary"}
+          fullWidth
+          disabled={params.row.evaluation.etat === "CLO" && !params.row.repondu}
+          onClick={() => {
+            if (
+              params.row.evaluation.etat !== "CLO" &&
+              !params.row.repondu
+            ) {
+              window.location.href = `/evaluationetudiant/${params.row.evaluation.id}`;
+            }
+          }}
+        >
+          {(() => {
+            if (params.row.evaluation.etat === "CLO" && params.row.repondu) {
+              return "Consulter les réponses";
+            } else if (params.row.evaluation.etat === "CLO") {
+              return "Évaluation clôturée";
+            } else if (params.row.evaluation.etat !== "CLO" && params.row.repondu) {
+              return "Consulter les réponses";
+            } else if (params.row.evaluation.etat !== "CLO" && !params.row.repondu) {
+              return "Répondre";
+            }
+          })()}
+        </Button>
+      ),
+    },
+  ];
 
   return (
     <div>
       <Navbar />
       <Sidebar />
-      <div style={{ display: 'flex', flexWrap: 'wrap', top: '15vh', left: '15vw', position: 'absolute', gap: '20px', justifyContent: 'flex-start', padding: '20px' }}>
-  {evaluations.length > 0 ? (
-    evaluations.map((evaluation, index) => (
-            <div
-            key={index}
-            style={{
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-                padding: '20px',
-                width: '300px',
-                transition: 'transform 0.3s, box-shadow 0.3s', // Adding transition effect
-                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', // Adding initial drop shadow
-            }}
-            onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)'; // Enlarging the div on hover
-                e.currentTarget.style.boxShadow = '0px 0px 20px rgba(0, 0, 0, 0.2)'; // Adding stronger drop shadow on hover
-            }}
-            onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)'; // Restoring the original size on mouse leave
-                e.currentTarget.style.boxShadow = '0px 0px 10px rgba(0, 0, 0, 0.1)'; // Restoring the original drop shadow
-            }}
-            >
-        <h3>{evaluation.designation}</h3>
-        <p>Formation: {evaluation.evaluation.uniteEnseignement.codeFormation.codeFormation}</p>
-        <p>Unité d'enseignement: {evaluation.evaluation.uniteEnseignement.id.codeUe}</p>
-        <p>Élement Constitutif: {evaluation.evaluation.elementConstitutif ? evaluation.evaluation.elementConstitutif.id.codeEc : ""}</p>
-        <p>Période: {evaluation.evaluation.periode}</p>
-        <p>Début de réponse: {new Date(evaluation.evaluation.debutReponse).toLocaleDateString('fr-FR')}</p>
-        <p>Fin de réponse: {new Date(evaluation.evaluation.finReponse).toLocaleDateString('fr-FR')}</p>
-        <p>État: {evaluation.evaluation.etat==="CLO" ? "Cloturé" : "à disposition"}</p>
-        <Button
-  variant="contained"
-  color={evaluation.repondu ? "secondary" : "primary"}
-  fullWidth
-  disabled={evaluation.evaluation.etat === "CLO" && !evaluation.repondu}
-  onClick={() => {
-    if (
-      evaluation.evaluation.etat !== "CLO" &&
-      !evaluation.repondu
-    ) {
-      window.location.href = `/evaluationetudiant/${evaluation.evaluation.id}`;
-    }
-  }}
->
-  {(() => {
-    if (evaluation.evaluation.etat === "CLO" && evaluation.repondu) {
-      return "Consulter les réponses";
-    } else if (evaluation.evaluation.etat === "CLO") {
-      return "Évaluation clôturée";
-    } else if (evaluation.evaluation.etat !== "CLO" && evaluation.repondu) {
-      return "Consulter les réponses";
-    } else if (evaluation.evaluation.etat !== "CLO" && !evaluation.repondu) {
-      return "Répondre";
-    }
-  })()}
-</Button>
-
-
-
-      </div>
-    ))
-  ) : (
-    <p>Pas d'évaluations en cours pour l'instant</p>
-  )}
-</div>
-</div>
+      {evaluations.length > 0 ? (
+        <div style={{ position: 'absolute', left: '12vw', top: '25vh', width: '80%', margin: 'auto' }}>
+        <div style={{ height: 450, width: '100%' }}>
+          <DataGrid
+            rows={evaluations.map((evaluation, index) => ({
+              id: index,
+              designation: evaluation.evaluation.designation,
+              formation: evaluation.evaluation.uniteEnseignement.codeFormation.codeFormation,
+              ue: evaluation.evaluation.uniteEnseignement.id.codeUe,
+              ec: evaluation.evaluation.elementConstitutif ? evaluation.evaluation.elementConstitutif.id.codeEc : "",
+              periode: evaluation.evaluation.periode,
+              debutReponse: new Date(evaluation.evaluation.debutReponse).toLocaleDateString('fr-FR'),
+              finReponse: new Date(evaluation.evaluation.finReponse).toLocaleDateString('fr-FR'),
+              etat: evaluation.evaluation.etat === "CLO" ? "Cloturé" : "à disposition",
+              repondu: evaluation.repondu,
+              evaluation: evaluation.evaluation,
+            }))}
+            hideFooter={true}
+            columns={columns}
+            pageSize={5}
+          />
+          </div>
+        </div>
+      ) : (
+        <p>Pas d'évaluations en cours pour l'instant</p>
+      )}
+    </div>
   );
-  
 }
 
 export default EvaluationEtudiant;

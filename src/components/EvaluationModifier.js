@@ -12,7 +12,7 @@ import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid from MUI
 import evaluationBackgroundImg from '../img/evaluationContentBackground.png'
 import { updateEvaOrdre } from '../api/updateEvaOrdre .js';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {deleteEvaRub} from "../api/deleteEvaRub.js";
+import IconButton from '@mui/material/IconButton';
 
 
 const handleRetourClick = () => {
@@ -32,24 +32,18 @@ function EvaluationModifier() {
     const [details, setDetails] = useState(null);
     const [selectedRubriqueQuestions, setSelectedRubriqueQuestions] = useState([]);
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [rubriques, setRubriques] = useState([])
+    const [rubriques, setRubriques] = useState([]);
+    const [initialRubriquesOrder, setInitialRubriquesOrder] = useState([]);
     const [showSaveButton, setShowSaveButton] = useState(false);
-
 
     useEffect(() => {
         const getEvaluationDetails = async () => {
             try {
                 const data = await fetchEvaluationDetails(id);
-                // Check if data.rubriques exists and sort it by the ordre attribute
                 if (data?.rubriques) {
                     const sortedRubriques = data.rubriques.sort((a, b) => a.rubrique.ordre - b.rubrique.ordre);
-
-                    // Log each rubrique's designation and ordre
-                    sortedRubriques.forEach(rubrique => {
-                        console.log(`Designation: ${rubrique.rubrique.designation}, Ordre: ${rubrique.rubrique.ordre}`);
-                    });
-
                     setRubriques(sortedRubriques);
+                    setInitialRubriquesOrder(sortedRubriques.map(rubrique => rubrique.rubrique.id));
                 }
                 setDetails(data);
             } catch (error) {
@@ -60,7 +54,6 @@ function EvaluationModifier() {
             getEvaluationDetails();
         }
     }, [id]);
-
 
     if (details === null) {
         return null;
@@ -77,30 +70,37 @@ function EvaluationModifier() {
             result.source.index,
             result.destination.index
         );
-
-        // Update ordre based on the new index for each rubrique and show the save button
         const updatedRubriques = items.map((rubrique, index) => ({
             ...rubrique,
             rubrique: {
                 ...rubrique.rubrique,
-                ordre: index + 1 // Adjust if your ordre numbering is different
+                ordre: index + 1
             }
         }));
-
         setRubriques(updatedRubriques);
-        updatedRubriques.forEach(rubrique => {
-            console.log(`Designation: ${rubrique.rubrique.designation}, Ordre: ${rubrique.rubrique.ordre}`);
-        });
-        console.log(updatedRubriques)
-        setShowSaveButton(true); // Show the save button after a successful drag and drop
+        setShowSaveButton(true);
     };
 
-    function updateData(){
+    const resetOrder = () => {
+        // Reset the order to the initial state
+        const initialOrderRubriques = initialRubriquesOrder.map((rubriqueId, index) => ({
+            ...rubriques.find(rubrique => rubrique.rubrique.id === rubriqueId),
+            rubrique: {
+                ...rubriques.find(rubrique => rubrique.rubrique.id === rubriqueId).rubrique,
+                ordre: index + 1
+            }
+        }));
+        setRubriques(initialOrderRubriques);
+        setShowSaveButton(false);
+    };
+    
+
+    function updateData() {
         let ret = []
         rubriques.forEach(rubrique => {
             ret.push({
-                "id" : rubrique.rubrique.id,
-                "ordre" : rubrique.rubrique.ordre
+                "id": rubrique.rubrique.id,
+                "ordre": rubrique.rubrique.ordre
             })
         });
         updateEvaOrdre(ret)
@@ -113,7 +113,6 @@ function EvaluationModifier() {
                 console.error('Error updating ordre:', error);
             });
     }
-
 
     const rmRub = (rubriqueId, desi) => {
         const isConfirmed = window.confirm(`Voulez-vous vraiment supprimer la rubrique ${desi}?`);
@@ -128,20 +127,18 @@ function EvaluationModifier() {
         }
     };
 
-
-
     return (
         <>
-            <Navbar/>
-            <SideBar/>
+            <Navbar />
+            <SideBar />
             <div className="evaluationContainer" style={{ position: 'absolute', left: '0vw', top: '17vh', width: '80%', margin: 'auto', display: 'flex' }}>
-                <div style={{ position: 'fixed', left:'10vw', top: '17vh', zIndex: '1', textAlign: 'left', width: '50%' }}>
+                <div style={{ position: 'fixed', left: '10vw', top: '17vh', zIndex: '1', textAlign: 'left', width: '50%' }}>
                     <Button variant="contained" color="primary" startIcon={<ArrowBackIcon />} onClick={handleRetourClick}>
                         Retour
                     </Button>
                 </div>
                 <div className='evaluationImage'>
-                    <img src={evaluationBackgroundImg}/>
+                    <img src={evaluationBackgroundImg} />
                 </div>
                 <div className='evaluationInfo'>
                     <div style={{ margin: '4px', padding: '8px' }}><strong>Désignation:</strong> {evaluationDetails.designation}</div>
@@ -164,13 +161,22 @@ function EvaluationModifier() {
                                                         <Accordion style={{ marginBottom: '10px' }}>
                                                             <AccordionSummary expandIcon={<ExpandMoreIcon />} {...provided.dragHandleProps}>
                                                                 <Typography>{rubrique.rubrique.designation}</Typography>
-                                                                <DeleteIcon
+                                                                <IconButton
                                                                     onClick={(e) => {
                                                                         e.stopPropagation(); // Prevent accordion from expanding
                                                                         rmRub(rubrique.rubrique.id, rubrique.rubrique.designation); // Call the deletion handler
                                                                     }}
-                                                                    style={{ cursor: 'pointer', position: 'absolute', top: '50%', right: '50px', transform: 'translateY(-50%)' }} // Adjust position to the right
-                                                                />
+                                                                    style={{
+                                                                        cursor: 'pointer',
+                                                                        position: 'absolute',
+                                                                        top: '50%',
+                                                                        right: '50px',
+                                                                        transform: 'translateY(-50%)',
+                                                                    }}
+                                                                    color="error" // Set the color of the IconButton
+                                                                >
+                                                                    <DeleteIcon />
+                                                                </IconButton>
                                                             </AccordionSummary>
                                                             <AccordionDetails>
                                                                 <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
@@ -219,10 +225,21 @@ function EvaluationModifier() {
                         variant="contained"
                         color="primary"
                         onClick={updateData}
-                        style={{position:'absolute',top:'0',right:'0',zIndex:'999'}}
+                        style={{ position: 'absolute', top: '0', right: '0', zIndex: '999' }}
                     >
                         Sauvegarder
                     </Button>
+                )}
+                {showSaveButton && (
+                    <Button
+                        variant="contained"
+                        color="error" // Change color to error for red color
+                        onClick={resetOrder}
+                        style={{ position: 'absolute', top: '0', right: '150px', zIndex: '999' }}
+                    >
+                        Réinitialiser
+                    </Button>
+                
                 )}
             </div>
 

@@ -17,7 +17,7 @@ import { DatePicker } from '@mui/lab';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material'; // Import Material-UI components
 import { fetchUnitsByEnseignant } from '../api/fetchUnitsByEnseignant';
 import{ fetchEcsByUe } from '../api/fetchEcsByUe'; // Import the function to fetch ECs by UE
-
+import { updateEvaluation } from '../api/updateEvaInfoApi';
 function Evaluation() {
   const [evaluations, setEvaluations] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -36,6 +36,8 @@ const [units, setUnits] = useState([]);
 const [ecs, setEcs] = useState([]); // State to hold ECs
 const [selectedRow, setSelectedRow] = useState(null);
 const [codeFormation, setCodeFormation] = useState('');
+const [promotion, setPromotion] = useState('')
+const [anneeUniversitaire, setAnneeUniversitaire] = useState('')
 
 
 
@@ -67,7 +69,7 @@ const [codeFormation, setCodeFormation] = useState('');
     setDebutReponse(formatDate(row.debutReponse)); 
     setFinReponse(formatDate(row.finReponse));
     setOpenDialog(true);
-  
+    
     try {
       const unitsData = await fetchUnitsByEnseignant(); // Fetch units data from backend
       setUnits(unitsData);
@@ -77,19 +79,46 @@ const [codeFormation, setCodeFormation] = useState('');
       }
       // Set the initial value for codeFormation
       setCodeFormation(row.codeFormation.codeFormation); 
+      
+      // Set the initial value for promotion and academic year
+      setPromotion(row.promotion.siglePromotion); // Assuming you want to set the promotion's sigle
+      setAnneeUniversitaire(row.promotion.id.anneeUniversitaire); // Assuming you want to set the academic year
+      
     } catch (error) {
       console.error('Error fetching units:', error);
     }
+  };
+  
+
+const handleConfirmation = async () => {
+  console.log("this is the selected item idddd ::: +++++" + selectedItemId)
+  console.log("this is the selected row info :::: " + JSON.stringify(selectedRow))
+  try {
+    // Construct updatedEvaluationData object with the required information
+    const updatedEvaluationData = {
+      codeFormation: selectedRow.codeFormation.codeFormation,
+      ue: ue,
+      ec: ec || null, // If ec is empty, set it to null
+      anneeUniversitaire: selectedRow.promotion.id.anneeUniversitaire,
+      noEvaluation: selectedRow.noEvaluation,
+      designation: designation,
+      etat: etat,
+      periode: periode || null, // If periode is empty, set it to null
+      debutReponse: debutReponse,
+      finReponse: finReponse
+    };
+
+    // Call updateEvaluation function with authToken, evaluationId, and updatedEvaluationData
+    const updatedEvaluation = await updateEvaluation(selectedItemId, updatedEvaluationData);
+    
+    console.log('Updated evaluation:', updatedEvaluation);
+    setOpenDialog(false); // Close the dialog after successful update
+  } catch (error) {
+    console.error('Error updating evaluation:', error.message);
+    // Handle error if necessary
+  }
 };
 
-
-  
-  
-
-  const handleConfirmation = () => {
-    // Perform edit action here using selectedItemId
-    setOpenDialog(false);
-  };
 
   const handleDelete = (id) => {
     // Handle delete logic here
@@ -239,20 +268,26 @@ const [codeFormation, setCodeFormation] = useState('');
       </FormControl>
 
       <FormControl fullWidth>
-        <InputLabel id="ec-label">Élément Constitutif</InputLabel>
-        <Select
-          labelId="ec-label"
-          id="ec"
-          value={ec}
-          onChange={(e) => setEC(e.target.value)}
-        >
-          {ecs.map((ec) => (
-            <MenuItem key={ec.id.codeEc} value={ec.id.codeEc}>
-              {ec.id.codeEc}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+  <InputLabel id="ec-label">Élément Constitutif</InputLabel>
+  <Select
+    labelId="ec-label"
+    id="ec"
+    value={ec}
+    onChange={(e) => setEC(e.target.value)}
+  >
+    {/* Option for selecting nothing */}
+    <MenuItem value="">&nbsp;</MenuItem>
+
+    {/* Mapping over ecs to generate MenuItem components */}
+    {ecs.map((ec) => (
+      <MenuItem key={ec.id.codeEc} value={ec.id.codeEc}>
+        {ec.id.codeEc}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
+
   <TextField
     label="Période"
     value={periode}
