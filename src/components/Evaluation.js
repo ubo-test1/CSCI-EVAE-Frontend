@@ -18,6 +18,8 @@ import { FormControl, InputLabel, Select, MenuItem } from '@mui/material'; // Im
 import { fetchUnitsByEnseignant } from '../api/fetchUnitsByEnseignant';
 import{ fetchEcsByUe } from '../api/fetchEcsByUe'; // Import the function to fetch ECs by UE
 import { updateEvaluation } from '../api/updateEvaInfoApi';
+import { useNavigate } from 'react-router-dom';
+
 function Evaluation() {
   const [evaluations, setEvaluations] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -55,6 +57,8 @@ const [anneeUniversitaire, setAnneeUniversitaire] = useState('')
     }
     getEvaluations();
   }, []);
+
+  const navigate = useNavigate();
 
   const handleConsult = (evaluation) => {
     setSelectedEvaluation(evaluation);
@@ -215,6 +219,10 @@ const handleConfirmation = async () => {
     },
   ];
 
+  const handleEditEvaluation = () => {
+    navigate(`/evaluationEdit/${selectedItemId}`);
+  };
+
   return (
     <div>
       <Navbar />
@@ -332,15 +340,18 @@ const handleConfirmation = async () => {
   />
 </DialogContent>
 
-  <DialogActions>
-    <Button onClick={handleConfirmation} color="primary">
-      Confirmer
-    </Button>
-    <Button onClick={() => setOpenDialog(false)} color="secondary">
-      Annuler
-    </Button>
-  </DialogActions>
-</Dialog>
+        <DialogActions>
+          <Button onClick={handleConfirmation} color="primary">
+            Confirmer
+          </Button>
+          <Button onClick={() => setOpenDialog(false)} color="secondary">
+            Annuler
+          </Button>
+          <Button onClick={handleEditEvaluation} color="primary">
+            Modifier Question/Rubrique
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
   <DialogTitle>
