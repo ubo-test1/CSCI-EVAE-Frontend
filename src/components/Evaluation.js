@@ -164,8 +164,8 @@ const handleConfirmation = async () => {
         }
       }
     },
-    { field: 'code_UE', headerName: 'UE', flex: 0.5 },
-    { field: 'code_EC', headerName: 'EC', flex: 0.5 },
+    { field: 'code_UE', headerName: 'UE', flex: 0.4 },
+    { field: 'code_EC', headerName: 'EC', flex: 0.4 },
     { field: 'periode', headerName: 'Période', flex: 1.7 },
     { 
       field: 'debutReponse', 
@@ -184,11 +184,22 @@ const handleConfirmation = async () => {
       }
     },
     {
+      field: 'workflow',
+      headerName: 'Workflow',
+      flex: 1.3,
+      renderCell: (params) => (
+        <Button variant="contained" color="primary" onClick={() => handleButtonClick(params)}>
+          {params.row.etat}
+        </Button>
+      ),
+    },
+    {
       field: 'actions',
       headerName: 'Actions',
       flex: 1,
       renderCell: (params) => (
         <div>
+          
           <IconButton onClick={() => handleConsult(params.row)} style={{ color: 'green' }}>
             <VisibilityIcon />
           </IconButton>
@@ -198,6 +209,7 @@ const handleConfirmation = async () => {
           <IconButton onClick={() => handleDelete(params.row.id)} color="secondary">
             <DeleteIcon />
           </IconButton>
+         
         </div>
       ),
     },
