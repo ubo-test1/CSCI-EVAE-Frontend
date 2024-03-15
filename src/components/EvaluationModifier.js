@@ -16,8 +16,11 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import { fetchRubriqueDetails } from '../api/fetchRubriqueDetailsApi.js';
 import { localizedTextsMap } from './dataGridLanguage';
-
-
+import {fetchEvaRubQuesDetails} from "../api/fetchEvaRubQuesDetails";
+import {fetchRubEvaDetailsApi} from "../api/fetchRubEvaDetailsApi";
+import { useNavigate } from 'react-router-dom';
+import { deleteEvaRub } from '../api/deleteEvaRub.js';
+import EvaQuestionModifier from './EvaQuestionModifier.js';
 const handleRetourClick = () => {
     window.history.back();
     console.log('Retour button clicked');
@@ -31,6 +34,7 @@ const reorder = (list, startIndex, endIndex) => {
 };
 
 function EvaluationModifier() {
+    const navigate = useNavigate();
     const { id } = useParams();
     const [details, setDetails] = useState(null);
     const [selectedRubriqueQuestions, setSelectedRubriqueQuestions] = useState([]);
@@ -40,11 +44,13 @@ function EvaluationModifier() {
     const [showSaveButton, setShowSaveButton] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [rubriqueQuestions, setRubriqueQuestions] = useState([]);
+    const [rubriqueId, setRubriqueId] = useState(null); // Initialize rubriqueId state
+    const [editDialogOpen1, setEditDialogOpen1] = useState(false);
 
     useEffect(() => {
         const getEvaluationDetails = async () => {
             try {
-                const data = await fetchEvaluationDetails(id);
+                const data = await fetchEvaRubQuesDetails(id);
                 if (data?.rubriques) {
                     const sortedRubriques = data.rubriques.sort((a, b) => a.rubrique.ordre - b.rubrique.ordre);
                     setRubriques(sortedRubriques);
@@ -61,24 +67,17 @@ function EvaluationModifier() {
     }, [id]);
 
     const handleEditClick = async (rubriqueId) => {
-        try {
-            // Call the fetchRubriqueDetails API
-            const response = await fetchRubriqueDetails(rubriqueId);
-            // Extract rubrique and questions from the response
-            const { rubrique, questions } = response;
-            // Set the rubrique questions in the state
-            setRubriqueQuestions(questions);
-            console.log("these are the rubrique questions :::: " + JSON.stringify(rubriqueQuestions))
-            // Open the edit dialog
-            setEditDialogOpen(true);
-        } catch (error) {
-            console.error('Error fetching rubrique details:', error);
-        }
+        console.log("i am here" + rubriqueId)
+        setRubriqueId(rubriqueId); // Set the rubriqueId in the state
+        setEditDialogOpen1(true);
+      };
+      
+    const handleEditDialogClose1 = () => {
+        setEditDialogOpen1(false);
     };
     const handleEditDialogClose = () => {
         setEditDialogOpen(false);
     };
-
     if (details === null) {
         return null;
     }
@@ -184,7 +183,7 @@ function EvaluationModifier() {
                                                     <div ref={provided.innerRef} {...provided.draggableProps}>
                                                         <Accordion style={{ marginBottom: '10px' }}>
                                                         <AccordionSummary expandIcon={<ExpandMoreIcon />} {...provided.dragHandleProps}>
-                                                            <Typography>{rubrique.rubrique.designation}</Typography>
+                                                            <Typography>{rubrique.rubrique.idRubrique.designation}</Typography>
                                                             {/* Edit Icon */}
                                                             <IconButton
                                                                 style={{
@@ -236,9 +235,9 @@ function EvaluationModifier() {
                                                                                 <TableBody>
                                                                                     {rubrique.questions.map((question, qIndex) => (
                                                                                         <TableRow key={qIndex}>
-                                                                                            <TableCell>{question.intitule}</TableCell>
-                                                                                            <TableCell>{question.idQualificatif.minimal}</TableCell>
-                                                                                            <TableCell>{question.idQualificatif.maximal}</TableCell>
+                                                                                            <TableCell>{question.idQuestion.intitule}</TableCell>
+                                                                                            <TableCell>{question.idQuestion.idQualificatif.minimal}</TableCell>
+                                                                                            <TableCell>{question.idQuestion.idQualificatif.maximal}</TableCell>
                                                                                         </TableRow>
                                                                                     ))}
                                                                                 </TableBody>
@@ -270,18 +269,18 @@ function EvaluationModifier() {
                         <DataGrid
                             rows={rubriqueQuestions}
                             columns={[
-                                { field: 'intitule', headerName: 'Intitulé', flex: 2 },
-                                { 
-                                    field: 'idQualificatif.minimal', 
-                                    headerName: 'Minimal', 
+                                { field: 'intitule', headerName: 'Intitulé', flex: 2,  valueGetter: (params) => params.row.idQuestion.intitule},
+                                {
+                                    field: 'idQualificatif.minimal',
+                                    headerName: 'Minimal',
                                     flex: 1,
-                                    valueGetter: (params) => params.row.idQualificatif.minimal 
+                                    valueGetter: (params) => params.row.idQuestion.idQualificatif.minimal
                                 },
-                                { 
-                                    field: 'idQualificatif.maximal', 
-                                    headerName: 'Maximal', 
+                                {
+                                    field: 'idQualificatif.maximal',
+                                    headerName: 'Maximal',
                                     flex: 1,
-                                    valueGetter: (params) => params.row.idQualificatif.maximal 
+                                    valueGetter: (params) => params.row.idQuestion.idQualificatif.maximal
                                 },
                             ]}
                             pageSize={5}
@@ -355,6 +354,12 @@ function EvaluationModifier() {
                     </Button>
                 </DialogActions>
             </Dialog>
+            <Dialog open={editDialogOpen1} onClose={handleEditDialogClose1} fullWidth maxWidth="lg">
+  <DialogContent>
+    {/* Pass rubriqueId state to the EvaQuestionModifier component */}
+    <EvaQuestionModifier rubriqueId={rubriqueId} />
+  </DialogContent>
+</Dialog>
         </>
     );
 }
