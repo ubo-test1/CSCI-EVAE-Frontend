@@ -26,6 +26,8 @@ import { KeyboardDatePicker } from '@material-ui/pickers';
 import { getAllByEnseignant } from '../api/fetchUeApi';
 import { fetchPromotions } from '../api/fetchPromotionsApi';
 import { createEvaluation } from '../api/addEvaluationApi';
+import DialogContentText from "@mui/material/DialogContentText";
+import {avancerWorkflow} from "../api/avancerWorkflow";
 function Evaluation() {
   const [evaluations, setEvaluations] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -46,6 +48,8 @@ const [selectedRow, setSelectedRow] = useState(null);
 const [codeFormation, setCodeFormation] = useState('');
 const [promotion, setPromotion] = useState('')
 const [anneeUniversitaire, setAnneeUniversitaire] = useState('')
+  const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
+  const [confirmationData, setConfirmationData] = useState({});
 const [latestAction, setLatestAction] = useState(null);
 const [showAlert, setShowAlert] = useState(true);
 const [designationError, setDesignationError] = useState(false)
@@ -157,7 +161,32 @@ const handleConfirmDelete = async () => {
     setShowAlert(true);
         setLatestAction('delete');
 };
+  const handleConfirmationDialogOpen = (id, etat) => {
+    setConfirmationData({ id, etat });
+    setConfirmationDialogOpen(true);
+    console.log("tttttttttttttttttttttttttttttttttttttttttttttttttttttttttt")
+  };
 
+  const handleConfirmationDialogClose2 = () => {
+    setConfirmationDialogOpen(false);
+  };
+
+  const handleWorkflow = async (id, etat) => {
+    try {
+      // Fermer le dialogue de confirmation avant de démarrer la mise à jour
+      handleConfirmationDialogClose2();
+      console.log("wooooooooooooooooooooooooooooooooooooooooooork")
+
+      if (etat === 'ELA') avancerWorkflow(id, "DIS");
+      else if (etat === 'DIS') avancerWorkflow(id, "CLO");
+
+      // Mettre à jour les évaluations après avoir modifié l'état dans la base de données
+      const data= await fetchEvaluations();
+      setEvaluations(data);
+    } catch (error) {
+      console.error('Error updating evaluations:', error);
+    }
+  }
 const handleClickOpen = async () => {
   setOpenDialogAjouter(true);
   try {
@@ -206,7 +235,7 @@ useEffect(() => {
       }
     }
     getEvaluations();
-  }, []);
+  }, [evaluations]);
 
   const handleConsult = (evaluation) => {
     console.log("eeeh")
@@ -239,8 +268,7 @@ useEffect(() => {
       setUE(row.code_UE); // Set the initial value for UE
       console.log("done with the ue ::: " + ue )
       // Set the initial value for codeFormation
-      setCodeFormation(row.codeFormation.codeFormation); 
-        
+      setCodeFormation(row.codeFormation.codeFormation);
       // Set the initial value for promotion and academic year
       setPromotion(row.promotion.siglePromotion); // Assuming you want to set the promotion's sigle
       setAnneeUniversitaire(row.promotion.id.anneeUniversitaire); // Assuming you want to set the academic year
@@ -404,9 +432,23 @@ useEffect(() => {
       headerName: 'Workflow',
       flex: 1.3,
       renderCell: (params) => (
-        <Button variant="contained" color="primary" onClick={() => handleButtonClick(params)}>
-          {params.row.etat}
-        </Button>
+          <Button
+              variant='contained'
+              color={
+                params.row.etat === 'CLO' ? 'success' :
+                    params.row.etat === 'ELA' ? 'primary' : 'secondary'
+              }
+              disabled={params.row.etat === 'CLO'}
+              //onClick={() => handleWorkflow(params.row.id,params.row.etat)}
+              onClick={() => {handleConfirmationDialogOpen(params.row.id,params.row.etat)}}
+              style={{width:'80%',textTransform: 'none'}}
+          >
+            {
+              params.row.etat === 'CLO' ? 'Cloturée' :
+                  params.row.etat === 'ELA' ? 'Mettre à disposition' :
+                      'Cloturer'
+            }
+          </Button>
       ),
     },
     {
@@ -642,7 +684,22 @@ useEffect(() => {
     </div>
   </DialogContent>
 </Dialog>
-
+      <Dialog open={confirmationDialogOpen} onClose={handleConfirmationDialogClose2}>
+        <DialogTitle>{confirmationData.etat === 'ELA' ? "Mettre à disposition l'évaluation" : confirmationData.etat === 'DIS' ? "Clôturer l'évaluation"  : '...'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText style={{ paddingTop:'0' }}>
+            Êtes-vous sûr de vouloir {confirmationData.etat === 'ELA' ? 'mettre à disposition ' : confirmationData.etat === 'DIS' ? 'clôturer' : '...'} cette évaluation ?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleWorkflow(confirmationData.id, confirmationData.etat)} color="primary" variant='contained'>
+            Confirmer
+          </Button>
+          <Button onClick={handleConfirmationDialogClose2} color="secondary" variant='contained'>
+            Annuler
+          </Button>
+        </DialogActions>
+      </Dialog>
 <Dialog open={openDialogAjouter} onClose={handleClose}>
       <DialogTitle>Ajouter une évaluation</DialogTitle>
       <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width: '90%', justifyContent: 'space-evenly', marginLeft: '50px' }}>
