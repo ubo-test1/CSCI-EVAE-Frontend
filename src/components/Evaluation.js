@@ -40,6 +40,7 @@ function Evaluation() {
   const [selectedEvaluation, setSelectedEvaluation] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false); // Define dialogOpen state
   const [selectedRubriqueQuestions, setSelectedRubriqueQuestions] = useState([]);
+  const [evaluationAddedSuccessfully, setEvaluationAddedSuccessfully] = useState(false);
   const [ue, setUE] = useState('');
 const [ec, setEC] = useState('');
 const [units, setUnits] = useState([]);
@@ -105,7 +106,7 @@ const [anneeUniversitaire, setAnneeUniversitaire] = useState('')
         setEvaluations((prevEvaluations) => [...prevEvaluations, newEvaluationWithId]);
         setEvaluations([...evaluations, newEvaluation]);
         setLatestAction('add');
-        window.location.reload();
+        setEvaluationAddedSuccessfully(true);
         onClose();
       }
     } catch (error) {
@@ -424,17 +425,16 @@ const handleConfirmation = async () => {
           onClose={() => setAddDialogOpen(false)}
           onSave={handleAddEvaluation}
       />
-      {
-          showAlert && latestAction === 'add' && (
-              <Alert onClose={() => setShowAlert(false)} severity="success" style={{ position: 'fixed', bottom: 10, right: 10, zIndex: 1000 }}>
-                Évaluation ajoutée avec succès!
-              </Alert>
-          )
-      }
+
+      {evaluationAddedSuccessfully && (
+          <Alert onClose={() => setEvaluationAddedSuccessfully(false)} severity="success" style={{ position: 'fixed', bottom: 10, right: 10, zIndex: 1000 }}>
+            Évaluation ajoutée avec succès!
+          </Alert>
+      )}
 
       {showAlert && latestAction === 'addError' && (
           <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
-            Échec de l'ajout de l'evaluation' (l'evaluation existe déjà) !
+            Échec de l'ajout de l'evaluation'
             <Button onClick={handleHideAlert}><CloseIcon /></Button>
           </Alert>
       )}
