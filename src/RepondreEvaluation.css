@@ -1,0 +1,294 @@
+/* Réinitialisation des styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #ecf0f1; /* Couleur de fond de l'application */
+}
+
+/* Conteneur principal */
+.repondreEvaluationContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f4f4f4;
+}
+
+/* Styles pour SideBarRepondreEvaluation */
+.SideBarRepondreEvaluation {
+    width: 250px;
+    position: fixed;
+    top: 190px;
+    left: 0;
+    height: 600px;
+    background-color: #34495e; /* Couleur de fond de la barre latérale */
+    color: #fff;
+    box-shadow: 4px 0px 10px 0px rgba(0,0,0,0.2);
+    overflow-y: auto; /* Si votre liste est longue, permet le défilement */
+    border-radius: 50px;
+
+}
+
+.SideBarRepondreEvaluation .MuiListItem-root {
+    border-left: 3px solid transparent;
+    cursor: pointer; /* Rendre les éléments cliquables */
+}
+
+.SideBarRepondreEvaluation .Mui-selected,
+.SideBarRepondreEvaluation .MuiListItem-root:hover {
+    background-color: white;
+    border-left: 3px solid white;
+    color: #2ecc71;
+    font-weight: bold;
+
+}
+
+/* Styles spécifiques pour les éléments actifs et par défaut du Stepper */
+.SideBarRepondreEvaluation .MuiStep-root {
+    cursor: pointer;
+}
+
+.SideBarRepondreEvaluation .MuiStepLabel-label.Mui-active {
+    color: green; /* Couleur pour l'élément actif */
+}
+
+.SideBarRepondreEvaluation .MuiStepLabel-label {
+    color: gray; /* Couleur par défaut pour les éléments */
+    font-weight: bold;
+}
+
+
+/* Contenu de l'évaluation */
+.evaluationContent {
+    flex-grow: 1;
+    padding: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: calc(100% - 250px);
+    margin-left: 250px;
+    border-radius: 8px; /* Coins arrondis */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Ombre douce */
+}
+
+
+
+.evaluationFooter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px; /* Adjust as needed for roundness */
+    font-size: 0;
+}
+
+/* Styles pour les boutons */
+button {
+    margin: 0 10px;
+    padding: 10px 25px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Styles spécifiques pour les boutons Suivant et Précédent */
+button.next {
+    background-color: #3498db;
+    color: white;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    margin: 0;
+    border: none; /* Supprime la bordure par défaut du navigateur */
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+button.prev {
+    background-color: #3498db;
+    color: white;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    margin: 0;
+    border: none; /* Supprime la bordure par défaut du navigateur */
+}
+
+
+button.finish {
+    background-color: #3498db;
+    color: white;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    margin: 0;
+    border: none; /* Supprime la bordure par défaut du navigateur */
+}
+
+
+.pageIndicator {
+    background-color: #3498db;
+    color: white;
+    margin: 0 -2px;
+}
+
+.navItem:hover:not(.pageIndicator) {
+    background-color: #2980b9; /* Slightly darker shade on hover */
+}
+
+/* Style pour les boutons désactivés */
+button:disabled {
+    background-color: #bdc3c7;
+    color: #7f8c8d;
+    cursor: not-allowed;
+}
+
+button:disabled:hover {
+    opacity: 1;
+}
+
+
+
+/* Shared styles for buttons and the indicator */
+.navItem {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px; /* Reset font size here */
+    user-select: none;
+}
+
+.MuiSlider-root {
+    color: #3498db; /* Couleur de la piste du slider */
+}
+
+
+.sliderLabelContainer {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 12px; /* Ajustez selon vos besoins pour aligner avec les sliders */
+    margin-bottom: 20px; /* Espace au-dessus des sliders */
+}
+
+.sliderLabelContainer .sliderLabel {
+    flex: 1;
+    text-align: center;
+}
+
+
+/* Utilisez cette classe pour enlever l'ombre du Paper si vous choisissez de l'utiliser */
+.shadowlessPaper {
+    box-shadow: none;
+}
+
+/* Optionnel : vous pouvez ajuster le style du Slider ici */
+.sliderContainer {
+    padding: 0 12px; /* Ajustez selon vos besoins pour aligner avec les marques numériques au-dessus */
+}
+.rubricContainer {
+    width: 100%; /* Take full width of the parent container */
+
+}
+
+.rubricTitle {
+    font-size: 30px; /* Ajustez la taille du texte comme vous le souhaitez */
+    color: white; /* Couleur du texte */
+    font-weight: bold; /* Rend le texte en gras */
+    text-align: center; /* Centre le texte */
+    margin-bottom: 20px; /* Espace sous le titre */
+    background-color: #2c3e50;
+    padding: 20px; /* Ajoutez du padding pour espacer le texte des bords */
+    border-top-left-radius: 30px;  /* Arrondi en bas à gauche */
+    border-top-right-radius: 30px;
+    overflow: hidden;
+}
+.paper{
+
+    border-bottom-left-radius: 50px;  /* Arrondi en bas à gauche */
+    border-bottom-right-radius: 50px;
+    overflow: hidden;
+}
+
+/* Style pour la table sans bordure */
+.noBorderTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.noBorderTable .MuiTableCell-root {
+    border-bottom: none;
+    padding: 8px; /* Ajustez selon vos besoins */
+}
+
+.questionsWrapper {
+    padding-left: 20px; /* Ajustement pour aligner les questions */
+    padding-right: 20px; /* Ajouter un padding à droite pour empêcher le débordement */
+    background-color: white;
+}
+.questionContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px; /* Espacement entre les lignes */
+}
+.questionContainer .MuiTypography-subtitle1 {
+    flex: 1;
+    min-width: 0; /* this allows text to wrap */
+    white-space: normal; /* this allows text to wrap onto multiple lines */
+    word-wrap: break-word; /* ensures long words do not cause the container to stretch */
+}
+
+/* Set a fixed width for the sliders */
+.questionContainer .MuiSlider-root {
+    width: 200px; /* or whatever fixed width you prefer */
+    flex: none; /* this will prevent it from growing */
+}
+
+/* Adjust the container for the qualitative labels */
+.questionContainer .qualificatif {
+    flex: 1;
+    white-space: nowrap; /* keeps these on a single line */
+}
+
+/* Conteneur pour la question */
+.questionContainer .questionLabel {
+    flex: 1; /* Reduce space allocation for question label */
+    padding-right: 10px; /* Space between question and slider */
+}
+
+/* Conteneur pour le slider */
+.questionContainer .sliderContainer {
+    flex: 5; /* Alloue cinq parts de l'espace disponible */
+}
+
+
+/* Étiquettes au-dessus des sliders */
+.sliderLabels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem; /* Espace au-dessus des sliders */
+}
+
+.sliderLabels span {
+    flex: 1;
+    text-align: center; /* Centrer les étiquettes */
+}

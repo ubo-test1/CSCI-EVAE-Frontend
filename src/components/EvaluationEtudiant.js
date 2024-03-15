@@ -53,35 +53,35 @@ function EvaluationEtudiant() {
             }}
             >
         <h3>{evaluation.designation}</h3>
-        <p>Formation: {evaluation.evaluation.uniteEnseignement.codeFormation.codeFormation}</p>
-        <p>Unité d'enseignement: {evaluation.evaluation.uniteEnseignement.id.codeUe}</p>
-        <p>Élement Constitutif: {evaluation.evaluation.elementConstitutif ? evaluation.evaluation.elementConstitutif.id.codeEc : ""}</p>
-        <p>Période: {evaluation.evaluation.periode}</p>
-        <p>Début de réponse: {new Date(evaluation.evaluation.debutReponse).toLocaleDateString('fr-FR')}</p>
-        <p>Fin de réponse: {new Date(evaluation.evaluation.finReponse).toLocaleDateString('fr-FR')}</p>
-        <p>État: {evaluation.evaluation.etat==="CLO" ? "Cloturé" : "à disposition"}</p>
+        <p>Formation: {evaluation.uniteEnseignement.codeFormation.codeFormation}</p>
+        <p>Unité d'enseignement: {evaluation.uniteEnseignement.id.codeUe}</p>
+        <p>Élement Constitutif: {evaluation.elementConstitutif ? evaluation.elementConstitutif.id.codeEc : ""}</p>
+        <p>Période: {evaluation.periode}</p>
+        <p>Début de réponse: {new Date(evaluation.debutReponse).toLocaleDateString('fr-FR')}</p>
+        <p>Fin de réponse: {new Date(evaluation.finReponse).toLocaleDateString('fr-FR')}</p>
+        <p>État: {evaluation.etat==="CLO" ? "Cloturé" : "à disposition"}</p>
         <Button
   variant="contained"
   color={evaluation.repondu ? "secondary" : "primary"}
   fullWidth
-  disabled={evaluation.evaluation.etat === "CLO" && !evaluation.repondu}
+  disabled={evaluation.etat === "CLO" && !evaluation.repondu}
   onClick={() => {
     if (
-      evaluation.evaluation.etat !== "CLO" &&
+      evaluation.etat !== "CLO" &&
       !evaluation.repondu
     ) {
-      window.location.href = `/evaluationetudiant/${evaluation.evaluation.id}`;
+      window.location.href = `/evaluationetudiant/${evaluation.id}`;
     }
   }}
 >
   {(() => {
-    if (evaluation.evaluation.etat === "CLO" && evaluation.repondu) {
+    if (evaluation.etat === "CLO" && evaluation.repondu) {
       return "Consulter les réponses";
-    } else if (evaluation.evaluation.etat === "CLO") {
+    } else if (evaluation.etat === "CLO") {
       return "Évaluation clôturée";
-    } else if (evaluation.evaluation.etat !== "CLO" && evaluation.repondu) {
+    } else if (evaluation.etat !== "CLO" && evaluation.repondu) {
       return "Consulter les réponses";
-    } else if (evaluation.evaluation.etat !== "CLO" && !evaluation.repondu) {
+    } else if (evaluation.etat !== "CLO" && !evaluation.repondu) {
       return "Répondre";
     }
   })()}
