@@ -15,6 +15,7 @@ function EvaluationEtudiant() {
     async function getEvaluations() {
       try {
         const data = await fetchEvaluationsEtudiant();
+        console.log(data)
         setEvaluations(data);
       } catch (error) {
         console.error('Error fetching evaluations:', error);
