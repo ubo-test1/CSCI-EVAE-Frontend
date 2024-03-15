@@ -261,6 +261,15 @@ function EvaluationModifier() {
                             </Droppable>
                         </DragDropContext>
                     </div>
+                    <div style={{ position: 'absolute', bottom: '-5vh', right: '0', zIndex: '999' }}>
+                        <Button variant="contained" color="primary" style={{ marginRight: '50px' }} >
+                            Ajouter des rubriques
+                        </Button>
+                        <Button variant="contained" color="primary">
+                            Supprimer des rubriques
+                        </Button>
+                    </div>
+
                 </div>
                 <Dialog open={editDialogOpen} onClose={handleEditDialogClose} maxWidth="md">
                 <DialogTitle>Modifier les questions</DialogTitle>
@@ -360,6 +369,7 @@ function EvaluationModifier() {
     <EvaQuestionModifier rubriqueId={rubriqueId} />
   </DialogContent>
 </Dialog>
+
         </>
     );
 }

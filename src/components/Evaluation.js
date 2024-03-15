@@ -420,9 +420,8 @@ useEffect(() => {
             <Tooltip title={"Consulter"}>
               <span>
                 <IconButton
-                  onClick={() => isELA && handleConsult(params.row)}
+                  onClick={() => handleConsult(params.row)}
                   style={{ color: 'green' }}
-                  disabled={!isELA}
                 >
                   <VisibilityIcon />
                 </IconButton>
