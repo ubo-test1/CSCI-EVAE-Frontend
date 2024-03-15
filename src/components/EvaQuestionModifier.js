@@ -23,30 +23,23 @@ import Checkbox from "@mui/material/Checkbox";
 import {DataGrid} from "@mui/x-data-grid";
 import { addQtoRubEva } from "../api/addQtoRubEva";
 
-const EvaQuestionModifier = () => {
-    const { rubriqueId } = useParams();
+const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a parameter
     const [rubriqueQuestions, setRubriqueQuestions] = useState([]);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
-    const [designation, setDesignation] = useState('');
     const [loading, setLoading] = useState(false);
-    const [openDialog, setOpenDialog] = useState(false);
-    const [qlist, setQlist] = useState([]);
     const [availQ, setAvailQ] = useState([]);
-    const [checkedQuestions, setCheckedQuestions] = useState([]);
     const [selectedQuestions, setSelectedQuestions] = useState([]);
 
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
                 const response = await fetchRubEvaDetailsApi(rubriqueId);
-                const questions = response.questions ? response.questions.map((q, index) => ({...q, ordre: index + 1})) : [];
+                const questions = response.questions ? response.questions.map((q, index) => ({ ...q, ordre: index + 1 })) : [];
                 setRubriqueQuestions(questions);
-                const response2 = await fetchAllQuestions();
-                setQlist(response2)
-                const availableQuestions = response2.filter(q2 =>
+                const availableQuestions = await fetchAllQuestions();
+                setAvailQ(availableQuestions.filter(q2 =>
                     !questions.some(q => q.idQuestion.id === q2.id)
-                );
-                setAvailQ(availableQuestions)
+                ));
             } catch (error) {
                 console.error('Error fetching rubrique details:', error);
             }

@@ -19,6 +19,8 @@ import { localizedTextsMap } from './dataGridLanguage';
 import {fetchEvaRubQuesDetails} from "../api/fetchEvaRubQuesDetails";
 import {fetchRubEvaDetailsApi} from "../api/fetchRubEvaDetailsApi";
 import { useNavigate } from 'react-router-dom';
+import { deleteEvaRub } from '../api/deleteEvaRub.js';
+import EvaQuestionModifier from './EvaQuestionModifier.js';
 
 
 const handleRetourClick = () => {
@@ -44,6 +46,8 @@ function EvaluationModifier() {
     const [showSaveButton, setShowSaveButton] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [rubriqueQuestions, setRubriqueQuestions] = useState([]);
+    const [rubriqueId, setRubriqueId] = useState(null); // Initialize rubriqueId state
+    const [editDialogOpen1, setEditDialogOpen1] = useState(false);
 
     useEffect(() => {
         const getEvaluationDetails = async () => {
@@ -65,23 +69,13 @@ function EvaluationModifier() {
     }, [id]);
 
     const handleEditClick = async (rubriqueId) => {
-        try {
-            navigate(`/QevEdit/${rubriqueId}`);
-            alert(rubriqueId)
-            const response = await fetchRubEvaDetailsApi(rubriqueId);
-            console.log("dataaaaaaaaaaaaa")
-            console.log(response)
+        console.log("i am here" + rubriqueId)
+        setRubriqueId(rubriqueId); // Set the rubriqueId in the state
+        setEditDialogOpen1(true);
+      };
 
-            const questions = response.questions ? response.questions : [];
-            console.log(questions)
-            // Set the rubrique questions in the state
-            setRubriqueQuestions(questions);
-            console.log("these are the rubrique questions :::: " + JSON.stringify(rubriqueQuestions))
-            // Open the edit dialog
-            setEditDialogOpen(true);
-        } catch (error) {
-            console.error('Error fetching rubrique details:', error);
-        }
+    const handleEditDialogClose1 = () => {
+        setEditDialogOpen1(false);
     };
     const handleEditDialogClose = () => {
         setEditDialogOpen(false);
@@ -192,7 +186,7 @@ function EvaluationModifier() {
                                                     <div ref={provided.innerRef} {...provided.draggableProps}>
                                                         <Accordion style={{ marginBottom: '10px' }}>
                                                         <AccordionSummary expandIcon={<ExpandMoreIcon />} {...provided.dragHandleProps}>
-                                                            <Typography>{rubrique.rubrique.idRubrique.designation}</Typography>
+                                                            <Typography>{rubrique.rubrique.designation}</Typography>
                                                             {/* Edit Icon */}
                                                             <IconButton
                                                                 style={{
@@ -270,6 +264,15 @@ function EvaluationModifier() {
                             </Droppable>
                         </DragDropContext>
                     </div>
+                    <div style={{ position: 'absolute', bottom: '-5vh', right: '0', zIndex: '999' }}>
+                        <Button variant="contained" color="primary" style={{ marginRight: '50px' }} >
+                            Ajouter des rubriques
+                        </Button>
+                        <Button variant="contained" color="primary">
+                            Supprimer des rubriques
+                        </Button>
+                    </div>
+
                 </div>
                 <Dialog open={editDialogOpen} onClose={handleEditDialogClose} maxWidth="md">
                 <DialogTitle>Modifier les questions</DialogTitle>
@@ -363,6 +366,13 @@ function EvaluationModifier() {
                     </Button>
                 </DialogActions>
             </Dialog>
+            <Dialog open={editDialogOpen1} onClose={handleEditDialogClose1} fullWidth maxWidth="lg">
+  <DialogContent>
+    {/* Pass rubriqueId state to the EvaQuestionModifier component */}
+    <EvaQuestionModifier rubriqueId={rubriqueId} />
+  </DialogContent>
+</Dialog>
+
         </>
     );
 }
