@@ -26,6 +26,8 @@ import { KeyboardDatePicker } from '@material-ui/pickers';
 import { getAllByEnseignant } from '../api/fetchUeApi';
 import { fetchPromotions } from '../api/fetchPromotionsApi';
 import { createEvaluation } from '../api/addEvaluationApi';
+import DialogContentText from "@mui/material/DialogContentText";
+import {avancerWorkflow} from "../api/avancerWorkflow";
 function Evaluation() {
   const [evaluations, setEvaluations] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -46,7 +48,9 @@ function Evaluation() {
   const [codeFormation, setCodeFormation] = useState('');
   const [promotion, setPromotion] = useState('')
   const [anneeUniversitaire, setAnneeUniversitaire] = useState('')
-  const [latestAction, setLatestAction] = useState(null);
+  const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
+  const [confirmationData, setConfirmationData] = useState({});
+const [latestAction, setLatestAction] = useState(null);
   const [showAlert, setShowAlert] = useState(true);
   const [designationError, setDesignationError] = useState(false)
   const [periodeError, setPeriodeError] = useState(false)
@@ -155,10 +159,34 @@ function Evaluation() {
       const updatedEvaluations = await fetchEvaluations();
       setEvaluations(updatedEvaluations);  }
     setShowAlert(true);
-    setLatestAction('delete');
+        setLatestAction('delete');
+};
+  const handleConfirmationDialogOpen = (id, etat) => {
+    setConfirmationData({ id, etat });
+    setConfirmationDialogOpen(true);
+    console.log("tttttttttttttttttttttttttttttttttttttttttttttttttttttttttt")
   };
 
-  const handleClickOpen = async () => {
+  const handleConfirmationDialogClose2 = () => {
+    setConfirmationDialogOpen(false);
+  };
+
+  const handleWorkflow = async (id, etat) => {
+    try {
+      // Fermer le dialogue de confirmation avant de démarrer la mise à jour
+      handleConfirmationDialogClose2();
+      console.log("wooooooooooooooooooooooooooooooooooooooooooork")
+
+      if (etat === 'ELA') avancerWorkflow(id, "DIS");
+      else if (etat === 'DIS') avancerWorkflow(id, "CLO");
+
+      // Mettre à jour les évaluations après avoir modifié l'état dans la base de données
+      const data= await fetchEvaluations();
+      setEvaluations(data);
+    } catch (error) {
+      console.error('Error updating evaluations:', error);
+    }
+  }const handleClickOpen = async () => {
     setOpenDialogAjouter(true);
     try {
       // Fetch UEs data
@@ -206,7 +234,7 @@ function Evaluation() {
       }
     }
     getEvaluations();
-  }, []);
+  }, [evaluations]);
 
   const handleConsult = (evaluation) => {
     console.log("eeeh")
@@ -240,15 +268,14 @@ function Evaluation() {
       console.log("done with the ue ::: " + ue )
       // Set the initial value for codeFormation
       setCodeFormation(row.codeFormation.codeFormation);
-
       // Set the initial value for promotion and academic year
       setPromotion(row.promotion.siglePromotion); // Assuming you want to set the promotion's sigle
       setAnneeUniversitaire(row.promotion.id.anneeUniversitaire); // Assuming you want to set the academic year
-
+  
       // Fetch ECs data based on the selected unit
       const ecsData = await fetchEcsByUe({ id: { codeFormation: row.codeFormation.codeFormation, codeUe: row.code_UE } });
       setEcs(ecsData);
-
+  
       // Set the initial value for EC if it's not null or undefined in the row
       if (row.code_EC !== null && row.code_EC !== undefined) {
         setEC(row.code_EC);
@@ -258,7 +285,7 @@ function Evaluation() {
       console.error('Error fetching units:', error);
     }
   };
-
+  
   const handleBlur = (value, setValue, setError) => {
     const trimmedValue = value.trim();
     if (trimmedValue === "") {
@@ -335,7 +362,7 @@ function Evaluation() {
       // Handle error if necessary
     }
   };
-
+  
 
 
   const handleDateChange = (date) => {
@@ -404,8 +431,22 @@ function Evaluation() {
       headerName: 'Workflow',
       flex: 1.3,
       renderCell: (params) => (
-          <Button variant="contained" color="primary" onClick={() => handleButtonClick(params)}>
-            {params.row.etat}
+          <Button
+              variant='contained'
+              color={
+                params.row.etat === 'CLO' ? 'success' :
+                    params.row.etat === 'ELA' ? 'primary' : 'secondary'
+              }
+              disabled={params.row.etat === 'CLO'}
+              //onClick={() => handleWorkflow(params.row.id,params.row.etat)}
+              onClick={() => {handleConfirmationDialogOpen(params.row.id,params.row.etat)}}
+              style={{width:'80%',textTransform: 'none'}}
+          >
+            {
+              params.row.etat === 'CLO' ? 'Cloturée' :
+                  params.row.etat === 'ELA' ? 'Mettre à disposition' :
+                      'Cloturer'
+            }
           </Button>
       ),
     },
@@ -629,136 +670,151 @@ function Evaluation() {
           </DialogActions>
         </Dialog>
 
-        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-          <DialogTitle>
-            Consultation de l'évaluation
-            <Button onClick={() => setDialogOpen(false)} color="primary" style={{ position: 'absolute', right: 10, top: 10 }}>
-              <CloseIcon />
-            </Button>
-          </DialogTitle>
-          <DialogContent style={{ height:'80vh',width:'90vw', paddingTop:'0' }}>
-            <div style={{ height: '100%', width: '100%' }}>
-              {selectedEvaluation && <EvaluationDetails id={selectedEvaluation.id} />}
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={openDialogAjouter} onClose={handleClose}>
-          <DialogTitle>Ajouter une évaluation</DialogTitle>
-          <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width: '90%', justifyContent: 'space-evenly', marginLeft: '50px' }}>
-            <TextField
-                label="Designation"
-                value={designation}
-                onChange={(e) => setDesignation(e.target.value)}
-                fullWidth
-                margin="normal"
-                style={{ flexBasis: '45%' }}
-            />
-            <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
-              <InputLabel htmlFor="ue">Unité d'Enseignement</InputLabel>
-              <Select
-                  labelId="ue-label"
-                  id="ue"
-                  value={ue}
-                  onChange={handleUnitChange} // Use the handleUnitChange function
-                  label="Unité d'Enseignement"
-              >
-                {units.map((unit) => (
-                    <MenuItem key={unit.id.codeUe} value={unit}>
-                      {unit.id.codeUe}
-                    </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
-              <InputLabel htmlFor="promotion">Promotion</InputLabel>
-              <Select
-                  labelId="promotion-label"
-                  id="promotion"
-                  value={selectedPromotion}
-                  onChange={(e) => setSelectedPromotion(e.target.value)}
-                  label="Promotion"
-              >
-                {promotions.map((promotion, index) => (
-                    <MenuItem key={index} value={promotion.value}>
-                      {promotion.label}
-                    </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth margin="normal" style={{ flexBasis: '45%', marginLeft: '10px' }}>
-              <InputLabel htmlFor="ec">Élément Constitutif</InputLabel>
-              <Select
-                  labelId="ec-label"
-                  id="ec"
-                  value={ec}
-                  onChange={(e) => setEC(e.target.value)}
-                  label="Élément Constitutif"
-              >
-                <MenuItem value="">Aucun</MenuItem>
-                {ecs.map((ec) => (
-                    <MenuItem key={ec.id.codeEc} value={ec.id.codeEc}>
-                      {ec.id.codeEc}
-                    </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-                label="Période"
-                type="text"
-                value={periode}
-                onChange={(e) => setPeriode(e.target.value)}
-                fullWidth
-                margin="normal"
-                style={{ flexBasis: '45%' }}
-            />
-            <TextField
-                label="Début Réponse"
-                type="text"
-                value={debutReponse}
-                onChange={(e) => setDebutReponse(e.target.value)}
-                fullWidth
-                margin="normal"
-                placeholder="JJ/MM/AAAA"
-                inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
-                style={{ flexBasis: '45%' }}
-            />
-            <TextField
-                label="Fin Réponse"
-                type="text"
-                value={finReponse}
-                onChange={(e) => setFinReponse(e.target.value)}
-                fullWidth
-                margin="normal"
-                placeholder="JJ/MM/AAAA"
-                inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
-                style={{ flexBasis: '45%' }}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleAjouter} color="primary">
-              Ajouter
-            </Button>
-            <Button onClick={() => setOpenDialogAjouter(false)} color="primary">
-              Annuler
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Dialog open={openConfirmationDialog} onClose={handleConfirmationDialogClose}>
-          <DialogTitle>Confirmation</DialogTitle>
-          <DialogContent>
-            Êtes-vous sûr de vouloir supprimer cette évaluation ?
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleConfirmationDialogClose} color="primary" variant='contained'>
-              Annuler
-            </Button>
-            <Button onClick={handleConfirmDelete} color="secondary" variant='contained'>
-              Confirmer
-            </Button>
-          </DialogActions>
-        </Dialog>
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+  <DialogTitle>
+    Consultation de l'évaluation
+    <Button onClick={() => setDialogOpen(false)} color="primary" style={{ position: 'absolute', right: 10, top: 10 }}>
+  <CloseIcon />
+</Button>
+  </DialogTitle>
+  <DialogContent style={{ height:'80vh',width:'90vw', paddingTop:'0' }}>
+    <div style={{ height: '100%', width: '100%' }}>
+      {selectedEvaluation && <EvaluationDetails id={selectedEvaluation.id} />}
+    </div>
+  </DialogContent>
+</Dialog>
+      <Dialog open={confirmationDialogOpen} onClose={handleConfirmationDialogClose2}>
+        <DialogTitle>{confirmationData.etat === 'ELA' ? "Mettre à disposition l'évaluation" : confirmationData.etat === 'DIS' ? "Clôturer l'évaluation"  : '...'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText style={{ paddingTop:'0' }}>
+            Êtes-vous sûr de vouloir {confirmationData.etat === 'ELA' ? 'mettre à disposition ' : confirmationData.etat === 'DIS' ? 'clôturer' : '...'} cette évaluation ?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleWorkflow(confirmationData.id, confirmationData.etat)} color="primary" variant='contained'>
+            Confirmer
+          </Button>
+          <Button onClick={handleConfirmationDialogClose2} color="secondary" variant='contained'>
+            Annuler
+          </Button>
+        </DialogActions>
+      </Dialog>
+<Dialog open={openDialogAjouter} onClose={handleClose}>
+      <DialogTitle>Ajouter une évaluation</DialogTitle>
+      <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width: '90%', justifyContent: 'space-evenly', marginLeft: '50px' }}>
+        <TextField
+          label="Designation"
+          value={designation}
+          onChange={(e) => setDesignation(e.target.value)}
+          fullWidth
+          margin="normal"
+          style={{ flexBasis: '45%' }}
+        />
+        <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
+  <InputLabel htmlFor="ue">Unité d'Enseignement</InputLabel>
+  <Select
+    labelId="ue-label"
+    id="ue"
+    value={ue}
+    onChange={handleUnitChange} // Use the handleUnitChange function
+    label="Unité d'Enseignement"
+  >
+    {units.map((unit) => (
+      <MenuItem key={unit.id.codeUe} value={unit}>
+        {unit.id.codeUe}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+        <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
+      <InputLabel htmlFor="promotion">Promotion</InputLabel>
+      <Select
+        labelId="promotion-label"
+        id="promotion"
+        value={selectedPromotion}
+        onChange={(e) => setSelectedPromotion(e.target.value)}
+        label="Promotion"
+      >
+        {promotions.map((promotion, index) => (
+          <MenuItem key={index} value={promotion.value}>
+            {promotion.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+        
+    <FormControl fullWidth margin="normal" style={{ flexBasis: '45%', marginLeft: '10px' }}>
+  <InputLabel htmlFor="ec">Élément Constitutif</InputLabel>
+  <Select
+    labelId="ec-label"
+    id="ec"
+    value={ec}
+    onChange={(e) => setEC(e.target.value)}
+    label="Élément Constitutif"
+  >
+    <MenuItem value="">Aucun</MenuItem>
+    {ecs.map((ec) => (
+      <MenuItem key={ec.id.codeEc} value={ec.id.codeEc}>
+        {ec.id.codeEc}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+        <TextField
+          label="Période"
+          type="text"
+          value={periode}
+          onChange={(e) => setPeriode(e.target.value)}
+          fullWidth
+          margin="normal"
+          style={{ flexBasis: '45%' }}
+        />
+        <TextField
+          label="Début Réponse"
+          type="text"
+          value={debutReponse}
+          onChange={(e) => setDebutReponse(e.target.value)}
+          fullWidth
+          margin="normal"
+          placeholder="JJ/MM/AAAA"
+          inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
+          style={{ flexBasis: '45%' }}
+        />
+        <TextField
+          label="Fin Réponse"
+          type="text"
+          value={finReponse}
+          onChange={(e) => setFinReponse(e.target.value)}
+          fullWidth
+          margin="normal"
+          placeholder="JJ/MM/AAAA"
+          inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
+          style={{ flexBasis: '45%' }}
+        />
+      </DialogContent>
+      <DialogActions>
+          <Button onClick={handleAjouter} color="primary">
+            Ajouter
+          </Button>
+          <Button onClick={() => setOpenDialogAjouter(false)} color="primary">
+            Annuler
+          </Button>
+        </DialogActions>
+    </Dialog>
+    <Dialog open={openConfirmationDialog} onClose={handleConfirmationDialogClose}>
+        <DialogTitle>Confirmation</DialogTitle>
+        <DialogContent>
+        Êtes-vous sûr de vouloir supprimer cette évaluation ?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleConfirmationDialogClose} color="primary" variant='contained'>
+            Annuler
+          </Button>
+          <Button onClick={handleConfirmDelete} color="secondary" variant='contained'>
+            Confirmer
+          </Button>
+        </DialogActions>
+      </Dialog>
 
 
         {showAlert && latestAction === 'delete' && (
