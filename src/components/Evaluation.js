@@ -186,7 +186,8 @@ const [latestAction, setLatestAction] = useState(null);
     } catch (error) {
       console.error('Error updating evaluations:', error);
     }
-  }const handleClickOpen = async () => {
+  }
+  const handleClickOpen = async () => {
     setOpenDialogAjouter(true);
     try {
       // Fetch UEs data
@@ -234,7 +235,7 @@ const [latestAction, setLatestAction] = useState(null);
       }
     }
     getEvaluations();
-  }, [evaluations]);
+  }, []);
 
   const handleConsult = (evaluation) => {
     console.log("eeeh")
