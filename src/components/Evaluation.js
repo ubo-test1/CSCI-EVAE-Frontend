@@ -18,8 +18,6 @@ import { FormControl, InputLabel, Select, MenuItem } from '@mui/material'; // Im
 import { fetchUnitsByEnseignant } from '../api/fetchUnitsByEnseignant';
 import{ fetchEcsByUe } from '../api/fetchEcsByUe'; // Import the function to fetch ECs by UE
 import { updateEvaluation } from '../api/updateEvaInfoApi';
-import { useNavigate } from 'react-router-dom';
-
 import Tooltip from '@mui/material/Tooltip';
 import { deleteEva } from '../api/deleteEvaluationApi';
 import Alert from '@mui/material/Alert';
@@ -41,23 +39,23 @@ function Evaluation() {
   const [dialogOpen, setDialogOpen] = useState(false); // Define dialogOpen state
   const [selectedRubriqueQuestions, setSelectedRubriqueQuestions] = useState([]);
   const [ue, setUE] = useState('');
-const [ec, setEC] = useState('');
-const [units, setUnits] = useState([]);
-const [ecs, setEcs] = useState([]); // State to hold ECs
-const [selectedRow, setSelectedRow] = useState(null);
-const [codeFormation, setCodeFormation] = useState('');
-const [promotion, setPromotion] = useState('')
-const [anneeUniversitaire, setAnneeUniversitaire] = useState('')
-const [latestAction, setLatestAction] = useState(null);
-const [showAlert, setShowAlert] = useState(true);
-const [designationError, setDesignationError] = useState(false)
-const [periodeError, setPeriodeError] = useState(false)
-const [selectedDate, setSelectedDate] = useState(null);
-const [openDialogAjouter, setOpenDialogAjouter] = useState(false);
-const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
-const [idToDelete, setIdToDelete] = useState(null);
-const [promotions, setPromotions] = useState([]);
-const [selectedPromotion, setSelectedPromotion] = useState('');
+  const [ec, setEC] = useState('');
+  const [units, setUnits] = useState([]);
+  const [ecs, setEcs] = useState([]); // State to hold ECs
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [codeFormation, setCodeFormation] = useState('');
+  const [promotion, setPromotion] = useState('')
+  const [anneeUniversitaire, setAnneeUniversitaire] = useState('')
+  const [latestAction, setLatestAction] = useState(null);
+  const [showAlert, setShowAlert] = useState(true);
+  const [designationError, setDesignationError] = useState(false)
+  const [periodeError, setPeriodeError] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [openDialogAjouter, setOpenDialogAjouter] = useState(false);
+  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
+  const [idToDelete, setIdToDelete] = useState(null);
+  const [promotions, setPromotions] = useState([]);
+  const [selectedPromotion, setSelectedPromotion] = useState('');
 
   const handleAjouter = async () => {
     try {
@@ -102,7 +100,7 @@ const [selectedPromotion, setSelectedPromotion] = useState('');
       // Close the dialog after successful submission
       setOpenDialogAjouter(false);
       setShowAlert(true);
-        setLatestAction('add');
+      setLatestAction('add');
       // Fetch evaluations again to update the data grid
       const updatedEvaluations = await fetchEvaluations();
       setEvaluations(updatedEvaluations);
@@ -118,82 +116,82 @@ const [selectedPromotion, setSelectedPromotion] = useState('');
   };
   useEffect(() => {
     fetchPromotions()
-      .then(promotionsData => setPromotions(promotionsData))
-      .catch(error => console.error('Error setting promotions:', error));
+        .then(promotionsData => setPromotions(promotionsData))
+        .catch(error => console.error('Error setting promotions:', error));
   }, [])
-const fetchUnits = async () => {
-  try {
-    // Fetch units data from backend
-    const unitsData = await getAllByEnseignant(); // Pass appropriate auth token
-    setUnits(unitsData);
-    console.log("these are the uniittsss !:::: " + units)
-  } catch (error) {
-    console.error('Error fetching units:', error);
-  }
-};
-const handleUnitChange = async (e) => {
-  setUE(e.target.value); // Set the selected UE
-  console.log("thisi isisisisi ::::: " + JSON.stringify(e.target.value))
-  try {
-    // Fetch ECs data based on the selected UE
-    const ecsData = await fetchEcsByUe({ id: { codeFormation: e.target.value.id.codeFormation, codeUe: e.target.value.id.codeUe } });
-    setEcs(ecsData);
-  } catch (error) {
-    console.error('Error fetching ECs:', error);
-  }
-};
-
-const handleConfirmationDialogClose = () => {
-  setOpenConfirmationDialog(false); // Close the confirmation dialog
-  setIdToDelete(null); // Reset the ID to delete
-};
-
-const handleConfirmDelete = async () => {
-  setOpenConfirmationDialog(false); // Close the confirmation dialog
-  if (idToDelete) {
-    // Call deleteEva with the ID stored in state
-    await deleteEva(idToDelete);
-    // Fetch evaluations again and render them
-    const updatedEvaluations = await fetchEvaluations();
-    setEvaluations(updatedEvaluations);  }
-    setShowAlert(true);
-        setLatestAction('delete');
-};
-
-const handleClickOpen = async () => {
-  setOpenDialogAjouter(true);
-  try {
-    // Fetch UEs data
-    const ueData = await getAllByEnseignant();
-    setUnits(ueData); // Set fetched UEs for the input of UE
-  } catch (error) {
-    console.error('Error fetching UEs:', error);
-  }
-};
-
-const handleClose = () => {
-  setOpenDialogAjouter(false);
-};
-
-
-useEffect(() => {
-  // Check if selectedRow and ue are not null or undefined
-  if (selectedRow && ue) {
-    console.log("Initial value of ec:", ec); // Log the initial value of ec
-    async function fetchEcs() {
-      try {
-        // Fetch ECs data based on selectedRow and ue
-
-        const ecsData = await fetchEcsByUe({ id: { codeFormation: selectedRow.codeFormation.codeFormation, codeUe: ue } });
-        setEcs(ecsData);
-      } catch (error) {
-        console.error('Error fetching ECs:', error);
-      }
+  const fetchUnits = async () => {
+    try {
+      // Fetch units data from backend
+      const unitsData = await getAllByEnseignant(); // Pass appropriate auth token
+      setUnits(unitsData);
+      console.log("these are the uniittsss !:::: " + units)
+    } catch (error) {
+      console.error('Error fetching units:', error);
     }
+  };
+  const handleUnitChange = async (e) => {
+    setUE(e.target.value); // Set the selected UE
+    console.log("thisi isisisisi ::::: " + JSON.stringify(e.target.value))
+    try {
+      // Fetch ECs data based on the selected UE
+      const ecsData = await fetchEcsByUe({ id: { codeFormation: e.target.value.id.codeFormation, codeUe: e.target.value.id.codeUe } });
+      setEcs(ecsData);
+    } catch (error) {
+      console.error('Error fetching ECs:', error);
+    }
+  };
 
-    fetchEcs();
-  }
-}, [selectedRow, ue, ec]); // Include ec in the dependency array
+  const handleConfirmationDialogClose = () => {
+    setOpenConfirmationDialog(false); // Close the confirmation dialog
+    setIdToDelete(null); // Reset the ID to delete
+  };
+
+  const handleConfirmDelete = async () => {
+    setOpenConfirmationDialog(false); // Close the confirmation dialog
+    if (idToDelete) {
+      // Call deleteEva with the ID stored in state
+      await deleteEva(idToDelete);
+      // Fetch evaluations again and render them
+      const updatedEvaluations = await fetchEvaluations();
+      setEvaluations(updatedEvaluations);  }
+    setShowAlert(true);
+    setLatestAction('delete');
+  };
+
+  const handleClickOpen = async () => {
+    setOpenDialogAjouter(true);
+    try {
+      // Fetch UEs data
+      const ueData = await getAllByEnseignant();
+      setUnits(ueData); // Set fetched UEs for the input of UE
+    } catch (error) {
+      console.error('Error fetching UEs:', error);
+    }
+  };
+
+  const handleClose = () => {
+    setOpenDialogAjouter(false);
+  };
+
+
+  useEffect(() => {
+    // Check if selectedRow and ue are not null or undefined
+    if (selectedRow && ue) {
+      console.log("Initial value of ec:", ec); // Log the initial value of ec
+      async function fetchEcs() {
+        try {
+          // Fetch ECs data based on selectedRow and ue
+
+          const ecsData = await fetchEcsByUe({ id: { codeFormation: selectedRow.codeFormation.codeFormation, codeUe: ue } });
+          setEcs(ecsData);
+        } catch (error) {
+          console.error('Error fetching ECs:', error);
+        }
+      }
+
+      fetchEcs();
+    }
+  }, [selectedRow, ue, ec]); // Include ec in the dependency array
 
 
   useEffect(() => {
@@ -201,6 +199,8 @@ useEffect(() => {
       try {
         const data = await fetchEvaluations();
         setEvaluations(data);
+        console.log("content ::: " + JSON.stringify(data))
+        // console.log("this is the content of the evaluationsss :::::::::: " + JSON.stringify(data))
       } catch (error) {
         console.error('Error fetching evaluations:', error);
       }
@@ -208,9 +208,8 @@ useEffect(() => {
     getEvaluations();
   }, []);
 
-  const navigate = useNavigate();
-
   const handleConsult = (evaluation) => {
+    console.log("eeeh")
     setSelectedEvaluation(evaluation);
     setDialogOpen(true);
   };
@@ -218,30 +217,30 @@ useEffect(() => {
     setShowAlert(false);
   };
 
-    const handleEditEva = () => {
-      window.location.href = `/evaluationEdit/${selectedItemId}`;
-    };
+  const handleEditEva = () => {
+    window.location.href = `/evaluationEdit/${selectedItemId}`;
+  };
 
   const handleEdit = async (id, row) => {
+    console.log("this is the fucking row : " + JSON.stringify(row))
     setSelectedRow(row); // Store the selected row
     setSelectedItemId(id);
     setDesignation(row.designation);
     setEtat(row.etat);
     setPeriode(row.periode);
-    setDebutReponse(formatDate(row.debutReponse)); 
+    setDebutReponse(formatDate(row.debutReponse));
     setFinReponse(formatDate(row.finReponse));
     setOpenDialog(true);
-    
+
     try {
       const unitsData = await fetchUnitsByEnseignant(); // Fetch units data from backend
       setUnits(unitsData);
+      console.log("this is the urrr ::::" + row.code_UE)
       setUE(row.code_UE); // Set the initial value for UE
-      if (row.code_EC !== null && row.code_EC !== undefined) {
-        setEC(row.code_EC); // Set the initial value for EC if it's not null or undefined
-      }
+      console.log("done with the ue ::: " + ue )
       // Set the initial value for codeFormation
-      setCodeFormation(row.codeFormation.codeFormation); 
-      
+      setCodeFormation(row.codeFormation.codeFormation);
+
       // Set the initial value for promotion and academic year
       setPromotion(row.promotion.siglePromotion); // Assuming you want to set the promotion's sigle
       setAnneeUniversitaire(row.promotion.id.anneeUniversitaire); // Assuming you want to set the academic year
@@ -259,7 +258,7 @@ useEffect(() => {
       console.error('Error fetching units:', error);
     }
   };
-  
+
   const handleBlur = (value, setValue, setError) => {
     const trimmedValue = value.trim();
     if (trimmedValue === "") {
@@ -273,73 +272,77 @@ useEffect(() => {
   const handleConfirmation = async () => {
     console.log("this is the selected item idddd ::: +++++" + selectedItemId);
     console.log("this is the selected row info :::: " + JSON.stringify(selectedRow));
-  console.log("this is the ec element ::::: " + ec)
+    console.log("this is the ec element ::::: " + ec)
     const { codeFormation, promotion, noEvaluation } = selectedRow;
     const { code_UE, code_EC } = selectedRow;
     const { anneeUniversitaire } = promotion.id;
 
     try {
-        // Format debutReponse and finReponse to "YYYY/MM/DD" format
-        const formattedDebutReponse = debutReponse.split('/').reverse().join('-');
-        const formattedFinReponse = finReponse.split('/').reverse().join('-');
+      // Format debutReponse and finReponse to "YYYY/MM/DD" format
+      const formattedDebutReponse = debutReponse.split('/').reverse().join('-');
+      const formattedFinReponse = finReponse.split('/').reverse().join('-');
 
-        let updatedEvaluationData = {
-            id: selectedItemId,
-            uniteEnseignement: {
-                id: {
-                    codeFormation: codeFormation.codeFormation,
-                    codeUe: ue
-                }
-            },
-            promotion: {
-                id: {
-                    codeFormation: codeFormation.codeFormation,
-                    anneeUniversitaire: anneeUniversitaire
-                }
-            },
-            noEvaluation: noEvaluation,
-            designation: designation,
-            etat: etat,
-            periode: periode || null, // If periode is empty, set it to null
-            debutReponse: formattedDebutReponse, // Use formatted debutReponse
-            finReponse: formattedFinReponse // Use formatted finReponse
+      let updatedEvaluationData = {
+        id: selectedItemId,
+        uniteEnseignement: {
+          id: {
+            codeFormation: codeFormation.codeFormation,
+            codeUe: ue
+          }
+        },
+        promotion: {
+          id: {
+            codeFormation: codeFormation.codeFormation,
+            anneeUniversitaire: anneeUniversitaire
+          }
+        },
+        noEvaluation: noEvaluation,
+        designation: designation,
+        etat: etat,
+        periode: periode || null, // If periode is empty, set it to null
+        debutReponse: formattedDebutReponse, // Use formatted debutReponse
+        finReponse: formattedFinReponse // Use formatted finReponse
+      };
+
+      // Conditionally include elementConstitutif if code_EC is provided
+      if (ec) {
+        updatedEvaluationData = {
+          ...updatedEvaluationData, // Spread the existing properties
+          elementConstitutif: {
+            id: {
+              codeFormation: codeFormation.codeFormation,
+              codeUe: ue,
+              codeEc: ec
+            }
+          }
         };
-
-        // Conditionally include elementConstitutif if code_EC is provided
-        if (ec) {
-          updatedEvaluationData = {
-              ...updatedEvaluationData, // Spread the existing properties
-              elementConstitutif: {
-                  id: {
-                      codeFormation: codeFormation.codeFormation,
-                      codeUe: ue,
-                      codeEc: ec
-                  }
-              }
-          };
       }
 
 
-        // Call updateEvaluation function with authToken, evaluationId, and updatedEvaluationData
-        console.log("this is the information that i send ::!:!!! " + JSON.stringify(updatedEvaluationData))
-        const updatedEvaluation = await updateEvaluation(selectedItemId, updatedEvaluationData);
+      // Call updateEvaluation function with authToken, evaluationId, and updatedEvaluationData
+      console.log("this is the information that i send ::!:!!! " + JSON.stringify(updatedEvaluationData))
+      const updatedEvaluation = await updateEvaluation(selectedItemId, updatedEvaluationData);
 
-        console.log('Updated evaluation:', updatedEvaluation);
-        setOpenDialog(false); // Close the dialog after successful update
-        setShowAlert(true);
-        setLatestAction('edit');
-        // Fetch evaluations again to update the data grid
-        const updatedEvaluations = await fetchEvaluations();
-        setEvaluations(updatedEvaluations);
+      console.log('Updated evaluation:', updatedEvaluation);
+      setOpenDialog(false); // Close the dialog after successful update
+      setShowAlert(true);
+      setLatestAction('edit');
+      // Fetch evaluations again to update the data grid
+      const updatedEvaluations = await fetchEvaluations();
+      setEvaluations(updatedEvaluations);
     } catch (error) {
-        console.error('Error updating evaluation:', error.message);
-        // Handle error if necessary
+      console.error('Error updating evaluation:', error.message);
+      // Handle error if necessary
     }
   };
 
 
+
   const handleDateChange = (date) => {
     setSelectedDate(date);
+  };
+
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -360,9 +363,9 @@ useEffect(() => {
   };
   const columns = [
     { field: 'designation', headerName: 'Designation', flex: 1 },
-    { 
-      field: 'etat', 
-      headerName: 'Etat', 
+    {
+      field: 'etat',
+      headerName: 'Etat',
       flex: 1.2,
       valueGetter: (params) => {
         const etatValue = params.row.etat;
@@ -380,17 +383,17 @@ useEffect(() => {
     { field: 'code_UE', headerName: 'UE', flex: 0.4 },
     { field: 'code_EC', headerName: 'EC', flex: 0.4 },
     { field: 'periode', headerName: 'Période', flex: 1.7 },
-    { 
-      field: 'debutReponse', 
-      headerName: 'Début Réponse', 
+    {
+      field: 'debutReponse',
+      headerName: 'Début Réponse',
       flex: 1,
       valueGetter: (params) => {
         return formatDate(params.row.debutReponse);
       }
     },
-    { 
-      field: 'finReponse', 
-      headerName: 'Fin Réponse', 
+    {
+      field: 'finReponse',
+      headerName: 'Fin Réponse',
       flex: 1,
       valueGetter: (params) => {
         return formatDate(params.row.finReponse);
@@ -401,9 +404,9 @@ useEffect(() => {
       headerName: 'Workflow',
       flex: 1.3,
       renderCell: (params) => (
-        <Button variant="contained" color="primary" onClick={() => handleButtonClick(params)}>
-          {params.row.etat}
-        </Button>
+          <Button variant="contained" color="primary" onClick={() => handleButtonClick(params)}>
+            {params.row.etat}
+          </Button>
       ),
     },
     {
@@ -413,40 +416,40 @@ useEffect(() => {
       renderCell: (params) => {
         const isELA = params.row.etat === 'ELA';
         return (
-          <div>
-            <Tooltip title={"Consulter"}>
+            <div>
+              <Tooltip title={"Consulter"}>
               <span>
                 <IconButton
-                  onClick={() => handleConsult(params.row)}
-                  style={{ color: 'green' }}
+                    onClick={() => handleConsult(params.row)}
+                    style={{ color: 'green' }}
                 >
                   <VisibilityIcon />
                 </IconButton>
               </span>
-            </Tooltip>
-            <Tooltip title={!isELA ? "Vous ne pouvez pas modifier cette évaluation" : "Modifier"}>
+              </Tooltip>
+              <Tooltip title={!isELA ? "Vous ne pouvez pas modifier cette évaluation" : "Modifier"}>
               <span>
                 <IconButton
-                  onClick={() => isELA && handleEdit(params.row.id, params.row)}
-                  color="primary"
-                  disabled={!isELA}
+                    onClick={() => isELA && handleEdit(params.row.id, params.row)}
+                    color="primary"
+                    disabled={!isELA}
                 >
                   <EditIcon />
                 </IconButton>
               </span>
-            </Tooltip>
-            <Tooltip title={!isELA ? "Vous ne pouvez pas supprimer cette évaluation" : "Supprimer"}>
+              </Tooltip>
+              <Tooltip title={!isELA ? "Vous ne pouvez pas supprimer cette évaluation" : "Supprimer"}>
               <span>
                 <IconButton
-                  onClick={() => isELA && handleDelete(params.row.id)}
-                  color="secondary"
-                  disabled={!isELA}
+                    onClick={() => isELA && handleDelete(params.row.id)}
+                    color="secondary"
+                    disabled={!isELA}
                 >
                   <DeleteIcon />
                 </IconButton>
               </span>
-            </Tooltip>
-          </div>
+              </Tooltip>
+            </div>
         );
       },
     }
@@ -454,352 +457,349 @@ useEffect(() => {
 
   ];
 
-  const handleEditEvaluation = () => {
-    navigate(`/evaluationEdit/${selectedItemId}`);
-  };
-
   return (
-    <div>
-      <Navbar />
-      <Sidebar />
-      <div style={{ position: 'absolute', right: '17vh', marginTop: '17vh', marginBottom: '0', }}>
-        <Button
-          style={{ textTransform: 'none' }}
-          variant='contained'
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleClickOpen}
-        >
-          Ajouter
-        </Button>
-      </div>
-      <div style={{ position: 'absolute', left: '12vw', top: '25vh', width: '80%', margin: 'auto' }}>
-        <div style={{ height: 450, width: '100%' }}>
-        <DataGrid
-      localeText={localizedTextsMap}
-      hideFooter={true}
-      rows={evaluations}
-      columns={columns}
-      pageSize={5}
-      checkboxSelection={false}
-      sortingOrder={['asc', 'desc']}
-      getRowId={(evaluations) => evaluations.id}
-     
-    />
-        </div>
-      </div>
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} style={{marginLeft:'50px'}}>
-  <DialogTitle>Modifier l'évaluation</DialogTitle>
-  <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width:'90%',justifyContent:'center',marginLeft:'50px' }}>
-  <TextField
-  label="Designation"
-  value={designation}
-  onChange={(e) => {
-    const inputValue = e.target.value; // Get the input value
-    if (inputValue.length <= 16) { // Check if value is within the limit
-      setDesignation(inputValue); // Update the state without trimming
-      setDesignationError(false); // Reset error state when value changes
-    }
-  }}
-  onBlur={() => handleBlur(designation, setDesignation, setDesignationError)} // Apply the same handleBlur function
-  fullWidth
-  margin="normal"
-  style={{ flexBasis: '45%' }} // Adjust the width of the text field
-  InputProps={{
-    endAdornment: (
-      <InputAdornment position="end">
-        {`${designation.trim().length}/16`} {/* Trim the value when displaying the length */}
-      </InputAdornment>
-    ),
-  }}
-/>
-
-
-  <TextField
-    label="Etat"
-    value={etat}
-    onChange={(e) => setEtat(e.target.value)}
-    fullWidth
-    margin="normal"
-    disabled // Make the state field disabled
-    style={{ flexBasis: '45%', marginLeft: '10px' }} // Adjust the width and add margin between fields
-  />
-  <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
-    <InputLabel htmlFor="ue">Unité d'Enseignement</InputLabel>
-    <Select
-      labelId="ue-label"
-      id="ue"
-      value={ue}
-      onChange={async (e) => {
-        setUE(e.target.value);
-
-        console.log("this is the content of the selected roooww ::: " + JSON.stringify(selectedRow))
-        try {
-          const ecsData = await fetchEcsByUe({ id: { codeFormation: selectedRow.codeFormation.codeFormation, codeUe: e.target.value } }); // Fetch ECs data from backend
-          setEcs(ecsData);
-        } catch (error) {
-          console.error('Error fetching ECs:', error);
-        }
-      }}
-      label="Unité d'Enseignement"
-    >
-      {units.map((unit) => (
-        <MenuItem key={unit.id.codeUe} value={unit.id.codeUe}>
-          {unit.id.codeUe}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-  <FormControl fullWidth margin="normal" style={{ flexBasis: '45%', marginLeft: '10px' }}>
-      <InputLabel htmlFor="ec">Élément Constitutif</InputLabel>
-      <Select
-        labelId="ec-label"
-        id="ec"
-        value={ec}
-        onChange={(e) => setEC(e.target.value)}
-        label="Élément Constitutif"
-      >
-        <MenuItem value="">aucun</MenuItem>
-        {ecs.map((item) => (
-          <MenuItem key={item.id.codeEc} value={item.id.codeEc}>
-            {item.id.codeEc}
-          </MenuItem>
-        ))}
-      </Select>
-
-
-    </FormControl>
-
-
-  <TextField
-    label="Début Réponse"
-    type="text"
-    value={debutReponse}
-    onChange={(e) => setDebutReponse(formatWithSlash(e.target.value))}
-    fullWidth
-    margin="normal"
-    placeholder="JJ/MM/AAAA"
-    inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
-    style={{ flexBasis: '45%',marginRight:'10px' }} // Adjust the width and add margin between fields
-  />
-  <TextField
-    label="Fin Réponse"
-    type="text"
-    value={finReponse}
-    onChange={(e) => setFinReponse(formatWithSlash(e.target.value))}
-    fullWidth
-    margin="normal"
-    placeholder="JJ/MM/AAAA"
-    inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
-    style={{ flexBasis: '45%' }} // Adjust the width of the text field
-  />
-  <TextField
-  label="Période"
-  value={periode}
-  onChange={(e) => {
-    const inputValue = e.target.value; // Get the input value
-    if (inputValue.length <= 64) { // Check if value is within the limit
-      setPeriode(inputValue); // Update the state without trimming
-      setPeriodeError(false); // Reset error state when value changes
-    }
-  }}
-  onBlur={() => handleBlur(periode, setPeriode, setPeriodeError)} // Apply the same handleBlur function
-  fullWidth
-  margin="normal"
-  style={{ flexBasis: '45%' }} // Adjust the width of the text field
-  InputProps={{
-    endAdornment: (
-      <InputAdornment position="end">
-        {`${periode.trim().length}/64`} {/* Trim the value when displaying the length */}
-      </InputAdornment>
-    ),
-  }}
-/>
-</DialogContent>
-
-  <DialogActions>
-  <Button variant="contained" color="primary" onClick={handleEditEvaluation}>
-      Modifier rubriques/questions
-    </Button>
-    <Button onClick={handleConfirmation} color="primary">
-      Confirmer
-    </Button>
-    <Button onClick={() => setOpenDialog(false)} color="secondary">
-      Annuler
-    </Button>
-  </DialogActions>
-</Dialog>
-
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-  <DialogTitle>
-    Consultation de l'évaluation
-    <Button onClick={() => setDialogOpen(false)} color="primary" style={{ position: 'absolute', right: 10, top: 10 }}>
-  <CloseIcon />
-</Button>
-  </DialogTitle>
-  <DialogContent style={{ height:'80vh',width:'90vw', paddingTop:'0' }}>
-    <div style={{ height: '100%', width: '100%' }}>
-      {selectedEvaluation && <EvaluationDetails id={selectedEvaluation.id} />}
-    </div>
-  </DialogContent>
-</Dialog>
-
-<Dialog open={openDialogAjouter} onClose={handleClose}>
-      <DialogTitle>Ajouter une évaluation</DialogTitle>
-      <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width: '90%', justifyContent: 'space-evenly', marginLeft: '50px' }}>
-        <TextField
-          label="Designation"
-          value={designation}
-          onChange={(e) => setDesignation(e.target.value)}
-          fullWidth
-          margin="normal"
-          style={{ flexBasis: '45%' }}
-        />
-        <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
-  <InputLabel htmlFor="ue">Unité d'Enseignement</InputLabel>
-  <Select
-    labelId="ue-label"
-    id="ue"
-    value={ue}
-    onChange={handleUnitChange} // Use the handleUnitChange function
-    label="Unité d'Enseignement"
-  >
-    {units.map((unit) => (
-      <MenuItem key={unit.id.codeUe} value={unit}>
-        {unit.id.codeUe}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
-        <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
-      <InputLabel htmlFor="promotion">Promotion</InputLabel>
-      <Select
-        labelId="promotion-label"
-        id="promotion"
-        value={selectedPromotion}
-        onChange={(e) => setSelectedPromotion(e.target.value)}
-        label="Promotion"
-      >
-        {promotions.map((promotion, index) => (
-          <MenuItem key={index} value={promotion.value}>
-            {promotion.label}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-
-    <FormControl fullWidth margin="normal" style={{ flexBasis: '45%', marginLeft: '10px' }}>
-  <InputLabel htmlFor="ec">Élément Constitutif</InputLabel>
-  <Select
-    labelId="ec-label"
-    id="ec"
-    value={ec}
-    onChange={(e) => setEC(e.target.value)}
-    label="Élément Constitutif"
-  >
-    <MenuItem value="">Aucun</MenuItem>
-    {ecs.map((ec) => (
-      <MenuItem key={ec.id.codeEc} value={ec.id.codeEc}>
-        {ec.id.codeEc}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
-        <TextField
-          label="Période"
-          type="text"
-          value={periode}
-          onChange={(e) => setPeriode(e.target.value)}
-          fullWidth
-          margin="normal"
-          style={{ flexBasis: '45%' }}
-        />
-        <TextField
-          label="Début Réponse"
-          type="text"
-          value={debutReponse}
-          onChange={(e) => setDebutReponse(e.target.value)}
-          fullWidth
-          margin="normal"
-          placeholder="JJ/MM/AAAA"
-          inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
-          style={{ flexBasis: '45%' }}
-        />
-        <TextField
-          label="Fin Réponse"
-          type="text"
-          value={finReponse}
-          onChange={(e) => setFinReponse(e.target.value)}
-          fullWidth
-          margin="normal"
-          placeholder="JJ/MM/AAAA"
-          inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
-          style={{ flexBasis: '45%' }}
-        />
-      </DialogContent>
-      <DialogActions>
-          <Button onClick={handleAjouter} color="primary">
+      <div>
+        <Navbar />
+        <Sidebar />
+        <div style={{ position: 'absolute', right: '17vh', marginTop: '17vh', marginBottom: '0', }}>
+          <Button
+              style={{ textTransform: 'none' }}
+              variant='contained'
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={handleClickOpen}
+          >
             Ajouter
           </Button>
-          <Button onClick={() => setOpenDialogAjouter(false)} color="primary">
-            Annuler
-          </Button>
-        </DialogActions>
-    </Dialog>
-    <Dialog open={openConfirmationDialog} onClose={handleConfirmationDialogClose}>
-        <DialogTitle>Confirmation</DialogTitle>
-        <DialogContent>
-        Êtes-vous sûr de vouloir supprimer cette évaluation ?
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleConfirmationDialogClose} color="primary" variant='contained'>
-            Annuler
-          </Button>
-          <Button onClick={handleConfirmDelete} color="secondary" variant='contained'>
-            Confirmer
-          </Button>
-        </DialogActions>
-      </Dialog>
+        </div>
+        <div style={{ position: 'absolute', left: '12vw', top: '25vh', width: '80%', margin: 'auto' }}>
+          <div style={{ height: 450, width: '100%' }}>
+            <DataGrid
+                localeText={localizedTextsMap}
+                hideFooter={true}
+                rows={evaluations}
+                columns={columns}
+                pageSize={5}
+                checkboxSelection={false}
+                sortingOrder={['asc', 'desc']}
+                getRowId={(evaluations) => evaluations.id}
+
+            />
+          </div>
+        </div>
+        <Dialog open={openDialog} onClose={() => setOpenDialog(false)} style={{marginLeft:'50px'}}>
+          <DialogTitle>Modifier l'évaluation</DialogTitle>
+          <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width:'90%',justifyContent:'center',marginLeft:'50px' }}>
+            <TextField
+                label="Designation"
+                value={designation}
+                onChange={(e) => {
+                  const inputValue = e.target.value; // Get the input value
+                  if (inputValue.length <= 16) { // Check if value is within the limit
+                    setDesignation(inputValue); // Update the state without trimming
+                    setDesignationError(false); // Reset error state when value changes
+                  }
+                }}
+                onBlur={() => handleBlur(designation, setDesignation, setDesignationError)} // Apply the same handleBlur function
+                fullWidth
+                margin="normal"
+                style={{ flexBasis: '45%' }} // Adjust the width of the text field
+                InputProps={{
+                  endAdornment: (
+                      <InputAdornment position="end">
+                        {`${designation.trim().length}/16`} {/* Trim the value when displaying the length */}
+                      </InputAdornment>
+                  ),
+                }}
+            />
 
 
-{showAlert && latestAction === 'delete' && (
-        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
-          Évaluation supprimé avec succès !
-          <Button onClick={handleHideAlert}><CloseIcon /></Button>
-        </Alert>
-      )}
-{showAlert && latestAction === 'deleteError' && (
-  <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
-    Échec de la suppression de l'évaluation !
-    <Button onClick={handleHideAlert}><CloseIcon /></Button>
-  </Alert>
-)}
-{showAlert && latestAction === 'add' && (
-        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
-          Évaluation ajouté avec succès !
-          <Button onClick={handleHideAlert}><CloseIcon /></Button>
-        </Alert>
-      )}
-{showAlert && latestAction === 'addError' && (
-  <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
-    Échec de l'ajout de l'évaluation (évaluation existe déjà) !
-    <Button onClick={handleHideAlert}><CloseIcon /></Button>
-  </Alert>
-)}
-{showAlert && latestAction === 'edit' && (
-        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
-          Évaluation modifié avec succès !
-          <Button onClick={handleHideAlert}><CloseIcon /></Button>
-        </Alert>
-      )}
-{showAlert && latestAction==='editError' && (
-  <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
-    Échec de la modification de l'évaluation (évaluation existe déjà) !
-    <Button onClick={handleHideAlert}><CloseIcon /></Button>
-  </Alert>
-)}
-    </div>
+            <TextField
+                label="Etat"
+                value={etat}
+                onChange={(e) => setEtat(e.target.value)}
+                fullWidth
+                margin="normal"
+                disabled // Make the state field disabled
+                style={{ flexBasis: '45%', marginLeft: '10px' }} // Adjust the width and add margin between fields
+            />
+            <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
+              <InputLabel htmlFor="ue">Unité d'Enseignement</InputLabel>
+              <Select
+                  labelId="ue-label"
+                  id="ue"
+                  value={ue}
+                  onChange={async (e) => {
+                    setUE(e.target.value);
+
+                    console.log("this is the content of the selected roooww ::: " + JSON.stringify(selectedRow))
+                    try {
+                      const ecsData = await fetchEcsByUe({ id: { codeFormation: selectedRow.codeFormation.codeFormation, codeUe: e.target.value } }); // Fetch ECs data from backend
+                      setEcs(ecsData);
+                    } catch (error) {
+                      console.error('Error fetching ECs:', error);
+                    }
+                  }}
+                  label="Unité d'Enseignement"
+              >
+                {units.map((unit) => (
+                    <MenuItem key={unit.id.codeUe} value={unit.id.codeUe}>
+                      {unit.id.codeUe}
+                    </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal" style={{ flexBasis: '45%', marginLeft: '10px' }}>
+              <InputLabel htmlFor="ec">Élément Constitutif</InputLabel>
+              <Select
+                  labelId="ec-label"
+                  id="ec"
+                  value={ec}
+                  onChange={(e) => setEC(e.target.value)}
+                  label="Élément Constitutif"
+              >
+                <MenuItem value="">aucun</MenuItem>
+                {ecs.map((item) => (
+                    <MenuItem key={item.id.codeEc} value={item.id.codeEc}>
+                      {item.id.codeEc}
+                    </MenuItem>
+                ))}
+              </Select>
+
+
+            </FormControl>
+
+
+            <TextField
+                label="Début Réponse"
+                type="text"
+                value={debutReponse}
+                onChange={(e) => setDebutReponse(formatWithSlash(e.target.value))}
+                fullWidth
+                margin="normal"
+                placeholder="JJ/MM/AAAA"
+                inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
+                style={{ flexBasis: '45%',marginRight:'10px' }} // Adjust the width and add margin between fields
+            />
+            <TextField
+                label="Fin Réponse"
+                type="text"
+                value={finReponse}
+                onChange={(e) => setFinReponse(formatWithSlash(e.target.value))}
+                fullWidth
+                margin="normal"
+                placeholder="JJ/MM/AAAA"
+                inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
+                style={{ flexBasis: '45%' }} // Adjust the width of the text field
+            />
+            <TextField
+                label="Période"
+                value={periode}
+                onChange={(e) => {
+                  const inputValue = e.target.value; // Get the input value
+                  if (inputValue.length <= 64) { // Check if value is within the limit
+                    setPeriode(inputValue); // Update the state without trimming
+                    setPeriodeError(false); // Reset error state when value changes
+                  }
+                }}
+                onBlur={() => handleBlur(periode, setPeriode, setPeriodeError)} // Apply the same handleBlur function
+                fullWidth
+                margin="normal"
+                style={{ flexBasis: '45%' }} // Adjust the width of the text field
+                InputProps={{
+                  endAdornment: (
+                      <InputAdornment position="end">
+                        {`${periode.trim().length}/64`} {/* Trim the value when displaying the length */}
+                      </InputAdornment>
+                  ),
+                }}
+            />
+          </DialogContent>
+
+          <DialogActions>
+            <Button variant="contained" color="primary" onClick={handleEditEva}>
+              Modifier rubriques/questions
+            </Button>
+            <Button onClick={handleConfirmation} color="primary">
+              Confirmer
+            </Button>
+            <Button onClick={() => setOpenDialog(false)} color="secondary">
+              Annuler
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+          <DialogTitle>
+            Consultation de l'évaluation
+            <Button onClick={() => setDialogOpen(false)} color="primary" style={{ position: 'absolute', right: 10, top: 10 }}>
+              <CloseIcon />
+            </Button>
+          </DialogTitle>
+          <DialogContent style={{ height:'80vh',width:'90vw', paddingTop:'0' }}>
+            <div style={{ height: '100%', width: '100%' }}>
+              {selectedEvaluation && <EvaluationDetails id={selectedEvaluation.id} />}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={openDialogAjouter} onClose={handleClose}>
+          <DialogTitle>Ajouter une évaluation</DialogTitle>
+          <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width: '90%', justifyContent: 'space-evenly', marginLeft: '50px' }}>
+            <TextField
+                label="Designation"
+                value={designation}
+                onChange={(e) => setDesignation(e.target.value)}
+                fullWidth
+                margin="normal"
+                style={{ flexBasis: '45%' }}
+            />
+            <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
+              <InputLabel htmlFor="ue">Unité d'Enseignement</InputLabel>
+              <Select
+                  labelId="ue-label"
+                  id="ue"
+                  value={ue}
+                  onChange={handleUnitChange} // Use the handleUnitChange function
+                  label="Unité d'Enseignement"
+              >
+                {units.map((unit) => (
+                    <MenuItem key={unit.id.codeUe} value={unit}>
+                      {unit.id.codeUe}
+                    </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
+              <InputLabel htmlFor="promotion">Promotion</InputLabel>
+              <Select
+                  labelId="promotion-label"
+                  id="promotion"
+                  value={selectedPromotion}
+                  onChange={(e) => setSelectedPromotion(e.target.value)}
+                  label="Promotion"
+              >
+                {promotions.map((promotion, index) => (
+                    <MenuItem key={index} value={promotion.value}>
+                      {promotion.label}
+                    </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth margin="normal" style={{ flexBasis: '45%', marginLeft: '10px' }}>
+              <InputLabel htmlFor="ec">Élément Constitutif</InputLabel>
+              <Select
+                  labelId="ec-label"
+                  id="ec"
+                  value={ec}
+                  onChange={(e) => setEC(e.target.value)}
+                  label="Élément Constitutif"
+              >
+                <MenuItem value="">Aucun</MenuItem>
+                {ecs.map((ec) => (
+                    <MenuItem key={ec.id.codeEc} value={ec.id.codeEc}>
+                      {ec.id.codeEc}
+                    </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+                label="Période"
+                type="text"
+                value={periode}
+                onChange={(e) => setPeriode(e.target.value)}
+                fullWidth
+                margin="normal"
+                style={{ flexBasis: '45%' }}
+            />
+            <TextField
+                label="Début Réponse"
+                type="text"
+                value={debutReponse}
+                onChange={(e) => setDebutReponse(e.target.value)}
+                fullWidth
+                margin="normal"
+                placeholder="JJ/MM/AAAA"
+                inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
+                style={{ flexBasis: '45%' }}
+            />
+            <TextField
+                label="Fin Réponse"
+                type="text"
+                value={finReponse}
+                onChange={(e) => setFinReponse(e.target.value)}
+                fullWidth
+                margin="normal"
+                placeholder="JJ/MM/AAAA"
+                inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
+                style={{ flexBasis: '45%' }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleAjouter} color="primary">
+              Ajouter
+            </Button>
+            <Button onClick={() => setOpenDialogAjouter(false)} color="primary">
+              Annuler
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog open={openConfirmationDialog} onClose={handleConfirmationDialogClose}>
+          <DialogTitle>Confirmation</DialogTitle>
+          <DialogContent>
+            Êtes-vous sûr de vouloir supprimer cette évaluation ?
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleConfirmationDialogClose} color="primary" variant='contained'>
+              Annuler
+            </Button>
+            <Button onClick={handleConfirmDelete} color="secondary" variant='contained'>
+              Confirmer
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+
+        {showAlert && latestAction === 'delete' && (
+            <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+              Évaluation supprimé avec succès !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+        {showAlert && latestAction === 'deleteError' && (
+            <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+              Échec de la suppression de l'évaluation !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+        {showAlert && latestAction === 'add' && (
+            <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+              Évaluation ajouté avec succès !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+        {showAlert && latestAction === 'addError' && (
+            <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+              Échec de l'ajout de l'évaluation (évaluation existe déjà) !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+        {showAlert && latestAction === 'edit' && (
+            <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+              Évaluation modifié avec succès !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+        {showAlert && latestAction==='editError' && (
+            <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+              Échec de la modification de l'évaluation (évaluation existe déjà) !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+      </div>
+
   );
 }
 
-export default Evaluation;}
+export default Evaluation;

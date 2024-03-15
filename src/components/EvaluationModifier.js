@@ -54,8 +54,11 @@ function EvaluationModifier() {
             try {
                 const data = await fetchEvaRubQuesDetails(id);
                 if (data?.rubriques) {
+                    // Ensure rubriques are sorted by their initial order when fetched
                     const sortedRubriques = data.rubriques.sort((a, b) => a.rubrique.ordre - b.rubrique.ordre);
                     setRubriques(sortedRubriques);
+                    console.log(sortedRubriques)
+                    // Capture the initial order of rubrique IDs
                     setInitialRubriquesOrder(sortedRubriques.map(rubrique => rubrique.rubrique.id));
                 }
                 setDetails(data);
@@ -108,15 +111,18 @@ function EvaluationModifier() {
     };
 
     const resetOrder = () => {
-        // Reset the order to the initial state
-        const initialOrderRubriques = initialRubriquesOrder.map((rubriqueId, index) => ({
-            ...rubriques.find(rubrique => rubrique.rubrique.id === rubriqueId),
-            rubrique: {
-                ...rubriques.find(rubrique => rubrique.rubrique.id === rubriqueId).rubrique,
-                ordre: index + 1
-            }
-        }));
-        setRubriques(initialOrderRubriques);
+        // Use the initialRubriquesOrder to reset the rubriques to their initial state
+        const orderedRubriques = initialRubriquesOrder.map((id, index) => {
+            const rubrique = rubriques.find(r => r.rubrique.id === id);
+            return {
+                ...rubrique,
+                rubrique: {
+                    ...rubrique.rubrique,
+                    ordre: index + 1, // Reset the order based on the initial order
+                },
+            };
+        });
+        setRubriques(orderedRubriques);
         setShowSaveButton(false);
     };
     
@@ -186,7 +192,7 @@ function EvaluationModifier() {
                                                     <div ref={provided.innerRef} {...provided.draggableProps}>
                                                         <Accordion style={{ marginBottom: '10px' }}>
                                                         <AccordionSummary expandIcon={<ExpandMoreIcon />} {...provided.dragHandleProps}>
-                                                            <Typography>{rubrique.rubrique.designation}</Typography>
+                                                            <Typography>{rubrique.rubrique.idRubrique.designation}</Typography>
                                                             {/* Edit Icon */}
                                                             <IconButton
                                                                 style={{
