@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './navbar';
 import Sidebar from './sideBar';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button,TextField  } from '@mui/material';
+import {Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, FormHelperText} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid from MUI
 import { fetchEvaluations } from '../api/fetchEvaluations';
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
@@ -54,15 +54,83 @@ const [latestAction, setLatestAction] = useState(null);
   const [showAlert, setShowAlert] = useState(true);
   const [designationError, setDesignationError] = useState(false)
   const [periodeError, setPeriodeError] = useState(false)
+  const [debutReponseError, setDebutReponseError] = useState(false)
+  const [finReponseError, setFinReponseError] = useState(false)
+  const [promotionError, setPromotionError] = useState(false)
+  const [uniteEnseignementError, setUniteEnseignementError] = useState(false)
   const [selectedDate, setSelectedDate] = useState(null);
   const [openDialogAjouter, setOpenDialogAjouter] = useState(false);
   const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
   const [promotions, setPromotions] = useState([]);
   const [selectedPromotion, setSelectedPromotion] = useState('');
+  const [tableData, setTableData] = useState([]);
 
+
+// Fonction pour valider le format de la date (JJ/MM/AAAA)
+  const isValidDateFormat = (dateString) => {
+    const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/[0-9]{4}$/;
+    return regex.test(dateString);
+  };
+// Fonction pour valider la valeur de la date
+  const isvalidDateValue = (dateString) => {
+    // Vérifier d'abord le format de la date
+    if (!isValidDateFormat(dateString)) {
+      return false;
+    }
+    const parts = dateString.split('/');
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // Les mois dans JavaScript sont 0-indexés
+    const year = parseInt(parts[2], 10);
+    const inputDate = new Date(year, month, day);
+    const currentDate = new Date();
+    inputDate.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+    return inputDate >= currentDate;
+  };
+  const isvalidDateValueFin = (dateString) => {
+    // Vérifier d'abord le format de la date
+    if (debutReponse==null || (!isvalidDateValue(debutReponse))|| !isValidDateFormat(dateString)) {
+      return false;
+    }
+    const parts = dateString.split('/');
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // Les mois dans JavaScript sont 0-indexés
+    const year = parseInt(parts[2], 10);
+    const inputDate = new Date(year, month, day);
+    const parts2 = debutReponse.split('/');
+    const day2 = parseInt(parts2[0], 10);
+    const month2 = parseInt(parts2[1], 10) - 1; // Les mois dans JavaScript sont 0-indexés
+    const year2 = parseInt(parts2[2], 10);
+    const debutResponseDate = new Date(year2, month2, day2);
+    inputDate.setHours(0, 0, 0, 0);
+    debutResponseDate.setHours(0, 0, 0, 0);
+    console.log(inputDate >= debutResponseDate);
+    return inputDate >= debutResponseDate   ;
+  };
   const handleAjouter = async () => {
-    try {
+    // Vérifie si tous les champs sont vides
+    const champs = {
+      designation: { value: designation.trim(), setError: setDesignationError },
+      periode: { value: periode.trim(), setError: setPeriodeError },
+      finReponse: { value: finReponse.trim(), setError: setFinReponseError },
+      debutReponse: { value: debutReponse.trim(), setError: setDebutReponseError },
+      promotion: { value: selectedPromotion, setError: setPromotionError },
+      ue: { value: ue, setError: setUniteEnseignementError }
+    };
+    // Vérification de chaque champ et définition de l'erreur si nécessaire
+    let hasEmptyField = false;
+    Object.entries(champs).forEach(([fieldName, field]) => {
+      if (field.value === "") {
+        field.setError(true); // Définir l'erreur sur true
+        hasEmptyField = true;
+      }
+    });
+    // Si au moins un champ est vide, sortir de la fonction
+    if (hasEmptyField) {
+      return;
+    }
+      try {
       // Assuming debutReponse and finReponse are strings in the format 'yyyy-mm-dd'
       const debutReponseDate = new Date(debutReponse);
       const finReponseDate = new Date(finReponse);
@@ -70,8 +138,10 @@ const [latestAction, setLatestAction] = useState(null);
       // Format the dates to yyyy-mm-dd
       const formattedDebutReponse = debutReponseDate.toISOString().split('T')[0];
       const formattedFinReponse = finReponseDate.toISOString().split('T')[0];
-
-      const newEvaluation = {
+      let newEvaluation = null;
+      if(ec){
+        console.log(ue)
+       newEvaluation = {
         uniteEnseignement: {
           id: {
             codeFormation: ue.id.codeFormation,
@@ -96,8 +166,25 @@ const [latestAction, setLatestAction] = useState(null);
         periode: periode,
         debutReponse: formattedDebutReponse, // Use the formatted dates
         finReponse: formattedFinReponse // Use the formatted dates
-      };
-
+      };}else{       newEvaluation = {
+        uniteEnseignement: {
+          id: {
+            codeFormation: ue.id.codeFormation,
+            codeUe: ue.id.codeUe
+          }
+        },
+        promotion: {
+          id: {
+            codeFormation: selectedPromotion.split('-')[0].trim(), // Split and get codeFormation
+            anneeUniversitaire: selectedPromotion.split('-')[1].trim() +"-"+ selectedPromotion.split('-')[2].trim() // Split and get anneeUniversitaire
+          }
+        },
+        etat: "ELA", // Set the etat directly to "ELA"
+        designation: designation,
+        periode: periode,
+        debutReponse: formattedDebutReponse, // Use the formatted dates
+        finReponse: formattedFinReponse // Use the formatted dates
+      };}
       // Call the addEvaluation API with the new evaluation data
       await createEvaluation(newEvaluation);
 
@@ -113,7 +200,6 @@ const [latestAction, setLatestAction] = useState(null);
       // Handle error if necessary
     }
   };
-
   const handleDelete = (id) => {
     setIdToDelete(id); // Set the ID to delete
     setOpenConfirmationDialog(true); // Open the confirmation dialog
@@ -197,12 +283,12 @@ const [latestAction, setLatestAction] = useState(null);
       console.error('Error fetching UEs:', error);
     }
   };
-
   const handleClose = () => {
+    setPeriodeError(false);
+    setDesignationError(false);
+
     setOpenDialogAjouter(false);
   };
-
-
   useEffect(() => {
     // Check if selectedRow and ue are not null or undefined
     if (selectedRow && ue) {
@@ -217,7 +303,6 @@ const [latestAction, setLatestAction] = useState(null);
           console.error('Error fetching ECs:', error);
         }
       }
-
       fetchEcs();
     }
   }, [selectedRow, ue, ec]); // Include ec in the dependency array
@@ -363,14 +448,10 @@ const [latestAction, setLatestAction] = useState(null);
       // Handle error if necessary
     }
   };
-  
-
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
-
-
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -441,7 +522,7 @@ const [latestAction, setLatestAction] = useState(null);
               disabled={params.row.etat === 'CLO'}
               //onClick={() => handleWorkflow(params.row.id,params.row.etat)}
               onClick={() => {handleConfirmationDialogOpen(params.row.id,params.row.etat)}}
-              style={{width:'80%',textTransform: 'none'}}
+              style={{width:'85%',textTransform: 'none'}}
           >
             {
               params.row.etat === 'CLO' ? 'Cloturée' :
@@ -529,6 +610,7 @@ const [latestAction, setLatestAction] = useState(null);
             />
           </div>
         </div>
+        //-------------------------------------------------------------modifier evaluation----------------------------------------------------------
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)} style={{marginLeft:'50px'}}>
           <DialogTitle>Modifier l'évaluation</DialogTitle>
           <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width:'90%',justifyContent:'center',marginLeft:'50px' }}>
@@ -542,7 +624,16 @@ const [latestAction, setLatestAction] = useState(null);
                     setDesignationError(false); // Reset error state when value changes
                   }
                 }}
-                onBlur={() => handleBlur(designation, setDesignation, setDesignationError)} // Apply the same handleBlur function
+                //onBlur={() => handleBlur(designation, setDesignation, setDesignationError)} // Apply the same handleBlur function
+                onBlur={() => {
+                  if (designation.trim() === "") {
+                    setDesignationError(true); // Définir l'erreur si la valeur est vide lors de la perte de focus
+                  } else {
+                    setDesignationError(false); // Réinitialiser l'erreur si la valeur est valide lors de la perte de focus
+                  }
+                }}
+                error={designationError}
+                helperText={designationError ? "La désignation est requise *" : ""}
                 fullWidth
                 margin="normal"
                 style={{ flexBasis: '45%' }} // Adjust the width of the text field
@@ -554,8 +645,6 @@ const [latestAction, setLatestAction] = useState(null);
                   ),
                 }}
             />
-
-
             <TextField
                 label="Etat"
                 value={etat}
@@ -607,32 +696,80 @@ const [latestAction, setLatestAction] = useState(null);
                     </MenuItem>
                 ))}
               </Select>
-
-
             </FormControl>
-
-
             <TextField
                 label="Début Réponse"
                 type="text"
                 value={debutReponse}
-                onChange={(e) => setDebutReponse(formatWithSlash(e.target.value))}
+                onChange={(e) => {
+                  let inputValue = e.target.value;
+                  // Filtrer la saisie pour ne garder que les chiffres et le caractère "/"
+                  inputValue = inputValue.replace(/[^0-9/]/g, '');
+                  // Limiter la saisie à 10 caractères
+                  inputValue = inputValue.substring(0, 10);
+                  // Insérer automatiquement le caractère "/" aux positions 3 et 6 si nécessaire
+                  if (inputValue.length === 3 && inputValue.charAt(2) !== '/') {
+                    inputValue = inputValue.slice(0, 2) + '/' + inputValue.slice(2);
+                  }
+                  if (inputValue.length === 6 && inputValue.charAt(5) !== '/') {
+                    inputValue = inputValue.slice(0, 5) + '/' + inputValue.slice(5);
+                  }
+                  // Mettre à jour la valeur
+                  setDebutReponse(inputValue);
+                  // Valider la saisie
+                  const isValidFormat = isValidDateFormat(inputValue); // Valider le format de la date
+                  const isValidDateValue = isvalidDateValue(inputValue); // Valider la valeur de la date
+                  setDebutReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
+                }}
+                onBlur={() => {
+                  // Valider la saisie lorsque le champ perd le focus
+                  const isValidFormat = isValidDateFormat(debutReponse); // Valider le format de la date
+                  const isValidDateValue = isvalidDateValue(debutReponse); // Valider la valeur de la date
+                  setDebutReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
+                }}
+                error={debutReponseError}
+                helperText={debutReponseError ? "La date de début de réponse est requise un format valide (JJ/MM/AAAA) *" : ""}
                 fullWidth
                 margin="normal"
                 placeholder="JJ/MM/AAAA"
-                inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
-                style={{ flexBasis: '45%',marginRight:'10px' }} // Adjust the width and add margin between fields
+                style={{ flexBasis: '45%' }}
             />
             <TextField
                 label="Fin Réponse"
                 type="text"
                 value={finReponse}
-                onChange={(e) => setFinReponse(formatWithSlash(e.target.value))}
+                onChange={(e) => {
+                  let inputValue = e.target.value;
+                  // Filtrer la saisie pour ne garder que les chiffres et le caractère "/"
+                  inputValue = inputValue.replace(/[^0-9/]/g, '');
+                  // Limiter la saisie à 10 caractères
+                  inputValue = inputValue.substring(0, 10);
+                  // Insérer automatiquement le caractère "/" aux positions 3 et 6 si nécessaire
+                  if (inputValue.length === 3 && inputValue.charAt(2) !== '/') {
+                    inputValue = inputValue.slice(0, 2) + '/' + inputValue.slice(2);
+                  }
+                  if (inputValue.length === 6 && inputValue.charAt(5) !== '/') {
+                    inputValue = inputValue.slice(0, 5) + '/' + inputValue.slice(5);
+                  }
+                  // Mettre à jour la valeur
+                  setFinReponse(inputValue);
+                  // Valider la saisie
+                  const isValidFormat = isValidDateFormat(inputValue); // Valider le format de la date
+                  const isValidDateValue = isvalidDateValueFin(inputValue); // Valider la valeur de la date
+                  setFinReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
+                }}
+                onBlur={() => {
+                  // Valider la saisie lorsque le champ perd le focus
+                  const isValidFormat = isValidDateFormat(finReponse); // Valider le format de la date
+                  const isValidDateValue = isvalidDateValueFin(finReponse); // Valider la valeur de la date
+                  setFinReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
+                }}
+                error={finReponseError}
+                helperText={finReponseError ? "La date de fin de réponse est requise avec un format valide (JJ/MM/AAAA) *" : ""}
                 fullWidth
                 margin="normal"
                 placeholder="JJ/MM/AAAA"
-                inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
-                style={{ flexBasis: '45%' }} // Adjust the width of the text field
+                style={{ flexBasis: '45%' }}
             />
             <TextField
                 label="Période"
@@ -683,6 +820,7 @@ const [latestAction, setLatestAction] = useState(null);
       {selectedEvaluation && <EvaluationDetails id={selectedEvaluation.id} />}
     </div>
   </DialogContent>
+        //------------------------------------------------------------------------------workflow----------------------------------------------------------------------------
 </Dialog>
       <Dialog open={confirmationDialogOpen} onClose={handleConfirmationDialogClose2}>
         <DialogTitle>{confirmationData.etat === 'ELA' ? "Mettre à disposition l'évaluation" : confirmationData.etat === 'DIS' ? "Clôturer l'évaluation"  : '...'}</DialogTitle>
@@ -692,112 +830,219 @@ const [latestAction, setLatestAction] = useState(null);
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleWorkflow(confirmationData.id, confirmationData.etat)} color="primary" variant='contained'>
+          <Button onClick={() => handleWorkflow(confirmationData.id, confirmationData.etat)} color="primary" variant='contained' style={{textTransform: 'none'}}>
             Confirmer
           </Button>
-          <Button onClick={handleConfirmationDialogClose2} color="secondary" variant='contained'>
+          <Button onClick={handleConfirmationDialogClose2} color="secondary" variant='contained' style={{textTransform: 'none'}}>
             Annuler
           </Button>
         </DialogActions>
       </Dialog>
-<Dialog open={openDialogAjouter} onClose={handleClose}>
+        //----------------------------------------------------------------------------Ajouter----------------------------------------------------------------------------------------
+<Dialog open={openDialogAjouter} onClose={handleClose} style={{marginLeft:'50px'}}>
       <DialogTitle>Ajouter une évaluation</DialogTitle>
       <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width: '90%', justifyContent: 'space-evenly', marginLeft: '50px' }}>
         <TextField
-          label="Designation"
-          value={designation}
-          onChange={(e) => setDesignation(e.target.value)}
-          fullWidth
-          margin="normal"
-          style={{ flexBasis: '45%' }}
+            label="Designation"
+            value={designation}
+            onChange={(e) => {
+              const inputValue = e.target.value; // Obtenez la valeur saisie par l'utilisateur
+              if (inputValue.length <= 16) { // Vérifiez si la valeur est dans la limite
+                setDesignation(inputValue); // Met à jour l'état sans couper la valeur
+                setDesignationError(false); // Réinitialiser l'erreur si la valeur est valide lors de la perte de focus
+
+              }
+            }}
+            onBlur={() => {
+              if (designation.trim() === "") {
+                setDesignationError(true); // Définir l'erreur si la valeur est vide lors de la perte de focus
+              } else {
+                setDesignationError(false); // Réinitialiser l'erreur si la valeur est valide lors de la perte de focus
+              }
+            }}
+            error={designationError}
+            helperText={designationError ? "La désignation est requise *" : ""}
+            fullWidth
+            margin="normal"
+            style={{ flexBasis: '45%' }} // Ajustez la largeur du champ de texte
+            InputProps={{
+              endAdornment: (
+                  <InputAdornment position="end">
+                    {`${designation.trim().length}/16`} {/* Coupez la valeur lors de l'affichage de la longueur */}
+                  </InputAdornment>
+              ),
+            }}
         />
-        <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
-  <InputLabel htmlFor="ue">Unité d'Enseignement</InputLabel>
-  <Select
-    labelId="ue-label"
-    id="ue"
-    value={ue}
-    onChange={handleUnitChange} // Use the handleUnitChange function
-    label="Unité d'Enseignement"
-  >
-    {units.map((unit) => (
-      <MenuItem key={unit.id.codeUe} value={unit}>
-        {unit.id.codeUe}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
-        <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
-      <InputLabel htmlFor="promotion">Promotion</InputLabel>
-      <Select
-        labelId="promotion-label"
-        id="promotion"
-        value={selectedPromotion}
-        onChange={(e) => setSelectedPromotion(e.target.value)}
-        label="Promotion"
-      >
-        {promotions.map((promotion, index) => (
-          <MenuItem key={index} value={promotion.value}>
-            {promotion.label}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-        
-    <FormControl fullWidth margin="normal" style={{ flexBasis: '45%', marginLeft: '10px' }}>
-  <InputLabel htmlFor="ec">Élément Constitutif</InputLabel>
-  <Select
-    labelId="ec-label"
-    id="ec"
-    value={ec}
-    onChange={(e) => setEC(e.target.value)}
-    label="Élément Constitutif"
-  >
-    <MenuItem value="">Aucun</MenuItem>
-    {ecs.map((ec) => (
-      <MenuItem key={ec.id.codeEc} value={ec.id.codeEc}>
-        {ec.id.codeEc}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
+        <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }} error={uniteEnseignementError}>
+          <InputLabel htmlFor="ue">Unité d'Enseignement</InputLabel>
+          <Select
+              labelId="ue-label"
+              id="ue"
+              value={ue}
+              onChange={ async (e) => {
+                setUE(e.target.value); // Met à jour la valeur sélectionnée
+                setUniteEnseignementError(false); // Efface l'erreur
+                console.log("this is the content of the selected roooww ::: " + JSON.stringify(selectedRow))
+                try {
+                  const ecsData = await fetchEcsByUe({ id: { codeFormation: selectedRow.codeFormation.codeFormation, codeUe: e.target.value } }); // Fetch ECs data from backend
+                  setEcs(ecsData);
+                } catch (error) {
+                  console.error('Error fetching ECs:', error);
+                }
+              }}
+              label="Unité d'Enseignement"
+          >
+            {units.map((unit) => (
+                <MenuItem key={unit.id.codeUe} value={unit}>
+                  {unit.id.codeUe}
+                </MenuItem>
+            ))}
+          </Select>
+          {uniteEnseignementError && <FormHelperText>L'unité d'enseignement est requise *</FormHelperText>}
+        </FormControl>
+
+        <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }} error={promotionError}>
+          <InputLabel htmlFor="promotion">Promotion</InputLabel>
+          <Select
+              labelId="promotion-label"
+              id="promotion"
+              value={selectedPromotion}
+              onChange={(e) => {
+                setSelectedPromotion(e.target.value); // Met à jour la valeur sélectionnée
+                setPromotionError(false); // Efface l'erreur
+              }}
+              label="Promotion"
+          >
+            {promotions.map((promotion, index) => (
+                <MenuItem key={index} value={promotion.value}>
+                  {promotion.label}
+                </MenuItem>
+            ))}
+          </Select>
+          {promotionError && <FormHelperText>La promotion est requise *</FormHelperText>}
+        </FormControl>
+        <FormControl fullWidth margin="normal" style={{ flexBasis: '45%', marginLeft: '10px' }}>
+          <InputLabel htmlFor="ec">Élément Constitutif</InputLabel>
+          <Select
+              labelId="ec-label"
+              id="ec"
+              value={ec}
+              onChange={(e) => setEC(e.target.value)}
+              label="Élément Constitutif"
+          >
+            <MenuItem value="">aucun</MenuItem>
+            {ecs.map((item) => (
+                <MenuItem key={item.id.codeEc} value={item.id.codeEc}>
+                  {item.id.codeEc}
+                </MenuItem>
+            ))}
+          </Select>
+
+
+        </FormControl>
         <TextField
-          label="Période"
-          type="text"
-          value={periode}
-          onChange={(e) => setPeriode(e.target.value)}
-          fullWidth
-          margin="normal"
-          style={{ flexBasis: '45%' }}
+            label="Début Réponse"
+            type="text"
+            value={debutReponse}
+            onChange={(e) => {
+              let inputValue = e.target.value;
+              // Filtrer la saisie pour ne garder que les chiffres et le caractère "/"
+              inputValue = inputValue.replace(/[^0-9/]/g, '');
+              // Limiter la saisie à 10 caractères
+              inputValue = inputValue.substring(0, 10);
+              // Insérer automatiquement le caractère "/" aux positions 3 et 6 si nécessaire
+              if (inputValue.length === 3 && inputValue.charAt(2) !== '/') {
+                inputValue = inputValue.slice(0, 2) + '/' + inputValue.slice(2);
+              }
+              if (inputValue.length === 6 && inputValue.charAt(5) !== '/') {
+                inputValue = inputValue.slice(0, 5) + '/' + inputValue.slice(5);
+              }
+              // Mettre à jour la valeur
+              setDebutReponse(inputValue);
+             // Valider la saisie
+              const isValidFormat = isValidDateFormat(inputValue); // Valider le format de la date
+              const isValidDateValue = isvalidDateValue(inputValue); // Valider la valeur de la date
+              setDebutReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
+            }}
+            onBlur={() => {
+              // Valider la saisie lorsque le champ perd le focus
+              const isValidFormat = isValidDateFormat(debutReponse); // Valider le format de la date
+              const isValidDateValue = isvalidDateValue(debutReponse); // Valider la valeur de la date
+              setDebutReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
+            }}
+            error={debutReponseError}
+            helperText={debutReponseError ? "La date de début de réponse est requise un format valide (JJ/MM/AAAA) *" : ""}
+            fullWidth
+            margin="normal"
+            placeholder="JJ/MM/AAAA"
+            style={{ flexBasis: '45%' }}
+        />
+
+        <TextField
+            label="Fin Réponse"
+            type="text"
+            value={finReponse}
+            onChange={(e) => {
+              let inputValue = e.target.value;
+              // Filtrer la saisie pour ne garder que les chiffres et le caractère "/"
+              inputValue = inputValue.replace(/[^0-9/]/g, '');
+              // Limiter la saisie à 10 caractères
+              inputValue = inputValue.substring(0, 10);
+              // Insérer automatiquement le caractère "/" aux positions 3 et 6 si nécessaire
+              if (inputValue.length === 3 && inputValue.charAt(2) !== '/') {
+                inputValue = inputValue.slice(0, 2) + '/' + inputValue.slice(2);
+              }
+              if (inputValue.length === 6 && inputValue.charAt(5) !== '/') {
+                inputValue = inputValue.slice(0, 5) + '/' + inputValue.slice(5);
+              }
+              // Mettre à jour la valeur
+              setFinReponse(inputValue);
+              // Valider la saisie
+              const isValidFormat = isValidDateFormat(inputValue); // Valider le format de la date
+              const isValidDateValue = isvalidDateValueFin(inputValue); // Valider la valeur de la date
+              setFinReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
+            }}
+            onBlur={() => {
+              // Valider la saisie lorsque le champ perd le focus
+              const isValidFormat = isValidDateFormat(finReponse); // Valider le format de la date
+              const isValidDateValue = isvalidDateValueFin(finReponse); // Valider la valeur de la date
+              setFinReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
+            }}
+            error={finReponseError}
+            helperText={finReponseError ? "La date de fin de réponse est requise avec un format valide (JJ/MM/AAAA) *" : ""}
+            fullWidth
+            margin="normal"
+            placeholder="JJ/MM/AAAA"
+            style={{ flexBasis: '45%' }}
         />
         <TextField
-          label="Début Réponse"
-          type="text"
-          value={debutReponse}
-          onChange={(e) => setDebutReponse(e.target.value)}
-          fullWidth
-          margin="normal"
-          placeholder="JJ/MM/AAAA"
-          inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
-          style={{ flexBasis: '45%' }}
-        />
-        <TextField
-          label="Fin Réponse"
-          type="text"
-          value={finReponse}
-          onChange={(e) => setFinReponse(e.target.value)}
-          fullWidth
-          margin="normal"
-          placeholder="JJ/MM/AAAA"
-          inputProps={{ maxLength: 10, pattern: "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}" }}
-          style={{ flexBasis: '45%' }}
+            label="Période"
+            value={periode}
+            onChange={(e) => {
+              const inputValue = e.target.value; // Get the input value
+              if (inputValue.length <= 64) { // Check if value is within the limit
+                setPeriode(inputValue); // Update the state without trimming
+                setPeriodeError(false); // Reset error state when value changes
+              }
+            }}
+            onBlur={() => handleBlur(periode, setPeriode, setPeriodeError)} // Apply the same handleBlur function
+            fullWidth
+            margin="normal"
+            style={{ flexBasis: '45%' }} // Adjust the width of the text field
+            InputProps={{
+              endAdornment: (
+                  <InputAdornment position="end">
+                    {`${periode.trim().length}/64`} {/* Trim the value when displaying the length */}
+                  </InputAdornment>
+              ),
+            }}
         />
       </DialogContent>
       <DialogActions>
-          <Button onClick={handleAjouter} color="primary">
+          <Button onClick={handleAjouter} color="primary"  variant='contained' style={{textTransform: 'none'}}>
             Ajouter
           </Button>
-          <Button onClick={() => setOpenDialogAjouter(false)} color="primary">
+          <Button onClick={() => setOpenDialogAjouter(false)} color="secondary" variant='contained' style={{textTransform: 'none'}}>
             Annuler
           </Button>
         </DialogActions>
@@ -808,7 +1053,7 @@ const [latestAction, setLatestAction] = useState(null);
         Êtes-vous sûr de vouloir supprimer cette évaluation ?
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleConfirmationDialogClose} color="primary" variant='contained'>
+          <Button onClick={handleConfirmationDialogClose} color="primary" variant='contained' color="secondary" variant='contained' style={{textTransform: 'none'}}>
             Annuler
           </Button>
           <Button onClick={handleConfirmDelete} color="secondary" variant='contained'>

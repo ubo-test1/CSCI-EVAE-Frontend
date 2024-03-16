@@ -569,7 +569,6 @@ return (
           <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleModifyModalClose} color="secondary">
             Annuler
           </Button>
-
         </DialogActions>
       </Dialog>
       {showAlert && latestAction === 'delete' && (
