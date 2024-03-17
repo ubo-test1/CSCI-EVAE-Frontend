@@ -230,7 +230,16 @@ const [latestAction, setLatestAction] = useState(null);
       console.error('Error fetching ECs:', error);
     }
   };
-
+const handleCLoseEdit = () => {
+  console.log("i ammmmm ")
+  setOpenDialog(false)
+  setDesignation('')
+  setDebutReponse('')
+  setFinReponse('')
+  setUE('')
+  setEC('')
+  setPeriode('')
+  }
   const handleConfirmationDialogClose = () => {
     setOpenConfirmationDialog(false); // Close the confirmation dialog
     setIdToDelete(null); // Reset the ID to delete
@@ -429,6 +438,13 @@ const [latestAction, setLatestAction] = useState(null);
             }
           }
         };
+        setOpenDialog(false)
+        setDesignation('')
+        setDebutReponse('')
+        setFinReponse('')
+        setUE('')
+        setEC('')
+        setPeriode('')
       }
 
 
@@ -611,9 +627,9 @@ const [latestAction, setLatestAction] = useState(null);
           </div>
         </div>
         //-------------------------------------------------------------modifier evaluation----------------------------------------------------------
-        <Dialog open={openDialog} onClose={() => setOpenDialog(false)} style={{marginLeft:'50px'}}>
+        <Dialog open={openDialog} onClose={() => setOpenDialog(false)} style={{marginLeft:'80px', width:'74vw', left:'10vw'}}>
           <DialogTitle>Modifier l'évaluation</DialogTitle>
-          <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width:'90%',justifyContent:'center',marginLeft:'50px' }}>
+          <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width: '90%', justifyContent: 'space-evenly', marginLeft: '50px' }}>
             <TextField
                 label="Designation"
                 value={designation}
@@ -680,7 +696,7 @@ const [latestAction, setLatestAction] = useState(null);
                 ))}
               </Select>
             </FormControl>
-            <FormControl fullWidth margin="normal" style={{ flexBasis: '45%', marginLeft: '10px' }}>
+            <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
               <InputLabel htmlFor="ec">Élément Constitutif</InputLabel>
               <Select
                   labelId="ec-label"
@@ -794,20 +810,22 @@ const [latestAction, setLatestAction] = useState(null);
                 }}
             />
           </DialogContent>
-
-          <DialogActions>
-            <Button variant="contained" color="primary" onClick={handleEditEva}>
-              Modifier rubriques/questions
-            </Button>
-            <Button onClick={handleConfirmation} color="primary">
-              Confirmer
-            </Button>
-            <Button onClick={() => setOpenDialog(false)} color="secondary">
-              Annuler
-            </Button>
+          <DialogActions style={{ justifyContent: 'space-between' }}> {/* Aligner les actions à gauche et à droite */}
+            <div>
+              <Button variant="contained" color="success" onClick={handleEditEva} style={{ textTransform: 'none' , marginLeft:10}}>
+                Modifier rubriques/questions
+              </Button>
+            </div>
+            <div>
+              <Button onClick={handleConfirmation} color="primary" variant='contained' style={{ textTransform: 'none'  }}>
+                Confirmer
+              </Button>
+              <Button onClick={handleCLoseEdit} color="secondary" variant='contained' style={{ textTransform: 'none' , marginLeft:5,marginRight:10}}>
+                Annuler
+              </Button>
+            </div>
           </DialogActions>
         </Dialog>
-
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
   <DialogTitle>
     Consultation de l'évaluation
@@ -879,17 +897,7 @@ const [latestAction, setLatestAction] = useState(null);
               labelId="ue-label"
               id="ue"
               value={ue}
-              onChange={ async (e) => {
-                setUE(e.target.value); // Met à jour la valeur sélectionnée
-                setUniteEnseignementError(false); // Efface l'erreur
-                console.log("this is the content of the selected roooww ::: " + JSON.stringify(selectedRow))
-                try {
-                  const ecsData = await fetchEcsByUe({ id: { codeFormation: selectedRow.codeFormation.codeFormation, codeUe: e.target.value } }); // Fetch ECs data from backend
-                  setEcs(ecsData);
-                } catch (error) {
-                  console.error('Error fetching ECs:', error);
-                }
-              }}
+              onChange={handleUnitChange}
               label="Unité d'Enseignement"
           >
             {units.map((unit) => (
@@ -1048,16 +1056,16 @@ const [latestAction, setLatestAction] = useState(null);
         </DialogActions>
     </Dialog>
     <Dialog open={openConfirmationDialog} onClose={handleConfirmationDialogClose}>
-        <DialogTitle>Confirmation</DialogTitle>
+        <DialogTitle>Supprimer l'évaluation</DialogTitle>
         <DialogContent>
         Êtes-vous sûr de vouloir supprimer cette évaluation ?
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleConfirmationDialogClose} color="primary" variant='contained' color="secondary" variant='contained' style={{textTransform: 'none'}}>
-            Annuler
-          </Button>
-          <Button onClick={handleConfirmDelete} color="secondary" variant='contained'>
+          <Button onClick={handleConfirmDelete} color="primary" variant='contained' style={{textTransform: 'none'}}>
             Confirmer
+          </Button>
+          <Button onClick={handleConfirmationDialogClose}  color="secondary" variant='contained' style={{textTransform: 'none'}}>
+            Annuler
           </Button>
         </DialogActions>
       </Dialog>
