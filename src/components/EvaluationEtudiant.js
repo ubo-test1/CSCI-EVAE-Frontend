@@ -50,6 +50,10 @@ function EvaluationEtudiant() {
             ) {
               window.location.href = `/evaluationetudiant/${params.row.evaluation.id}`;
             }
+            if(params.row.repondu) {
+              window.location.href = `/evaluationetudiantconsulter/${params.row.reponseEvaluation.id}`;
+              //console.log(params.row)
+            }
           }}
         >
           {(() => {
@@ -88,6 +92,7 @@ function EvaluationEtudiant() {
               etat: evaluation.evaluation.etat === "CLO" ? "Cloturé" : "à disposition",
               repondu: evaluation.repondu,
               evaluation: evaluation.evaluation,
+              reponseEvaluation : evaluation.repondu ? evaluation.reponseEvaluation : ""
             }))}
             hideFooter={true}
             columns={columns}

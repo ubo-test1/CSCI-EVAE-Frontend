@@ -12,6 +12,8 @@ import EvaluationEtudiant from './components/EvaluationEtudiant';
 import RepondreEvaluation from './components/RepondreEvaluation'
 import EvaluationModifier from "./components/EvaluationModifier";
 import EvaQuestionModifier from "./components/EvaQuestionModifier";
+import EvaluationDetailsReponseConsulter from "./components/EvaluationDetailsReponseConsulter";
+import ConsulterReponses from "./components/ConsulterReponses";
 
 class App extends Component {
   render() {
@@ -30,6 +32,7 @@ class App extends Component {
           <Route path='/evaluationetudiant/:id' element={<RepondreEvaluation />}/>
           <Route path="/EvaluationEdit/:id" element={<EvaluationModifier />} />
           <Route path="/QevEdit/:rubriqueId" element={<EvaQuestionModifier />} />
+          <Route path='/evaluationetudiantconsulter/:id' element={<ConsulterReponses />}/>
         </Routes>
       </Router>
     );
