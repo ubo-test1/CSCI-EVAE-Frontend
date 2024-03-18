@@ -474,8 +474,8 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
   position: fixed;
   width: auto; 
   text-align: left; 
-  top: 38vh; 
   left: 12.5vw;
+  top: 37vh;
   margin-bottom:50px; 
   height:40%; 
   display:flex; 
@@ -494,3 +494,8 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
  .evaluationInfo div {
   font-family: "Dancing Script", cursive;
 } 
+
+.selected-row {
+  background-color: #000000; /* Blue foncé */
+  color: white; /* Text color */
+}

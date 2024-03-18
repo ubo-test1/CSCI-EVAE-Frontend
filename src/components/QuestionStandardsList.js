@@ -451,7 +451,7 @@ return (
 >
   {coupleQualificatifs.map((couple) => (
     <MenuItem key={couple.qualificatif.id} value={couple.qualificatif.id}>
-      {`${couple.qualificatif.minimal}-${couple.qualificatif.maximal}`}
+      {`${couple.qualificatif.minimal} / ${couple.qualificatif.maximal}`}
     </MenuItem>
   ))}
 </TextField>
@@ -569,7 +569,6 @@ return (
           <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleModifyModalClose} color="secondary">
             Annuler
           </Button>
-
         </DialogActions>
       </Dialog>
       {showAlert && latestAction === 'delete' && (

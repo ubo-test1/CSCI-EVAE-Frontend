@@ -1,7 +1,5 @@
 export async function fetchEvaluations() {
-    /*const accessToken = sessionStorage.getItem('user');
-      const test = accessToken;
-      console.log("THIS IS THE TEST ::: " + test)*/
+
     try {
       const response = await fetch('http://localhost:8080/eva/getAll', {
         headers: {
