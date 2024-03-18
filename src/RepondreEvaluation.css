@@ -221,6 +221,27 @@ button:disabled:hover {
     border-top-right-radius: 30px;
     overflow: hidden;
 }
+.commentSection {
+    background-color: white; /* Couleur de fond blanc */
+    padding: 20px; /* Espace interne pour le padding */
+    border-radius: 8px; /* Arrondi des coins pour correspondre à Google Forms */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Ombre extérieure subtile */
+    margin-top: 0;
+    width: 100%; /* or whatever fixed width you prefer */
+    flex: none;
+    min-height: 200px;
+}
+.commentInput {
+    width: 100%; /* Utilisez la largeur totale du conteneur */
+    border: 1px solid #ddd; /* Bordure subtile pour le champ de saisie */
+    border-radius: 8px; /* Coins arrondis */
+    padding: 15px; /* Espace interne pour le texte */
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1); /* Ombre interne pour donner de la profondeur */
+    font-size: 14px; /* Taille de police standard */
+    margin-top: 8px; /* Espace après le titre du champ */
+    resize: none; /* Permettre à l'utilisateur de redimensionner verticalement */
+    min-height:150px;
+}
 .paper{
 
     border-bottom-left-radius: 50px;  /* Arrondi en bas à gauche */
@@ -240,8 +261,8 @@ button:disabled:hover {
 }
 
 .questionsWrapper {
-    padding-left: 20px; /* Ajustement pour aligner les questions */
-    padding-right: 20px; /* Ajouter un padding à droite pour empêcher le débordement */
+    padding-left: 20px;
+    padding-right: 20px;
     background-color: white;
 }
 .questionContainer {
@@ -292,3 +313,6 @@ button:disabled:hover {
     flex: 1;
     text-align: center; /* Centrer les étiquettes */
 }
+
+
+
