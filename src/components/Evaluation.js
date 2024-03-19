@@ -126,6 +126,7 @@ const [latestAction, setLatestAction] = useState(null);
   const isvalidDateValueFin = (dateString) => {
     // Vérifier d'abord le format de la date
     if (debutReponse==null || (!isvalidDateValue(debutReponse))) {
+      setErrorTextDateFin("Veuillez d'abord saisir une date de début de réponse valide *")
       return false;
     }
     const parts = dateString.split('/');
@@ -173,6 +174,8 @@ const [latestAction, setLatestAction] = useState(null);
   const handleAjouter = async () => {
     if (finReponse.trim()==="") setFinReponseError(true);setErrorTextDateFin("La date de fin de réponse est requise *");
     if (debutReponse.trim()==="") setDebutReponseError(true);setErrorTextDateDebut("La date de début de réponse est requise *")
+    if (finReponseError) return;
+    if (debutReponseError) return;
     // Vérifie si tous les champs sont vides
     const champs = {
       designation: { value: designation.trim(), setError: setDesignationError },
@@ -511,6 +514,8 @@ const handleAnnulerAjouter = () => {
     const { anneeUniversitaire } = promotion.id;
     if (finReponse.trim()==="") setFinReponseError(true);setErrorTextDateFin("La date de fin de réponse est requise *");
     if (debutReponse.trim()==="") setDebutReponseError(true);setErrorTextDateDebut("La date de début de réponse est requise *")
+    if (finReponseError) return;
+    if (debutReponseError) return;
     const champs = {
       designation: { value: designation.trim(), setError: setDesignationError },
       //periode: { value: periode.trim(), setError: setPeriodeError },
