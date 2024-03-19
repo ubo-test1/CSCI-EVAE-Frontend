@@ -1,5 +1,5 @@
 export async function addRub(requestBody) {
-    console.log("i am here " + JSON.stringify(requestBody))
+    console.log("i am here -------------------------------- " + JSON.stringify(requestBody))
     try {
         const response = await fetch('http://localhost:8080/eva/rbs/addRub', {
             method: 'POST',

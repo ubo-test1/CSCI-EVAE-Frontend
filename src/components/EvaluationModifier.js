@@ -63,6 +63,7 @@ function EvaluationModifier() {
     };
     
     
+    
     useEffect(() => {
         const getEvaluationDetails = async () => {
             try {
@@ -93,30 +94,34 @@ function EvaluationModifier() {
     const handleHideAlert = () => {
         setShowAlert(false);
       };
-    const handleAjouter = async () => {
+      const handleAjouter = async () => {
         try {
-            // Extracting the evaluation ID from the URL
-            const evaluationId = parseInt(window.location.pathname.split('/').pop(), 10);
-            console.log("this is the id of the eva: ::: " + evaluationId);
+            const tempSelectedRubriques = [...selectedRubriques];
+            const requestBody = tempSelectedRubriques.map(rubriqueId => ({ eva: id, rub: rubriqueId }));
+            console.log("Request Body:", requestBody);
             
-            // Create an array of objects with eva and rub properties
-            const requestBody = selectedRubriques.map(rubriqueId => ({ eva: 1, rub: rubriqueId }));
-            
-            // Send all requests simultaneously and wait for all to complete
-            await Promise.all(requestBody.map(obj => addRub(obj)));
-            
+            for (let i = 0; i < requestBody.length; i++) {
+                console.log("Adding rubrique:", requestBody[i]);
+                await addRub(requestBody[i]);
+                // Add a delay of 1 second (1000 milliseconds) before processing the next rubrique
+                //await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+    
+            setSelectedRubriques([]);
         } catch (error) {
             console.error('Error adding rubrique:', error);
-            setShowAlert(true)
-            setLatestAction("addError")
+            setShowAlert(true);
+            setLatestAction("addError");
         } finally {
-            // Close the dialog regardless of the outcome
             setajouterRubriquesOpenDialog(false);
             setChange(true);
-            setShowAlert(true)
-            setLatestAction("add")
+            setShowAlert(true);
+            setLatestAction("add");
         }
     };
+    
+    
+    
     
     
     
@@ -153,7 +158,7 @@ function EvaluationModifier() {
     const handleButtonClick = async () => {
         try {
             // Fetch evaluation rubriques
-            const evaluationRubriques = await getAllByIdEvaluation(1);
+            const evaluationRubriques = await getAllByIdEvaluation(id);
             const evalRubriqueIds = evaluationRubriques.map(evalRubrique => evalRubrique.idRubrique.id);
     
             // Fetch all standard rubriques

@@ -167,7 +167,7 @@ flex-shrink: 0;
 
 .sidebar {
   width: 200px; /* Adjust width as needed */
-  background-color: #093356; 
+  background-color: #0f5a98; 
   color: white;
   padding: 20px;
   z-index: 3;
@@ -465,7 +465,7 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
   height: 55vh;
   width: 30%;
   position: fixed;
-  top: 30vh;
+  top: 27vh;
   left: 6vw;
 
 }
