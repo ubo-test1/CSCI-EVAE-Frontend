@@ -41,12 +41,12 @@ function Navbar() {
           const emailParts = user.email.split(".");
           const displayName = emailParts[0].charAt(0).toUpperCase() + emailParts[0].slice(1);
           const domainName = emailParts[1].split("@")[0].toUpperCase();
-          displayText = `${domainName}  ${displayName}`;
+          displayText = `${displayName}  ${domainName}`;
         }else if(sessionStorage.getItem('user') && JSON.parse(sessionStorage.getItem('user')).roles.includes("ROLE_ETU")){
           const user = JSON.parse(sessionStorage.getItem('user'));
           const emailParts = user.email.split(".");
-          const displayName = emailParts[0].charAt(0).toUpperCase() + emailParts[0].slice(1);
-          const domainName = emailParts[1].split("@")[0].toUpperCase();
+          const displayName = emailParts[0].charAt(0).toUpperCase() + emailParts[0].slice(1).toUpperCase();
+          const domainName = emailParts[1].split("@")[0].charAt(0).toUpperCase() + emailParts[1].split("@")[0].slice(1) ;
           displayText = `${domainName}  ${displayName}`;
         }
         else{
@@ -55,7 +55,7 @@ function Navbar() {
   return (
     <div className='navbarContainer'>
       <div className='section1'>
-      <a href="/home">
+      <a href={sessionStorage.getItem('user') ? "/home" : "/login"}>
         <img className="ubo-logo" alt="ubo-logo" src={uboLogo} />
         </a>
         <h4>{pageTitle}</h4>

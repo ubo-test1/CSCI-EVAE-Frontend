@@ -61,6 +61,7 @@ const DataTable = () => {
   const userString = sessionStorage.getItem('user');
   const userObject = userString
   const accessToken = userObject.accessToken;
+  const [isEmpty, setIsEmpty] = useState(false);
 
 
   const handleHideAlert = () => {
@@ -164,8 +165,8 @@ const DataTable = () => {
   
   
   const columns = [
-    { field: 'intitule', headerName: 'Intitulé', width: 500 },
-    { field: 'coupleQualificatif', headerName: 'Couple qualificatif', width: 500 },
+    { field: 'intitule', headerName: 'Intitulé', flex: 4 },
+    { field: 'coupleQualificatif', headerName: 'Couple qualificatif', flex: 3 },
     /*{
       field: 'associated',
       headerName: 'Associé',
@@ -177,7 +178,7 @@ const DataTable = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 100,
+      flex: 0.7,
       sortable: false,
       filterable: false,
       renderCell: (params) => (
@@ -291,19 +292,19 @@ const DataTable = () => {
 
   const handleBlur = (value, setValue, setError) => {
     const trimmedValue = value.trim();
-    if (trimmedValue === "" || trimmedValue.length <= 64) {
-      setValue(trimmedValue);
-      setError(false); // Reset error state when value is valid
-    } else {
-      setError(true); // Set error state when value is invalid
-    }
-  };
+    setValue(trimmedValue);
+    setIsEmpty(trimmedValue === '');
+    setError(trimmedValue === '');
+};
 
   const handleModifyCoupleQualificatifChange = (event) => {
     setModifiedCoupleQualificatif(event.target.value);
   };
   
   const handleUpdate = async () => {
+    if(isEmpty){
+      return;
+    }
     try {
         const response = await fetchQualificatifById(modifiedCoupleQualificatif);
         console.log("this is the responsssseee ::::  " + JSON.stringify(response))
@@ -508,8 +509,8 @@ return (
           Êtes-vous sûr de vouloir supprimer cette question ?
         </DialogContent>
         <DialogActions>
-          <Button style={{ textTransform: 'none' }} variant='contained' onClick={() => setDeleteDialogOpen(false)}>Annuler</Button>
-          <Button style={{ textTransform: 'none' }} variant='contained' onClick={() => handleDeleteConfirm(questionToDelete)} color="secondary">Supprimer</Button>
+        <Button style={{ textTransform: 'none' }} variant='contained' onClick={() => handleDeleteConfirm(questionToDelete)} color="primary">Supprimer</Button>
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={() => setDeleteDialogOpen(false)} color="secondary">Annuler</Button>
         </DialogActions>
       </Dialog>
       {/* Modify Question Modal */}
@@ -527,25 +528,25 @@ return (
               }}
               noValidate>
           <TextField
-              label="Intitulé"
-              fullWidth
-              value={modifiedIntitule}
-              onChange={(e) => {
-                  setModifiedIntitule(e.target.value);
-                  setIntituleError(false); // Reset error state when value changes
-              }}
-              onBlur={() => handleBlur(modifiedIntitule, setModifiedIntitule, setIntituleError)}
-              error={intituleError}
-              helperText={intituleError ? "L'intitulé est requis" : ""}
-              inputProps={{ maxLength: 64 }}
-              InputProps={{
-                  endAdornment: (
-                      <InputAdornment position="end">
-                          {`${modifiedIntitule.length}/64`}
-                      </InputAdornment>
-                  ),
-              }}
-          />
+            label="Intitulé"
+            fullWidth
+            value={modifiedIntitule}
+            onChange={(e) => {
+                setModifiedIntitule(e.target.value);
+                setIntituleError(false); // Reset error state when value changes
+            }}
+            onBlur={() => handleBlur(modifiedIntitule, setModifiedIntitule, setIntituleError)}
+            error={isEmpty}
+            helperText={isEmpty ? "L'intitulé est requis" : ""}
+            inputProps={{ maxLength: 64 }}
+            InputProps={{
+                endAdornment: (
+                    <InputAdornment position="end">
+                        {`${modifiedIntitule.length}/64`}
+                    </InputAdornment>
+                ),
+            }}
+        />
           <TextField
   select
   label="Couple Qualificatifs"

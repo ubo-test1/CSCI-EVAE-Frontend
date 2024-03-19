@@ -92,7 +92,12 @@ function EvaluationDetails({ id }) {
         <div className='evaluationInfo'>
           <div style={{ margin: '4px', padding: '8px' }}><strong>Désignation:</strong> {evaluationDetails.designation}</div>
           <div style={{ margin: '4px', padding: '8px' }}><strong> Promotion:</strong> {evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</div>
-          <div style={{ margin: '4px', padding: '8px' }}> <strong>Element Constitutif:</strong> {evaluationDetails.elementConstitutif ? evaluationDetails.elementConstitutif.id.codeEc : ""}</div>
+          {evaluationDetails.elementConstitutif && evaluationDetails.elementConstitutif.id.codeEc !== "" && (
+    <div style={{ margin: '4px', padding: '8px' }}>
+        <strong>Element Constitutif:</strong> 
+        {evaluationDetails.elementConstitutif.id.codeEc}
+    </div>
+)}
           <div style={{ margin: '4px', padding: '8px' }}><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
         </div>
 

@@ -5,13 +5,17 @@ import { useParams } from "react-router-dom";
 import { fetchEvaRubQuesDetails } from "../api/fetchEvaRubQuesDetails";
 import EvaluationDetails from "./EvaluationDetails";
 import EvaluationDetailsReponse from "./EvaluationDetailsReponse";
+import Alert from '@mui/material/Alert';
+import CloseIcon from '@mui/icons-material/Close';
+import { useLocation } from "react-router-dom";
+import { Button } from '@mui/material';
 
 function RepondreEvaluation() {
     const { id } = useParams();
     const [rubriques, setRubriques] = useState([]);
     const [initialRubriquesOrder, setInitialRubriquesOrder] = useState([]);
     const [details, setDetails] = useState(null);
-
+ 
     useEffect(() => {
         const getEvaluationDetails = async () => {
             try {
