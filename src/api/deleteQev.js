@@ -1,4 +1,5 @@
 export const deleteQev = async (id) => {
+    console.log("this is the iddd :::: " + id)
     try {
         const response = await fetch(`http://localhost:8080/eva/quv/delete/${id}`, {
             headers: {

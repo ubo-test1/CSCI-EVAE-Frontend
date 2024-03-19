@@ -68,6 +68,7 @@ const [latestAction, setLatestAction] = useState(null);
   const [debutReponseUpdated, setDebutReponseUpdated] = useState('');
   const [debutReponseDate,setDebutReponseDate] = useState('')
   const [finReponseDate, setFinReponseDate] = useState('')
+  const [change, setChange] = useState(false);
 
 // Fonction pour valider le format de la date (JJ/MM/AAAA)
   const isValidDateFormat = (dateString) => {
@@ -330,6 +331,7 @@ const handleCLoseEdit = () => {
       // Mettre à jour les évaluations après avoir modifié l'état dans la base de données
       const data= await fetchEvaluations();
       setEvaluations(data);
+      setChange(true)
     } catch (error) {
       console.error('Error updating evaluations:', error);
     }
@@ -378,12 +380,13 @@ const handleCLoseEdit = () => {
         setEvaluations(data);
         console.log("content ::: " + JSON.stringify(data))
         // console.log("this is the content of the evaluationsss :::::::::: " + JSON.stringify(data))
+        setChange(false)
       } catch (error) {
         console.error('Error fetching evaluations:', error);
       }
     }
     getEvaluations();
-  }, []);
+  }, [change]);
 
   const handleConsult = (evaluation) => {
     console.log("eeeh")
@@ -480,7 +483,7 @@ const handleCLoseEdit = () => {
       // Format debutReponse and finReponse to "YYYY/MM/DD" format
       const formattedDebutReponse = debutReponse.split('/').reverse().join('-');
       const formattedFinReponse = finReponse.split('/').reverse().join('-');
-      let updatedEvaluationData = {
+let updatedEvaluationData = {
         id: selectedItemId,
         uniteEnseignement: {
           id: {
@@ -647,9 +650,9 @@ const handleCLoseEdit = () => {
               <span>
                 <IconButton
                     onClick={() => handleConsult(params.row)}
-                    style={{color: 'green'}}
+                    style={{color: 'green' }}
                 >
-                  <VisibilityIcon/>
+                  <VisibilityIcon />
                 </IconButton>
               </span>
               </Tooltip>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchEvaluationDetails } from '../api/fetchEvaluationInfo';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'; // Import Material-UI components
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button,FormControlLabel ,Checkbox , Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'; // Import Material-UI components
 import { Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -21,19 +21,11 @@ import {fetchRubEvaDetailsApi} from "../api/fetchRubEvaDetailsApi";
 import { useNavigate } from 'react-router-dom';
 import { deleteEvaRub } from '../api/deleteEvaRub.js';
 import EvaQuestionModifier from './EvaQuestionModifier.js';
-
-
-const handleRetourClick = () => {
-    window.history.back();
-    console.log('Retour button clicked');
-};
-
-const reorder = (list, startIndex, endIndex) => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-    return result;
-};
+import { fetchAllStandardRubriques } from '../api/fetchRubriques.js';
+import { getAllByIdEvaluation } from '../api/fetchEvaRubriquesApi.js';
+import { addRub } from '../api/addRubtoEvaApi.js';
+import Alert from '@mui/material/Alert';
+import CloseIcon from '@mui/icons-material/Close';
 
 function EvaluationModifier() {
     const navigate = useNavigate();
@@ -48,6 +40,29 @@ function EvaluationModifier() {
     const [rubriqueQuestions, setRubriqueQuestions] = useState([]);
     const [rubriqueId, setRubriqueId] = useState(null); // Initialize rubriqueId state
     const [editDialogOpen1, setEditDialogOpen1] = useState(false);
+    const [ajouterRubriquesOpenDialog, setajouterRubriquesOpenDialog] = useState(false);
+    const [evaluationRubriques, setEvaluationRubriques] = useState([]);
+    const [rubriquesAjouter, setRubriquesAjouter] = useState([])
+    const [selectedRubriques, setSelectedRubriques] = useState([])
+    const [change, setChange] = useState(false)
+    const [showAlert, setShowAlert] = useState(true);
+    const [latestAction, setLatestAction] = useState(null);
+
+    const handleCheckboxChange = (event) => {
+        const { value } = event.target;
+        const rubriqueId = parseInt(value, 10); // Convert value to number
+        setSelectedRubriques((prevSelected) => {
+            if (prevSelected.includes(rubriqueId)) {
+                console.log("Unchecked ID:", rubriqueId); // Log the unchecked ID
+                return prevSelected.filter((id) => id !== rubriqueId);
+            } else {
+                console.log("Checked ID:", rubriqueId); // Log the checked ID
+                return [...prevSelected, rubriqueId];
+            }
+        });
+    };
+
+
 
     useEffect(() => {
         const getEvaluationDetails = async () => {
@@ -62,6 +77,7 @@ function EvaluationModifier() {
                     setInitialRubriquesOrder(sortedRubriques.map(rubrique => rubrique.rubrique.id));
                 }
                 setDetails(data);
+                setChange(false)
             } catch (error) {
                 console.error('Error fetching evaluation details:', error);
             }
@@ -69,8 +85,54 @@ function EvaluationModifier() {
         if (id) {
             getEvaluationDetails();
         }
-    }, [id]);
+    }, [id,change]);
 
+    const handleRetourClick = () => {
+        window.history.back();
+        console.log('Retour button clicked');
+    };
+    const handleHideAlert = () => {
+        setShowAlert(false);
+      };
+      const handleAjouter = async () => {
+        try {
+            const tempSelectedRubriques = [...selectedRubriques];
+            const requestBody = tempSelectedRubriques.map(rubriqueId => ({ eva: id, rub: rubriqueId }));
+            console.log("Request Body:", requestBody);
+
+            for (let i = 0; i < requestBody.length; i++) {
+                console.log("Adding rubrique:", requestBody[i]);
+                await addRub(requestBody[i]);
+                // Add a delay of 1 second (1000 milliseconds) before processing the next rubrique
+                //await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            setSelectedRubriques([]);
+        } catch (error) {
+            console.error('Error adding rubrique:', error);
+            setShowAlert(true);
+            setLatestAction("addError");
+        } finally {
+            setajouterRubriquesOpenDialog(false);
+            setChange(true);
+            setShowAlert(true);
+            setLatestAction("add");
+        }
+    };
+
+
+
+
+
+
+
+
+    const reorder = (list, startIndex, endIndex) => {
+        const result = Array.from(list);
+        const [removed] = result.splice(startIndex, 1);
+        result.splice(endIndex, 0, removed);
+        return result;
+    };
     const handleEditClick = async (rubriqueId) => {
         console.log("i am here" + rubriqueId)
         setRubriqueId(rubriqueId); // Set the rubriqueId in the state
@@ -87,7 +149,48 @@ function EvaluationModifier() {
     if (details === null) {
         return null;
     }
+    const getRemainingRubriques = () => {
+        const evaluationRubriqueIds = evaluationRubriques.map(evaluation => evaluation.idRubrique.id);
+        const remainingRubriques = rubriquesAjouter.filter(rubrique => !evaluationRubriqueIds.includes(rubrique.rubrique.id));
+        console.log("before ::: " + JSON.stringify(remainingRubriques))
+        return remainingRubriques;
+    };
+    const handleButtonClick = async () => {
+        try {
+            // Fetch evaluation rubriques
+            const evaluationRubriques = await getAllByIdEvaluation(id);
+            const evalRubriqueIds = evaluationRubriques.map(evalRubrique => evalRubrique.idRubrique.id);
 
+            // Fetch all standard rubriques
+            const standardRubriques = await fetchAllStandardRubriques();
+
+            // Filter out the standard rubriques not present in evaluation rubriques
+            const remainingRubriques = standardRubriques.filter(standardRubrique => !evalRubriqueIds.includes(standardRubrique.rubrique.id));
+
+            // Fetch details for each remaining rubrique and append questions data
+            const remainingRubriquesWithQuestions = await Promise.all(remainingRubriques.map(async (rubrique) => {
+                const rubriqueDetails = await fetchRubriqueDetails(rubrique.rubrique.id);
+                return {
+                    ...rubrique,
+                    questions: rubriqueDetails.questions
+                };
+            }));
+
+            // Set state variables
+            setEvaluationRubriques(evaluationRubriques);
+            setRubriquesAjouter(remainingRubriquesWithQuestions);
+            setajouterRubriquesOpenDialog(true);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+
+
+
+    const handleCloseDialog = () => {
+        setajouterRubriquesOpenDialog(false);
+    };
     const evaluationDetails = details.evaluation;
 
     const onDragEnd = (result) => {
@@ -271,11 +374,8 @@ function EvaluationModifier() {
                         </DragDropContext>
                     </div>
                     <div style={{ position: 'absolute', bottom: '-5vh', right: '0', zIndex: '999' }}>
-                        <Button variant="contained" color="primary" style={{ marginRight: '50px' }} >
+                        <Button variant="contained" color="primary" onClick={handleButtonClick}>
                             Ajouter des rubriques
-                        </Button>
-                        <Button variant="contained" color="primary">
-                            Supprimer des rubriques
                         </Button>
                     </div>
 
@@ -378,6 +478,105 @@ function EvaluationModifier() {
     <EvaQuestionModifier rubriqueId={rubriqueId} />
   </DialogContent>
 </Dialog>
+
+
+
+
+
+
+
+<Dialog open={ajouterRubriquesOpenDialog} onClose={handleCloseDialog}>
+    <DialogTitle>Liste des rubriques</DialogTitle>
+    <DialogContent>
+        <form>
+            {rubriquesAjouter.map((rubrique, index) => (
+                <Accordion key={index} style={{ marginBottom: '10px' }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} onClick={(event) => event.stopPropagation()}>
+                        <Checkbox
+                            checked={selectedRubriques.includes(rubrique.rubrique.id)}
+                            onChange={(event) => handleCheckboxChange(event)}
+                            value={rubrique.rubrique.id ? rubrique.rubrique.id.toString() : ''}
+                            style={{ marginRight: '8px' }} // Add some margin between checkbox and accordion summary
+                            onClick={(event) => event.stopPropagation()} // Prevent accordion expansion when clicking checkbox
+                        />
+                        <Typography>{rubrique.rubrique.designation}</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <TableContainer component={Paper}>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Intitulé</TableCell>
+                                        <TableCell>Minimal</TableCell>
+                                        <TableCell>Maximal</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {rubrique.questions && rubrique.questions.map((question, qIndex) => (
+                                        <TableRow key={qIndex}>
+                                            <TableCell>{question.intitule}</TableCell>
+                                            <TableCell>{question.idQualificatif.minimal}</TableCell>
+                                            <TableCell>{question.idQualificatif.maximal}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </AccordionDetails>
+                </Accordion>
+            ))}
+        </form>
+    </DialogContent>
+    <DialogActions>
+        <Button color="primary" onClick={handleAjouter} variant='contained'>
+            Ajouter
+        </Button>
+        <Button color="secondary" onClick={handleCloseDialog} variant='contained'>
+            Annuler
+        </Button>
+    </DialogActions>
+</Dialog>
+
+
+
+
+{showAlert && latestAction === 'delete' && (
+            <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+                Rubrique supprimé avec succès !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+        {showAlert && latestAction === 'deleteError' && (
+            <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+              Échec de la suppression de la Rubrique !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+        {showAlert && latestAction === 'add' && (
+            <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+              Rubrique ajouté avec succès !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+        {showAlert && latestAction === 'addError' && (
+            <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+              Échec de l'ajout de la Rubrique !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+        {showAlert && latestAction === 'edit' && (
+            <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+              Rubrique modifié avec succès !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+        {showAlert && latestAction==='editError' && (
+            <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+              Échec de la modification de la Rubrique !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+
 
         </>
     );

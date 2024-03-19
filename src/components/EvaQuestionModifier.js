@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Paper, Typography, Accordion, AccordionSummary, AccordionDetails, Grid, IconButton, Button } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import DialogContentText from '@material-ui/core/DialogContentText';
 import DeleteIcon from '@mui/icons-material/Delete'; // Import the Delete icon
 import { fetchRubEvaDetailsApi } from '../api/fetchRubEvaDetailsApi';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -22,6 +23,11 @@ import {fetchAllQuestions} from "../api/fetchQuestions";
 import Checkbox from "@mui/material/Checkbox";
 import {DataGrid} from "@mui/x-data-grid";
 import { addQtoRubEva } from "../api/addQtoRubEva";
+import { ordonnerQuestions } from '../api/updateEvaQstOrderApi';
+import Alert from '@mui/material/Alert';
+import CloseIcon from '@mui/icons-material/Close';
+
+
 
 const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a parameter
     const [rubriqueQuestions, setRubriqueQuestions] = useState([]);
@@ -29,24 +35,45 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
     const [loading, setLoading] = useState(false);
     const [availQ, setAvailQ] = useState([]);
     const [selectedQuestions, setSelectedQuestions] = useState([]);
+    const [initialQuestionsOrder, setInitialQuestionsOrder] = useState([])
+    const [change, setChange] = useState(false)
+    const [saveButtonVisible, setSaveButtonVisible] = useState(false); // New state variable to track whether to show the "Sauvegarder" button
+    const [confirmationOpen, setConfirmationOpen] = useState(false);
+    const [selectedQuestion, setSelectedQuestion] = useState(null);
+    const [showAlert, setShowAlert] = useState(true);
+    const [latestAction, setLatestAction] = useState(null);
+
+
 
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
                 const response = await fetchRubEvaDetailsApi(rubriqueId);
-                const questions = response.questions ? response.questions.map((q, index) => ({ ...q, ordre: index + 1 })) : [];
+                let questions = response.questions ? response.questions.map(q => ({ ...q })) : [];
+
+                // Sort the questions by the 'ordre' attribute
+                questions.sort((a, b) => a.ordre - b.ordre);
+
                 setRubriqueQuestions(questions);
+
                 const availableQuestions = await fetchAllQuestions();
                 setAvailQ(availableQuestions.filter(q2 =>
                     !questions.some(q => q.idQuestion.id === q2.id)
                 ));
+                console.log("this is the orderrrrrrrr " + JSON.stringify(questions))
+                setChange(false);
             } catch (error) {
                 console.error('Error fetching rubrique details:', error);
             }
         };
 
         fetchQuestions();
-    }, [rubriqueId]);
+    }, [rubriqueId, change]);
+
+    const handleHideAlert = () => {
+        setShowAlert(false);
+      };
+
 
     const onDragEnd = (result) => {
         if (!result.destination) return;
@@ -54,13 +81,35 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
         const updatedItems = items.map((item, index) => ({ ...item, ordre: index + 1 }));
+        console.log("this is the updatttee ::: " + JSON.stringify(updatedItems))
         setRubriqueQuestions(updatedItems);
+        setSaveButtonVisible(true); // Set save button visibility to true when the order is changed
+    };
+    const handleConfirmationClose = () => {
+        setConfirmationOpen(false);
+    };
+    const handleConfirmationConfirm = () => {
+        console.log("eeeeeeeeeh selectedQuestion ::: " + JSON.stringify(selectedQuestion))
+        deleteQev(selectedQuestion.id)
+            .then(response => {
+                setShowAlert(true)
+                setLatestAction("deleteQuestion")
+                setChange(true)
+            })
+            .catch(error => {
+                setShowAlert(true)
+                setLatestAction("deleteQuestionError")
+            });
+        setConfirmationOpen(false);
     };
 
     const handleCloseDialog = () => {
-        console.log("close dia")
-        setOpenDialog(false);
-        setEditDialogOpen(false)
+        setEditDialogOpen(false);
+        setChange(true)
+    };
+    const resetQuestionsOrder = () => {
+        setChange(true);
+        setSaveButtonVisible(false); // Reset save button visibility when resetting order
     };
 
     const handleCheckboxChange = (event, question) => {
@@ -74,20 +123,32 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
         }
     };
 
+    const handleSaveOrder = async () => {
+        const formattedQuestions = rubriqueQuestions.map(({ id, ordre }) => ({ id, ordre }));
+
+        console.log("Formatted questions:", formattedQuestions);
+
+        try {
+            await ordonnerQuestions(formattedQuestions);
+            setSaveButtonVisible(false); // Hide the "Sauvegarder" button after saving
+            console.log('Questions ordered successfully');
+            // You can add any additional logic here after successfully saving the order
+            setShowAlert(true)
+            setLatestAction('setOrder')
+            setChange(true)
+        } catch (error) {
+            console.error('Error ordering questions:', error);
+            // Handle the error as needed
+        }
+    };
+
+
 
     // Function to handle the click on the trashcan icon
     const handleDeleteClick = (id, intit, event) => {
         event.stopPropagation(); // Prevent accordion from toggling
-        const isConfirmed = window.confirm(`Voulez-vous vraiment supprimer la question ${intit}?`);
-        if (isConfirmed) {
-            deleteQev(id)
-                .then(response => {
-                    location.reload()
-                })
-                .catch(error => {
-                    alert("Question liee a une evaluation active, suppression impossible!");
-                });
-        }
+        setSelectedQuestion({ id, intit });
+        setConfirmationOpen(true);
     };
     const renderEditRubrique = () => {
         if (loading) {
@@ -145,7 +206,6 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
     };
 
     const handleEditConfirmed = async () => {
-        alert("Edit confirmed")
         console.log(selectedQuestions)
         let ret = {
             "id_rubEva" : rubriqueId,
@@ -157,6 +217,12 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
         });
         ret["qList"] = qlist
         addQtoRubEva(ret);
+        setShowAlert(true)
+        setLatestAction("deleteQuestion")
+        setEditDialogOpen(false)
+        setChange(true)
+        setShowAlert(true)
+        setLatestAction("addQuestion")
         /*
         try {
             setLoading(true);
@@ -281,27 +347,42 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
     return (
         <>
         <Paper style={{ padding: '20px', margin: '20px', minHeight: '80vh' }}>
-            <Typography variant="h4" style={{ marginBottom: '20px' }}>Modifier les Questions</Typography>
-            <Button variant="contained" onClick={() => {}} style={{ marginBottom: '20px' }}>
-                Reset Order
-            </Button>
-            <Button variant="contained" onClick={handleEditClick} style={{ marginBottom: '20px' }}>
+    <Typography variant="h4" style={{ marginBottom: '20px' }}>Modifier les questions</Typography>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div style={{width:'70%'}}>
+            <Button variant="contained" onClick={handleEditClick} style={{ textTransform: 'none' }}>
                 Ajouter des questions
             </Button>
-            <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="questions">
-                    {(provided) => (
-                        <div {...provided.droppableProps} ref={provided.innerRef}>
-                            {rubriqueQuestions.map((question, index) => (
-                                <Draggable key={question.idQuestion + index} draggableId={question.idQuestion + index.toString()} index={index}>
-                                    {(provided) => (
-                                        <Accordion ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                                <IconButton onClick={(event) => handleDeleteClick(question.idQuestion.id,question.idQuestion.intitule, event)} size="small">
+        </div>
+        {/* Conditional rendering of the "Sauvegarder" button */}
+        {saveButtonVisible && (
+            <Button variant="contained" onClick={resetQuestionsOrder} style={{ marginRight: '40px', textTransform: 'none' }} color='error'>
+                Réinitialiser
+            </Button>
+            )}
+        {saveButtonVisible && (
+            <Button variant="contained" onClick={handleSaveOrder} style={{ textTransform: 'none' }} color="success">
+                Sauvegarder
+            </Button>
+        )}
+    </div>
+    <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="questions">
+                {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                        {rubriqueQuestions.map((question, index) => (
+                            <Draggable key={question.idQuestion + index} draggableId={question.idQuestion + index.toString()} index={index}>
+                                {(provided) => (
+                                    <div ref={provided.innerRef} {...provided.draggableProps}>
+                                        <Accordion {...provided.dragHandleProps}>
+                                        <AccordionSummary expandIcon={<ExpandMoreIcon />} style={{ alignItems: 'center' }}>
+                                            <Typography>{question.idQuestion.intitule}</Typography>
+                                            <div style={{ marginLeft: 'auto', display: 'flex' }}>
+                                                <IconButton onClick={(event) => handleDeleteClick(question.id, question.idQuestion.intitule, event)} size="small" color="error">
                                                     <DeleteIcon />
                                                 </IconButton>
-                                                <Typography>{question.idQuestion.intitule}</Typography>
-                                            </AccordionSummary>
+                                            </div>
+                                        </AccordionSummary>
                                             <AccordionDetails>
                                                 <Grid container spacing={2}>
                                                     <Grid item xs={6}>
@@ -313,16 +394,22 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
                                                 </Grid>
                                             </AccordionDetails>
                                         </Accordion>
-                                    )}
-                                </Draggable>
-                            ))}
-                            {provided.placeholder}
-                        </div>
-                    )}
-                </Droppable>
-            </DragDropContext>
-        </Paper>
-            <Dialog
+                                    </div>
+                                )}
+                            </Draggable>
+                        ))}
+                        {provided.placeholder}
+                    </div>
+                )}
+            </Droppable>
+        </DragDropContext>
+</Paper>
+
+
+
+
+
+<Dialog
                 PaperProps={{
                     style: {
                         position: 'absolute',
@@ -340,11 +427,86 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
                 </DialogContent>
                 <DialogActions>
                     <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleCloseDialog} color="secondary">Annuler</Button>
-                    <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Sauvgarder</Button>
+                    <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Sauvegarder</Button>
                 </DialogActions>
             </Dialog>
+
+
+
+
+            <Dialog
+                open={confirmationOpen}
+                onClose={handleConfirmationClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">Confirmation</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        {selectedQuestion && `Voulez-vous vraiment supprimer la question "${selectedQuestion.intit}" ?`}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleConfirmationClose} color="primary">
+                        Annuler
+                    </Button>
+                    <Button onClick={handleConfirmationConfirm} color="primary" autoFocus>
+                        Confirmer
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            {showAlert && latestAction === 'deleteQuestion' && (
+        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+          Question supprimé avec succès !
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+    )}
+    {showAlert && latestAction === 'deleteQuestionError' && (
+        <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+            Question liee a une evaluation active, suppression impossible!
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+    )}
+    {showAlert && latestAction === 'addQuestion' && (
+        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+          Question ajouté avec succès !
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+    )}
+    {showAlert && latestAction === 'addQuestionError' && (
+        <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+          Échec de l'ajout de l'évaluation (évaluation existe déjà) !
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+    )}
+    {showAlert && latestAction === 'edit' && (
+        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 9999 }}>
+          Évaluation modifié avec succès !
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+    )}
+    {showAlert && latestAction==='editError' && (
+        <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+          Échec de la modification de l'évaluation (évaluation existe déjà) !
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+    )}
+    {showAlert && latestAction==='setOrder' && (
+        <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+          Ordre modifié avec succées
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+    )}
+    {showAlert && latestAction==='setOrderError' && (
+        <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+          Erreur lors de la modification de l'ordre
+          <Button onClick={handleHideAlert}><CloseIcon /></Button>
+        </Alert>
+    )}
         </>
     );
+
+
 
 };
 

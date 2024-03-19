@@ -1,4 +1,5 @@
 export async function fetchEvaRubQuesDetails (id) {
+    console.log("this is the iddd :::: " + id)
     try {
         const response = await fetch(`http://localhost:8080/eva/quv/consulterInfo/${id}`,{
             headers: {

@@ -16,9 +16,11 @@ function RepondreEvaluation() {
         const getEvaluationDetails = async () => {
             try {
                 const data = await fetchEvaRubQuesDetails(id);
+                console.log("uezfhuzeifhqziupfhqs :::: " + JSON.stringify(data))
                 if (data?.rubriques) {
                     // Ensure rubriques are sorted by their initial order when fetched
                     const sortedRubriques = data.rubriques.sort((a, b) => a.rubrique.ordre - b.rubrique.ordre);
+                    console.log("these are the sorted rubriquess ::::: " + JSON.stringify(sortedRubriques))
                     setRubriques(sortedRubriques);
                     // Capture the initial order of rubrique IDs
                     setInitialRubriquesOrder(sortedRubriques.map(rubrique => rubrique.rubrique.id));
