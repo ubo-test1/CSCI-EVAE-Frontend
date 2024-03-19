@@ -21,6 +21,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import InputAdornment from '@mui/material/InputAdornment';
 import { localizedTextsMap } from './dataGridLanguage';
+import { IconButton } from '@mui/material';
 
 
 
@@ -42,6 +43,7 @@ const CoupleQualificatifList = () => {
   const [maximalError, setMaximalError] = useState(false); // State to track minimal value error
   const [latestAction, setLatestAction] = useState(null);
   const [showAlert, setShowAlert] = useState(true);
+    const [isEmpty, setIsEmpty] = useState(false);
 
 
  const handleHideAlert = () => {
@@ -70,12 +72,12 @@ const CoupleQualificatifList = () => {
 
 
   const columns = [
-    { field: 'minimal', headerName: 'Minimal', width: 450 },
-    { field: 'maximal', headerName: 'Maximal', width: 450, sortable: true },
+    { field: 'minimal', headerName: 'Minimal', flex: 5 },
+    { field: 'maximal', headerName: 'Maximal', flex: 5, sortable: true },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 200,
+      flex: 1,
       sortable: false,
       filterable: false,
       renderCell: (params) => {
@@ -83,26 +85,23 @@ const CoupleQualificatifList = () => {
           <div>
             <Tooltip title={params.row.associated ? "Couple associé à une question" : "Modifier"}>
 
-              <span>
-                <Button
-                  startIcon={<EditIcon />}
+                <IconButton
+                 
                   onClick={() => handleEdit(params.row)}
                   color="primary"
                   disabled={params.row.associated}
                 >
-                </Button>
-              </span>
+                   <EditIcon/>
+                </IconButton>
             </Tooltip>
             <Tooltip title={params.row.associated ? "Couple associé à une question" : "Supprimer"}>
-              <span>
-                <Button
-                  startIcon={<DeleteIcon />}
+                <IconButton
                   onClick={() => handleDeleteConfirmation(params.row)}
                   color="secondary"
                   disabled={params.row.associated}
                 >
-                </Button>
-              </span>
+                  <DeleteIcon />
+                </IconButton>
             </Tooltip>
           </div>
         );
@@ -211,12 +210,9 @@ const CoupleQualificatifList = () => {
 
   const handleUpdateQualificatif = async () => {
     try {
-        if (!minimalValue) {
-            setMinimalError(true);
-        }
-        if (!maximalValue) {
-            setMaximalError(true);
-        }
+        if(minimalError || maximalError){
+          return;
+        } 
       await updateQualificatif(editRow.id, minimalValue, maximalValue);
       const updatedCoupleQualificatifs = coupleQualificatifs.map((couple) => {
         if (couple.id === editRow.id) {
@@ -244,13 +240,15 @@ const CoupleQualificatifList = () => {
 
   const handleBlur = (value, setValue, setError) => {
     const trimmedValue = value.trim();
-    if (trimmedValue === "" || trimmedValue.length <= 16) {
-      setValue(trimmedValue);
-      setError(false);
+    console.log("this is the trimmed value :::: " + trimmedValue)
+    console.log("verficiaiton : :: :" + (trimmedValue === ""))
+    if (trimmedValue === "" || trimmedValue.length >= 16) {
+        setError(true);
     } else {
-      setError(true);
+      setValue(trimmedValue);
+        setError(false);
     }
-  };
+};
 
   return (
     <div>
@@ -350,50 +348,48 @@ const CoupleQualificatifList = () => {
               maxHieght: 'none',
               height: '100vh'}}
           open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
-        <DialogTitle>Modifier Couple</DialogTitle>
+        <DialogTitle>Modifier le couple</DialogTitle>
         <DialogContent>
         <TextField
-  label="Minimal"
-  value={minimalValue}
-  onChange={(e) => setMinimalValue(e.target.value)}
-  onBlur={() => handleBlur(minimalValue, setMinimalValue, setMinimalError)}
-  fullWidth
-  variant="outlined"
-  margin="normal"
-  error={minimalError}
-  helperText={minimalError ? "Minimal value is required" : ""}
-  required
-  inputProps={{ maxLength: 16 }}
-  InputProps={{
-      endAdornment: (
-          <InputAdornment position="end">
-              {`${minimalValue.length}/16`}
-          </InputAdornment>
-      ),
-  }}
-/>
-
-<TextField
-  label="Maximal"
-  value={maximalValue}
-  onChange={(e) => setMaximalValue(e.target.value)}
-  onBlur={() => handleBlur(maximalValue, setMaximalValue, setMaximalError)}
-  fullWidth
-  variant="outlined"
-  margin="normal"
-  error={maximalError}
-  helperText={maximalError ? "Maximal value is required" : ""}
-  required
-  inputProps={{ maxLength: 16 }}
-  InputProps={{
-      endAdornment: (
-          <InputAdornment position="end">
-              {`${maximalValue.length}/16`}
-          </InputAdornment>
-      ),
-  }}
-/>
-
+                label="Minimal"
+                value={minimalValue}
+                onChange={(e) => setMinimalValue(e.target.value)}
+                onBlur={() => handleBlur(minimalValue, setMinimalValue, setMinimalError)}
+                fullWidth
+                variant="outlined"
+                margin="normal"
+                error={minimalError}
+                helperText={minimalError ? "Minimal value is required" : ""}
+                required
+                inputProps={{ maxLength: 16 }}
+                InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+                            {`${minimalValue.length}/16`}
+                        </InputAdornment>
+                    ),
+                }}
+            />
+            <TextField
+                label="Maximal"
+                value={maximalValue}
+                onChange={(e) => setMaximalValue(e.target.value)}
+                onBlur={() => handleBlur(maximalValue, setMaximalValue, setMaximalError)}
+                fullWidth
+                variant="outlined"
+                margin="normal"
+                error={maximalError}
+                helperText={maximalError ? "Maximal value is required" : ""}
+                required
+                inputProps={{ maxLength: 16 }}
+                InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+                            {`${maximalValue.length}/16`}
+                        </InputAdornment>
+                    ),
+                }}
+            />
         </DialogContent>
         <DialogActions>
           <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleUpdateQualificatif} color="primary">
@@ -411,11 +407,11 @@ const CoupleQualificatifList = () => {
           <div>Êtes-vous sûr de vouloir supprimer ce couple qualificatif ?</div>
         </DialogContent>
         <DialogActions>
-          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleDeleteCancel} color="primary">
-            Annuler
-          </Button>
-          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleDeleteConfirm} color="secondary">
+        <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleDeleteConfirm} color="primary">
             Confirmer
+          </Button>
+          <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleDeleteCancel} color="secondary">
+            Annuler
           </Button>
         </DialogActions>
       </Dialog>

@@ -69,13 +69,12 @@ const [latestAction, setLatestAction] = useState(null);
   const [debutReponseDate,setDebutReponseDate] = useState('')
   const [finReponseDate, setFinReponseDate] = useState('')
   const [change, setChange] = useState(false);
+  const [confirmError, setConfirmError] = useState(false)
   const [ErrorTextDateDebut, setErrorTextDateDebut] = useState('');
   const [ErrorTextDateFin, setErrorTextDateFin] = useState('');
 
-
 // Fonction pour valider le format de la date (JJ/MM/AAAA)
-  const isValidDateFormat = (dateString, debut) => {
-    console.log("hihi")
+  const isValidDateFormat = (dateString,debut) => {
     const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/[0-9]{4}$/;
     if(!regex.test(dateString)){if (debut) setErrorTextDateDebut("La date de début de réponse doit être dans un format valide (JJ/MM/AAAA) *");
     else setErrorTextDateFin("La date de fin de réponse doit être dans un format valide (JJ/MM/AAAA) *");}
@@ -774,36 +773,42 @@ let updatedEvaluationData = {
           <DialogTitle>Modifier l'évaluation</DialogTitle>
           <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width: '90%', justifyContent: 'space-evenly', marginLeft: '50px' }}>
             <TextField
-                label="Designation"
-                value={designation}
-                onChange={(e) => {
-                  const inputValue = e.target.value; // Get the input value
-                  if (inputValue.length <= 16) { // Check if value is within the limit
-                    setDesignation(inputValue); // Update the state without trimming
-                    setDesignationError(false); // Reset error state when value changes
-                  }
-                }}
-                //onBlur={() => handleBlur(designation, setDesignation, setDesignationError)} // Apply the same handleBlur function
-                onBlur={() => {
-                  if (designation.trim() === "") {
-                    setDesignationError(true); // Définir l'erreur si la valeur est vide lors de la perte de focus
-                  } else {
-                    setDesignationError(false); // Réinitialiser l'erreur si la valeur est valide lors de la perte de focus
-                  }
-                }}
-                error={designationError}
-                helperText={designationError ? "La désignation est requise *" : ""}
-                fullWidth
-                margin="normal"
-                style={{ flexBasis: '45%' }} // Adjust the width of the text field
-                InputProps={{
-                  endAdornment: (
-                      <InputAdornment position="end">
-                        {`${designation.trim().length}/16`} {/* Trim the value when displaying the length */}
-                      </InputAdornment>
-                  ),
-                }}
-            />
+    label="Designation"
+    value={designation}
+    onChange={(e) => {
+        const inputValue = e.target.value; // Get the input value
+        if (inputValue.length <= 16) { // Check if value is within the limit
+            setDesignation(inputValue); // Update the state without trimming
+        }
+        if (inputValue.trim() === "") {
+            setDesignationError(true); // Set error if value is empty
+        } else {
+            setDesignationError(false); // Reset error if value is not empty
+        }
+    }}
+    // onBlur={() => {
+    //     const trimmedValue = designation.trim(); // Trim the value
+    //     setDesignation(trimmedValue); // Update the state with trimmed value
+    //     if (trimmedValue === "") {
+    //         setDesignationError(true); // Set error if trimmed value is empty
+    //     } else {
+    //         setDesignationError(false); // Reset error if trimmed value is not empty
+    //     }
+    // }}
+    error={designationError}
+    helperText={designationError ? "La désignation est requise *" : ""}
+    fullWidth
+    margin="normal"
+    style={{ flexBasis: '45%' }} // Adjust the width of the text field
+    InputProps={{
+        endAdornment: (
+            <InputAdornment position="end">
+                {`${designation.trim().length}/16`} {/* Trim the value when displaying the length */}
+            </InputAdornment>
+        ),
+    }}
+/>
+
             <TextField
                 label="Etat"
                 value={etat}
@@ -976,7 +981,7 @@ let updatedEvaluationData = {
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
   <DialogTitle>
     Consultation de l'évaluation
-    <Button onClick={() => setDialogOpen(false)} color="primary" style={{ position: 'absolute', right: 10, top: 10 }}>
+    <Button onClick={() => setDialogOpen(false)} variant='contained' color="primary" style={{ position: 'absolute', right: 10, top: 10 }}>
   <CloseIcon />
 </Button>
   </DialogTitle>
@@ -985,7 +990,6 @@ let updatedEvaluationData = {
       {selectedEvaluation && <EvaluationDetails id={selectedEvaluation.id} />}
     </div>
   </DialogContent>
-        //------------------------------------------------------------------------------workflow----------------------------------------------------------------------------
 </Dialog>
       <Dialog open={confirmationDialogOpen} onClose={handleConfirmationDialogClose2}>
         <DialogTitle>{confirmationData.etat === 'ELA' ? "Mettre à disposition l'évaluation" : confirmationData.etat === 'DIS' ? "Clôturer l'évaluation"  : '...'}</DialogTitle>
@@ -1003,7 +1007,6 @@ let updatedEvaluationData = {
           </Button>
         </DialogActions>
       </Dialog>
-        //----------------------------------------------------------------------------Ajouter----------------------------------------------------------------------------------------
 <Dialog open={openDialogAjouter} onClose={handleCloseAjouter} style={{marginLeft:'80px', width:'74vw', left:'10vw'}}>
       <DialogTitle>Ajouter une évaluation</DialogTitle>
       <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width: '90%', justifyContent: 'space-evenly', marginLeft: '50px' }}>

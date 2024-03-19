@@ -17,7 +17,8 @@ import { TextField } from '@mui/material';
 import Rating from '@mui/material/Rating';
 import {submitReponse} from "../api/submitReponse";
 import { useNavigate } from 'react-router-dom';
-
+import Alert from '@mui/material/Alert';
+import CloseIcon from '@mui/icons-material/Close';
 
 function EvaluationDetailsReponse({ id }) {
     //const { id } = useParams();
@@ -29,8 +30,14 @@ function EvaluationDetailsReponse({ id }) {
     const [comment, setComment] = useState('');
     const [ratings, setRatings] = useState({});
     const [currentPage, setCurrentPage] = useState(0);
+    const [showAlert, setShowAlert] = useState(true);
+    const [latestAction, setLatestAction] = useState(null);
+    
     const navigate = useNavigate();
 
+    const handleHideAlert = () => {
+        setShowAlert(false);
+      };
     useEffect(() => {
         const getEvaluationDetails = async () => {
             try {
@@ -121,7 +128,8 @@ function EvaluationDetailsReponse({ id }) {
         // Validation to ensure something is entered or rated
         const noRatingsProvided = Object.values(ratings).every(rating => rating === 0 || rating === undefined);
         if (comment.trim() === '' && noRatingsProvided) {
-            alert("Vous devez remplir au moins une note.");
+            setShowAlert(true)
+            setLatestAction("addError")
             return; // Stop execution if validation fails
         }
 
@@ -142,8 +150,9 @@ function EvaluationDetailsReponse({ id }) {
         try {
             // Assuming submitReponse returns a promise
             const response = await submitReponse(JSON.stringify(submissionData));
-            alert(`${response.message}`);
-            navigate("/evaluationetudiant")
+            setShowAlert(true)
+            setLatestAction("add")
+            navigate(`/evaluationetudiant?success=true`);
         } catch (error) {
             // Handle errors that occur during the fetch/request
             console.error("Submission Error:", error);
@@ -165,7 +174,7 @@ function EvaluationDetailsReponse({ id }) {
                     <div style={{ margin: '4px', padding: '8px' }}><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
                 </div>
 
-                <div style={{ position: 'fixed', top: '30vh', right: '10vw', overflowY: 'auto', width: 'calc(50% - 50px)', maxHeight: '75vh' }}>
+                <div style={{ position: 'fixed', top: '29vh', right: '10vw', overflowY: 'auto', width: 'calc(50% - 50px)', maxHeight: '75vh', border:'2px solid black', padding:'20px',     boxShadow: '0px 0px 21px 5px rgba(0,0,0,0.5)' }}>
     {/* Your existing UI */}
     <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
         {currentRubriques.map((rubrique, index) => (
@@ -234,20 +243,48 @@ function EvaluationDetailsReponse({ id }) {
     )}
 
     {/* Navigation buttons */}
-    <div style={{ textAlign: 'center', marginBottom: '20px', display:'flex', justifyContent:'space-evenly' }}>
+    <div style={{ textAlign: 'center', marginBottom: '0px',marginTop:'-20px', display:'flex', justifyContent:'space-evenly' }}>
         <Button disabled={currentPage === 0} onClick={handlePrevPage} variant='contained'>Précédent</Button>
         <Button disabled={currentPage === totalPages - 1} onClick={handleNextPage} variant='contained'>Suivant</Button>
     </div>
-    <div style={{ width: '80%', position: 'fixed', bottom: '5vh', left: '10vw', padding: '10px', display: 'grid', gridTemplateColumns: `repeat(${rubriques.length + 1}, 1fr)`, gap: '10px', border: '1px solid #ccc', borderRadius: '5px',backgroundColor:'#2b85cf' }}>
+    <div style={{ 
+    width: '80%', 
+    position: 'fixed', 
+    top: '15vh', 
+    left: '10vw', 
+    padding: '10px', 
+    display: 'grid', 
+    gridTemplateColumns: `repeat(${rubriques.length + 1}, 1fr)`, 
+    gap: '10px', 
+    border: '1px solid #ccc', 
+    borderRadius: '10px',
+    backgroundColor:'#2b85cf',
+    boxShadow: '0px 0px 21px 5px rgba(0,0,0,0.27)' // Add shadow
+}}>
     {rubriques.map((rubrique, index) => (
-        <div key={index} style={{ padding: '5px', cursor: 'pointer', border: '1px solid #ccc', borderRadius: '5px', backgroundColor: currentPage === index ? 'white' : '#2b85cf', color: currentPage === index ? '#2b85cf' : 'white' }} onClick={() => scrollToRubrique(index)}>
+        <div key={index} style={{ 
+            padding: '5px', 
+            cursor: 'pointer', 
+            border: '1px solid #ccc', 
+            borderRadius: '5px', 
+            backgroundColor: currentPage === index ? 'white' : '#2b85cf', 
+            color: currentPage === index ? '#2b85cf' : 'white' 
+        }} onClick={() => scrollToRubrique(index)}>
             <div style={{ textAlign: 'center' }}>{rubrique.rubrique.idRubrique.designation}</div>
         </div>
     ))}
-    <div style={{ padding: '5px', cursor: 'pointer', border: '1px solid #ccc', borderRadius: '5px', backgroundColor: currentPage === totalPages -1  ? 'white' : '#2b85cf', color: currentPage === totalPages -1 ? 'black' : 'white' }} onClick={() => setCurrentPage(totalPages - 1)}>
+    <div style={{ 
+        padding: '5px', 
+        cursor: 'pointer', 
+        border: '1px solid #ccc', 
+        borderRadius: '5px', 
+        backgroundColor: currentPage === totalPages -1  ? 'white' : '#2b85cf', 
+        color: currentPage === totalPages -1 ? 'black' : 'white' 
+    }} onClick={() => setCurrentPage(totalPages - 1)}>
         <div style={{ textAlign: 'center' }}>Commentaire</div>
     </div>
 </div>
+
 
 
 
@@ -266,9 +303,9 @@ function EvaluationDetailsReponse({ id }) {
 
     <Button
             variant="contained"
-            color="primary"
+            color="success"
             onClick={handleSubmit}
-            style={{position:'absolute',top:'15vh',right:'0', marginTop: '20px' }}
+            style={{position:'absolute',top:'83vh',right:'0', marginTop: '20px' }}
         >
             Envoyer les réponses
         </Button>
@@ -305,6 +342,18 @@ function EvaluationDetailsReponse({ id }) {
                     </Button>
                 </DialogActions>
             </Dialog>
+            {showAlert && latestAction==='addError' && (
+            <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+              Vous devez remplir au moins une note.
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+         {showAlert && latestAction==='add' && (
+            <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+              Vous avez répondu avec success !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
         </>
     );
 }

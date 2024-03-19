@@ -54,6 +54,7 @@ const RubriqueList = () => {
   const [selectedRubriqueQuestions, setSelectedRubriqueQuestions] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [rubriqueDetails, setRubriqueDetails] = useState(null);
+  const [isEmpty, setIsEmpty] = useState(false);
 
 
 
@@ -61,17 +62,12 @@ const RubriqueList = () => {
 
 
 
-      const handleBlur = () => {
-        // Remove leading and trailing spaces and update the state
-        const trimmedValue = designation.trim();
-        setDesignation(trimmedValue);
-        // Set error state if the trimmed value is invalid
-        if (trimmedValue === '' || trimmedValue.length <= 64) {
-          setDesignationError(false); // Reset error state when value is valid
-        } else {
-          setDesignationError(true); // Set error state when value is invalid
-        }
-      };
+  const handleBlur = () => {
+    const trimmedValue = designation.trim();
+    setDesignation(trimmedValue);
+    setIsEmpty(trimmedValue === '');
+    setDesignationError(trimmedValue === '');
+};
       const handleHideAlert = () => {
         setShowAlert(false);
       };
@@ -174,6 +170,9 @@ const RubriqueList = () => {
     
 
     const handleEditConfirmed = async () => {
+        if(isEmpty){
+            return
+        }
         try {
             setLoading(true);
             console.log("this is the new designation ::: " + selectedRubrique.designation)
@@ -327,13 +326,11 @@ const RubriqueList = () => {
         setSelectedQuestions([]);
         setSelectedRubrique(null);
     };
-    const handleDesignationChange = (event) => {
-        const newValue = event.target.value;
-        // Update the state with the new value
-        setDesignation(newValue);
-        // Reset error state when value changes
-        setDesignationError(false);
-      };
+    const handleDesignationChange = (e) => {
+        const inputValue = e.target.value;
+        setDesignation(inputValue);
+        setIsEmpty(inputValue.trim() === '');
+    };
       
     /*const handleDesignationChange = (event) => {
         setDesignation(event.target.value);
@@ -653,7 +650,7 @@ const RubriqueList = () => {
       onChange={handleDesignationChange}
       onBlur={handleBlur}
       error={designationError}
-      helperText={designationError ? "La désignation est requise (max 64 caractères)" : ""}
+      helperText={designationError ? "La désignation est requise (max 32 caractères)" : ""}
       inputProps={{ maxLength: 32 }}
       InputProps={{
         endAdornment: (
@@ -668,8 +665,8 @@ const RubriqueList = () => {
         </form>
     </DialogContent>
     <DialogActions>
-        <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleCloseDialog} color="secondary">Annuler</Button>
         <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleAddRubrique} color="primary">Ajouter</Button>
+        <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleCloseDialog} color="secondary">Annuler</Button>
     </DialogActions>
 </Dialog>
 <Dialog
@@ -686,7 +683,7 @@ PaperProps={{
 open={editDialogOpen} onClose={handleCloseDialog}>
     <DialogTitle>Modifier la Rubrique</DialogTitle>
     <DialogContent>
-        <TextField
+    <TextField
             autoFocus
             margin="dense"
             id="designation"
@@ -696,20 +693,23 @@ open={editDialogOpen} onClose={handleCloseDialog}>
             onBlur={handleBlur}
             onChange={handleDesignationChange}
             inputProps={{ maxLength: 32 }}
-      InputProps={{
-        endAdornment: (
-          <InputAdornment position="end">
-            {`${designation.length}/32`}
-          </InputAdornment>
-        ),
-      }}
-      required
+            InputProps={{
+                endAdornment: (
+                    <InputAdornment position="end">
+                        {`${designation.length}/32`}
+                    </InputAdornment>
+                ),
+            }}
+            required
+            error={isEmpty}
+            helperText={isEmpty ? "La désignation est requise" : ""}
         />
+
         {renderEditRubrique()}
     </DialogContent>
     <DialogActions>
+    <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Sauvegarder</Button>
         <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleCloseDialog} color="secondary">Annuler</Button>
-        <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Sauvgarder</Button>
     </DialogActions>
 </Dialog>
 
@@ -721,12 +721,13 @@ open={editDialogOpen} onClose={handleCloseDialog}>
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
+                <Button style={{ textTransform: 'none' }} variant="contained" onClick={handleDeleteConfirmed} color="primary" autoFocus>
+                    Supprimer
+                    </Button>
                     <Button style={{ textTransform: 'none' }} variant="contained" onClick={() => setDeleteDialogOpen(false)} color="secondary">
                     Annuler
                     </Button>
-                    <Button style={{ textTransform: 'none' }} variant="contained" onClick={handleDeleteConfirmed} color="primary" autoFocus>
-                    Supprimer
-                    </Button>
+                    
                 </DialogActions>
 
             </Dialog>

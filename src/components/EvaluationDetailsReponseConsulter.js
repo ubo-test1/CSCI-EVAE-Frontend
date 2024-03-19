@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {fetchEvaRubQuesDetails} from "../api/fetchEvaRubQuesDetails";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'; // Import Material-UI components
-import { Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
+import { Accordion, AccordionSummary, AccordionDetails, Typography,LinearProgress } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Navbar from './navbar';
@@ -26,7 +26,19 @@ function EvaluationDetailsReponseConsulter({ id }) {
     const [expanded, setExpanded] = useState([]); // State variable to manage expanded state of each accordion
     const [comment, setComment] = useState('');
     const [ratings, setRatings] = useState({});
+    const [currentPage, setCurrentPage] = useState(0);
+    const rubriquesPerPage = 1; // Change this value according to the number of rubriques you want to display per page
 
+    const totalPages = Math.ceil(rubriques.length / rubriquesPerPage + 1);
+    
+    const currentRubriques = rubriques.slice(currentPage * rubriquesPerPage, (currentPage + 1) * rubriquesPerPage);
+
+    const handlePrevPage = () => {
+        setCurrentPage((prevPage) => Math.max(prevPage - 1, 0));
+    };
+    const handleNextPage = () => {
+        setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages - 1));
+    };
     useEffect(() => {
         const getEvaluationDetails = async () => {
             try {
@@ -107,82 +119,132 @@ function EvaluationDetailsReponseConsulter({ id }) {
                     <div style={{ margin: '4px', padding: '8px' }}><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
                 </div>
                 <div style={{ marginTop: '70px',marginRight:'50px', overflowX: 'auto', width: '50%' }}>
-                    <TextField
-                        label="Commentaire"
-                        variant="outlined"
-                        fullWidth
-                        multiline
-                        rows={4}
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        style={{ marginBottom: '20px' }}
-                    />
-                    <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #ccc', borderRadius: '5px' }}>
-                        <Button onClick={handleExpandAll} startIcon={<KeyboardArrowDownIcon />}>Développer tout</Button>
-                        <Button onClick={handleCollapseAll} startIcon={<KeyboardArrowUpIcon />}>Réduire tout</Button>
-                        <DragDropContext onDragEnd={onDragEnd}>
-                            <Droppable droppableId="droppable">
-                                {(provided) => (
-                                    <div {...provided.droppableProps} ref={provided.innerRef}>
-                                        {rubriques.length === 0 ? (
-                                            <Typography variant="body1" style={{ margin: '10px' }}>
-                                                Il n'y a aucune rubrique dans cette évaluation
-                                            </Typography>
-                                        ) : (
-                                            rubriques.map((rubrique, index) => (
-                                                <div key={rubrique.rubrique.id}>
-                                                    <Accordion expanded={Array.isArray(expanded) && expanded.includes(index)} onChange={() => handleAccordionToggle(index)}>
-                                                        <AccordionSummary expandIcon={<ExpandMoreIcon />} /* Add any necessary props here */>
-                                                            <Typography>{rubrique.rubrique.idRubrique.designation}</Typography>
-                                                        </AccordionSummary>
-                                                        <AccordionDetails>
-                                                            <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
-                                                                {rubrique.questions.length > 0 ? (
-                                                                    <TableContainer component={Paper}>
-                                                                        <Table>
-                                                                            <TableHead>
-                                                                                <TableRow>
-                                                                                    <TableCell>Intitulé</TableCell>
-                                                                                    <TableCell>Minimal</TableCell>
-                                                                                    <TableCell>Maximal</TableCell>
-                                                                                    <TableCell>Rating</TableCell>
-                                                                                </TableRow>
-                                                                            </TableHead>
-                                                                            <TableBody>
-                                                                                {rubrique.questions.map((question, qIndex) => (
-                                                                                    <TableRow key={qIndex}>
-                                                                                        <TableCell>{question.idQuestion.intitule}</TableCell>
-                                                                                        <TableCell>{question.idQuestion.idQualificatif.minimal}</TableCell>
-                                                                                        <TableCell>{question.idQuestion.idQualificatif.maximal}</TableCell>
-                                                                                        <TableCell>
-                                                                                            <Rating
-                                                                                                name={`rating-${question.id}`}
-                                                                                                value={ratings[question.id] || 0}
-                                                                                                readOnly
-                                                                                            />
-                                                                                        </TableCell>
-                                                                                    </TableRow>
-                                                                                ))}
-                                                                            </TableBody>
-                                                                        </Table>
-                                                                    </TableContainer>
-                                                                ) : (
-                                                                    <Typography variant="body1" style={{ margin: '10px' }}>
-                                                                        Aucune question
-                                                                    </Typography>
-                                                                )}
-                                                            </div>
-                                                        </AccordionDetails>
-                                                    </Accordion>
-                                                </div>
-                                            ))
-                                        )}
-                                        {provided.placeholder}
-                                    </div>
-                                )}
-                            </Droppable>
-                        </DragDropContext>
+                    <div style={{ position: 'fixed', top: '29vh', right: '10vw', overflowY: 'auto', width: 'calc(50% - 50px)', maxHeight: '75vh', border:'2px solid black', padding:'20px',     boxShadow: '0px 0px 21px 5px rgba(0,0,0,0.5)' }}>
+    {/* Your existing UI */}
+    <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+        {currentRubriques.map((rubrique, index) => (
+            <div key={index}>
+                {/* Render rubrique content here */}
+                <div>
+                    <Typography variant="h6">{rubrique.rubrique.idRubrique.designation}</Typography>
+                    <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
+                        {rubrique.questions.length > 0 ? (
+                            <TableContainer component={Paper} style={{ minHeight: '40vh', overflowY: 'auto' }}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Intitulé</TableCell>
+                                            <TableCell>Minimal</TableCell>
+                                            <TableCell>Maximal</TableCell>
+                                            <TableCell>Rating</TableCell> {/* Add a header for the rating */}
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {rubrique.questions.map((question, qIndex) => (
+                                            <TableRow key={qIndex}>
+                                                <TableCell>{question.idQuestion.intitule}</TableCell>
+                                                <TableCell>{question.idQuestion.idQualificatif.minimal}</TableCell>
+                                                <TableCell>{question.idQuestion.idQualificatif.maximal}</TableCell>
+                                                <TableCell>
+                                                    <Rating
+                                                        name={`rating-${question.id}`}
+                                                        value={ratings[question.id] || 0}
+                                                        readOnly
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        ) : (
+                            <Typography variant="body1" style={{ margin: '10px' }}>
+                                Aucune question
+                            </Typography>
+                        )}
                     </div>
+                </div>
+            </div>
+        ))}
+    </div>
+
+    {/* Check if it's the last page */}
+    {currentPage === totalPages -1  && (
+        <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+            <Typography variant="h6">Commentaire</Typography>
+            <TextField
+    label="Commentaire"
+    variant="outlined"
+    fullWidth
+    multiline
+    rows={4}
+    value={comment}
+    onChange={(e) => setComment(e.target.value)}
+    style={{ marginBottom: '151px',marginTop:'20px' }}
+    readOnly  // Make TextField readonly
+    disabled  // Make TextField disabled
+/>
+
+        </div>
+    )}
+
+    {/* Navigation buttons */}
+    <div style={{ textAlign: 'center', marginBottom: '0px',marginTop:'-20px', display:'flex', justifyContent:'space-evenly' }}>
+        <Button disabled={currentPage === 0} onClick={handlePrevPage} variant='contained'>Précédent</Button>
+        <Button disabled={currentPage === totalPages - 1} onClick={handleNextPage} variant='contained'>Suivant</Button>
+    </div>
+    <div style={{ 
+    width: '80%', 
+    position: 'fixed', 
+    top: '15vh', 
+    left: '10vw', 
+    padding: '10px', 
+    display: 'grid', 
+    gridTemplateColumns: `repeat(${rubriques.length + 1}, 1fr)`, 
+    gap: '10px', 
+    border: '1px solid #ccc', 
+    borderRadius: '10px',
+    backgroundColor:'#2b85cf',
+    boxShadow: '0px 0px 21px 5px rgba(0,0,0,0.27)' // Add shadow
+}}>
+    {rubriques.map((rubrique, index) => (
+        <div key={index} style={{ 
+            padding: '5px', 
+            cursor: 'pointer', 
+            border: '1px solid #ccc', 
+            borderRadius: '5px', 
+            backgroundColor: currentPage === index ? 'white' : '#2b85cf', 
+            color: currentPage === index ? '#2b85cf' : 'white' 
+        }} onClick={() => scrollToRubrique(index)}>
+            <div style={{ textAlign: 'center' }}>{rubrique.rubrique.idRubrique.designation}</div>
+        </div>
+    ))}
+    <div style={{ 
+        padding: '5px', 
+        cursor: 'pointer', 
+        border: '1px solid #ccc', 
+        borderRadius: '5px', 
+        backgroundColor: currentPage === totalPages -1  ? 'white' : '#2b85cf', 
+        color: currentPage === totalPages -1 ? 'black' : 'white' 
+    }} onClick={() => setCurrentPage(totalPages - 1)}>
+        <div style={{ textAlign: 'center' }}>Commentaire</div>
+    </div>
+</div>
+
+
+
+
+    {/* Progress bar */}
+    <div style={{ width: '80%', position: 'fixed', bottom: '1vh', left: '10vw', padding: '10px' }}>
+    <LinearProgress
+        variant="determinate"
+        value={(currentPage + 1) / totalPages * 100}
+        sx={{ height: '8px' }} // Set the height of the progress bar
+        style={{borderRadius:'50px'}}
+    />
+</div>
+
+</div>
                 </div>
             </div>
 

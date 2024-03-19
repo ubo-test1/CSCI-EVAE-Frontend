@@ -4,12 +4,34 @@ import Sidebar from './sideBar';
 import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid from MUI
 import { fetchEvaluationsEtudiant } from '../api/fetchEvaluationsEtudiant';
 import { localizedTextsMap } from './dataGridLanguage';
-import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import { Tooltip } from '@mui/material';
+import Alert from '@mui/material/Alert';
+import CloseIcon from '@mui/icons-material/Close';
+import { useLocation } from "react-router-dom";
+import { Button } from '@mui/material';
 
 function EvaluationEtudiant() {
   const [evaluations, setEvaluations] = useState([]);
+  const location = useLocation(); // Use useLocation hook to get the current location
+  const queryParams = new URLSearchParams(location.search);
+  console.log("these are the query parammmss ::: " + queryParams)
+  let isSuccess = queryParams.get('success'); // Get the 'success' parameter from the query string
+  console.log("this is the isSuccesss :::: " + isSuccess)
+  const [showAlert, setShowAlert] = useState(true);
+  const [latestAction, setLatestAction] = useState(null);
+
+
+  useEffect(() => {
+    if (isSuccess) {
+        setShowAlert(true)
+        setLatestAction("add");
+    }
+}, [isSuccess]);
+const handleHideAlert = () => {
+    setShowAlert(false);
+  };  
+
 
   useEffect(() => {
     async function getEvaluations() {
@@ -103,6 +125,12 @@ function EvaluationEtudiant() {
       ) : (
         <p>Pas d'évaluations en cours pour l'instant</p>
       )}
+      {showAlert && latestAction==='add' && (
+            <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+              Vous avez répondu avec success !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
     </div>
   );
 }
