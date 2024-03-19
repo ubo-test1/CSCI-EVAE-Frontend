@@ -69,18 +69,24 @@ const [latestAction, setLatestAction] = useState(null);
   const [debutReponseDate,setDebutReponseDate] = useState('')
   const [finReponseDate, setFinReponseDate] = useState('')
   const [change, setChange] = useState(false);
+  const [ErrorTextDateDebut, setErrorTextDateDebut] = useState('');
+  const [ErrorTextDateFin, setErrorTextDateFin] = useState('');
+
 
 // Fonction pour valider le format de la date (JJ/MM/AAAA)
-  const isValidDateFormat = (dateString) => {
+  const isValidDateFormat = (dateString, debut) => {
+    console.log("hihi")
     const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/[0-9]{4}$/;
+    if(!regex.test(dateString)){if (debut) setErrorTextDateDebut("La date de début de réponse doit être dans un format valide (JJ/MM/AAAA) *");
+    else setErrorTextDateFin("La date de fin de réponse doit être dans un format valide (JJ/MM/AAAA) *");}
     return regex.test(dateString);
   };
 // Fonction pour valider la valeur de la date
   const isvalidDateValue = (dateString) => {
     // Vérifier d'abord le format de la date
-    if (!isValidDateFormat(dateString)) {
+/*    if (!isValidDateFormat(dateString)) {
       return false;
-    }
+    }*/
     const parts = dateString.split('/');
     const day = parseInt(parts[0], 10);
     const month = parseInt(parts[1], 10) - 1; // Les mois dans JavaScript sont 0-indexés
@@ -89,11 +95,12 @@ const [latestAction, setLatestAction] = useState(null);
     const currentDate = new Date();
     inputDate.setHours(0, 0, 0, 0);
     currentDate.setHours(0, 0, 0, 0);
+    if(inputDate <= currentDate) setErrorTextDateDebut("La date de début de réponse doit être supérieure à la date d'aujourd'hui !");
     return inputDate >= currentDate;
   };
   const isvalidDateValueDebutUpdated = (dateString) => {
     // Vérifier d'abord le format de la date
-    if (debutReponseUpdated===null||!isValidDateFormat(dateString)) {
+    if (debutReponseUpdated===null||!isValidDateFormat(dateString,true)) {
       return false;
     }
     const parts = dateString.split('/');
@@ -114,11 +121,12 @@ const [latestAction, setLatestAction] = useState(null);
     console.log("date debut actuelle-------->"+inputDate);
     console.log(inputDate.getTime() === debutResponseDate.getTime())
     if(inputDate.getTime() === debutResponseDate.getTime()) return true;
+    if(!(inputDate > debutResponseDate && inputDate >= currentDate)) setErrorTextDateDebut("La date de début de réponse doit être soit la même que celle déjà spécifiée, soit supérieure ou égale à la date d'aujourd'hui *")
     else return inputDate > debutResponseDate && inputDate >= currentDate;
   };
   const isvalidDateValueFin = (dateString) => {
     // Vérifier d'abord le format de la date
-    if (debutReponse==null || (!isvalidDateValue(debutReponse))|| !isValidDateFormat(dateString)) {
+    if (debutReponse==null || (!isvalidDateValue(debutReponse))) {
       return false;
     }
     const parts = dateString.split('/');
@@ -134,15 +142,44 @@ const [latestAction, setLatestAction] = useState(null);
     inputDate.setHours(0, 0, 0, 0);
     debutResponseDate.setHours(0, 0, 0, 0);
     console.log(inputDate >= debutResponseDate);
+    if(inputDate < debutResponseDate ) setErrorTextDateFin("La date de fin de réponse doit être supérieure ou égale à la date de début de réponse *")
+    console.log(inputDate >= debutResponseDate)
     return inputDate >= debutResponseDate   ;
   };
+  const isvalidDateValueFinUpdated = (dateString) => {
+    // Vérifier d'abord le format de la date
+    console.log("hohohohohohohhohohoo")
+    if (debutReponse==null || (!isvalidDateValueDebutUpdated(debutReponse))) {
+      setErrorTextDateFin(" Veuillez d'abord saisir une date de début de réponse valide *")
+      return false;
+    }
+    const parts = dateString.split('/');
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // Les mois dans JavaScript sont 0-indexés
+    const year = parseInt(parts[2], 10);
+    const inputDate = new Date(year, month, day);
+    const parts2 = debutReponse.split('/');
+    const day2 = parseInt(parts2[0], 10);
+    const month2 = parseInt(parts2[1], 10) - 1; // Les mois dans JavaScript sont 0-indexés
+    const year2 = parseInt(parts2[2], 10);
+    const debutResponseDate = new Date(year2, month2, day2);
+    inputDate.setHours(0, 0, 0, 0);
+    debutResponseDate.setHours(0, 0, 0, 0);
+    console.log(inputDate >= debutResponseDate);
+    if(inputDate < debutResponseDate ) setErrorTextDateFin("La date de fin de réponse doit être supérieure ou égale à la date de début de réponse *")
+    console.log(inputDate >= debutResponseDate)
+    return inputDate >= debutResponseDate ;
+  };
+
   const handleAjouter = async () => {
+    if (finReponse.trim()==="") setFinReponseError(true);setErrorTextDateFin("La date de fin de réponse est requise *");
+    if (debutReponse.trim()==="") setDebutReponseError(true);setErrorTextDateDebut("La date de début de réponse est requise *")
     // Vérifie si tous les champs sont vides
     const champs = {
       designation: { value: designation.trim(), setError: setDesignationError },
       //periode: { value: periode.trim(), setError: setPeriodeError },
-      finReponse: { value: finReponse.trim(), setError: setFinReponseError },
-      debutReponse: { value: debutReponse.trim(), setError: setDebutReponseError },
+      //finReponse: { value: finReponse.trim(), setError: setFinReponseError },
+      //debutReponse: { value: debutReponse.trim(), setError: setDebutReponseError },
       promotion: { value: selectedPromotion, setError: setPromotionError },
       ue: { value: ue, setError: setUniteEnseignementError }
     };
@@ -346,13 +383,15 @@ const handleCLoseEdit = () => {
       console.error('Error fetching UEs:', error);
     }
   };
-  const handleClose = () => {
+  const handleCloseAjouter = () => {
+    console.log()
     setPeriodeError(false);
     setDesignationError(false);
     setUniteEnseignementError(false);
     setDebutReponseError(false);
     setFinReponseError(false);
-    setOpenDialogAjouter(false);
+    console.log(finReponseError)
+    //setOpenDialogAjouter(false);
   };
   useEffect(() => {
     // Check if selectedRow and ue are not null or undefined
@@ -448,7 +487,22 @@ const handleCLoseEdit = () => {
       setError(true); // Set error state when value is invalid
     }
   };
+const handleAnnulerAjouter = () => {
+  setPeriode('');
+  setDesignation('');
+  setDebutReponse('');
+  setFinReponse('');
+  setUE('');
+  setEC('');
+  setSelectedPromotion('');
+  setPeriodeError(false);
+  setDesignationError(false);
+  setUniteEnseignementError(false);
+  setDebutReponseError(false);
+  setFinReponseError(false);
+  setOpenDialogAjouter(false)
 
+};
   const handleConfirmation = async () => {
     console.log("this is the selected item idddd ::: +++++" + selectedItemId);
     console.log("this is the selected row info :::: " + JSON.stringify(selectedRow));
@@ -456,11 +510,13 @@ const handleCLoseEdit = () => {
     const { codeFormation, promotion, noEvaluation } = selectedRow;
     const { code_UE, code_EC } = selectedRow;
     const { anneeUniversitaire } = promotion.id;
+    if (finReponse.trim()==="") setFinReponseError(true);setErrorTextDateFin("La date de fin de réponse est requise *");
+    if (debutReponse.trim()==="") setDebutReponseError(true);setErrorTextDateDebut("La date de début de réponse est requise *")
     const champs = {
       designation: { value: designation.trim(), setError: setDesignationError },
       //periode: { value: periode.trim(), setError: setPeriodeError },
-      finReponse: { value: finReponse.trim(), setError: setFinReponseError },
-      debutReponse: { value: debutReponse.trim(), setError: setDebutReponseError },
+      //finReponse: { value: finReponse.trim(), setError: setFinReponseError },
+      //debutReponse: { value: debutReponse.trim(), setError: setDebutReponseError },
       promotion: { value: promotion, setError: setPromotionError },
       ue: { value: ue, setError: setUniteEnseignementError }
     };
@@ -820,18 +876,18 @@ let updatedEvaluationData = {
                   // Mettre à jour la valeur
                   setDebutReponse(inputValue);
                   // Valider la saisie
-                  const isValidFormat = isValidDateFormat(inputValue); // Valider le format de la date
+                  const isValidFormat = isValidDateFormat(inputValue,true); // Valider le format de la date
                   const isValidDateValue = isvalidDateValueDebutUpdated(inputValue); // Valider la valeur de la date
                   setDebutReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
                 }}
                 onBlur={() => {
                   // Valider la saisie lorsque le champ perd le focus
-                  const isValidFormat = isValidDateFormat(debutReponse); // Valider le format de la date
+                  const isValidFormat = isValidDateFormat(debutReponse,true); // Valider le format de la date
                   const isValidDateValue = isvalidDateValueDebutUpdated(debutReponse); // Valider la valeur de la date
                   setDebutReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
                 }}
                 error={debutReponseError}
-                helperText={debutReponseError ? "La date de début de réponse est requise un format valide (JJ/MM/AAAA) *" : ""}
+                helperText={debutReponseError ? ErrorTextDateDebut : ""}
                 fullWidth
                 margin="normal"
                 placeholder="JJ/MM/AAAA"
@@ -857,18 +913,18 @@ let updatedEvaluationData = {
                   // Mettre à jour la valeur
                   setFinReponse(inputValue);
                   // Valider la saisie
-                  const isValidFormat = isValidDateFormat(inputValue); // Valider le format de la date
-                  const isValidDateValue = isvalidDateValueFin(inputValue); // Valider la valeur de la date
+                  const isValidFormat = isValidDateFormat(inputValue,false); // Valider le format de la date
+                  const isValidDateValue = isvalidDateValueFinUpdated(inputValue); // Valider la valeur de la date
                   setFinReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
                 }}
                 onBlur={() => {
                   // Valider la saisie lorsque le champ perd le focus
-                  const isValidFormat = isValidDateFormat(finReponse); // Valider le format de la date
-                  const isValidDateValue = isvalidDateValueFin(finReponse); // Valider la valeur de la date
+                  const isValidFormat = isValidDateFormat(finReponse,false); // Valider le format de la date
+                  const isValidDateValue = isvalidDateValueFinUpdated(finReponse); // Valider la valeur de la date
                   setFinReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
                 }}
                 error={finReponseError}
-                helperText={finReponseError ? "La date de fin de réponse est requise avec un format valide (JJ/MM/AAAA) *" : ""}
+                helperText={finReponseError ? ErrorTextDateFin : ""}
                 fullWidth
                 margin="normal"
                 placeholder="JJ/MM/AAAA"
@@ -907,7 +963,8 @@ let updatedEvaluationData = {
               </Button>
             </div>
             <div>
-              <Button onClick={handleConfirmation} color="primary" variant='contained' style={{ textTransform: 'none'  }}>
+              <Button onClick={handleConfirmation} color="primary" variant='contained' style={{ textTransform: 'none'  }} // Condition pour désactiver le bouton
+              >
                 Confirmer
               </Button>
               <Button onClick={handleCLoseEdit} color="secondary" variant='contained' style={{ textTransform: 'none' , marginLeft:5,marginRight:10}}>
@@ -947,7 +1004,7 @@ let updatedEvaluationData = {
         </DialogActions>
       </Dialog>
         //----------------------------------------------------------------------------Ajouter----------------------------------------------------------------------------------------
-<Dialog open={openDialogAjouter} onClose={handleClose} style={{marginLeft:'80px', width:'74vw', left:'10vw'}}>
+<Dialog open={openDialogAjouter} onClose={handleCloseAjouter} style={{marginLeft:'80px', width:'74vw', left:'10vw'}}>
       <DialogTitle>Ajouter une évaluation</DialogTitle>
       <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width: '90%', justifyContent: 'space-evenly', marginLeft: '50px' }}>
         <TextField
@@ -1057,18 +1114,18 @@ let updatedEvaluationData = {
               // Mettre à jour la valeur
               setDebutReponse(inputValue);
              // Valider la saisie
-              const isValidFormat = isValidDateFormat(inputValue); // Valider le format de la date
+              const isValidFormat = isValidDateFormat(inputValue,true); // Valider le format de la date
               const isValidDateValue = isvalidDateValue(inputValue); // Valider la valeur de la date
               setDebutReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
             }}
             onBlur={() => {
               // Valider la saisie lorsque le champ perd le focus
-              const isValidFormat = isValidDateFormat(debutReponse); // Valider le format de la date
+              const isValidFormat = isValidDateFormat(debutReponse,true); // Valider le format de la date
               const isValidDateValue = isvalidDateValue(debutReponse); // Valider la valeur de la date
               setDebutReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
             }}
             error={debutReponseError}
-            helperText={debutReponseError ? "La date de début de réponse est requise un format valide (JJ/MM/AAAA) *" : ""}
+            helperText={debutReponseError ? ErrorTextDateDebut : ""}
             fullWidth
             margin="normal"
             placeholder="JJ/MM/AAAA"
@@ -1095,18 +1152,18 @@ let updatedEvaluationData = {
               // Mettre à jour la valeur
               setFinReponse(inputValue);
               // Valider la saisie
-              const isValidFormat = isValidDateFormat(inputValue); // Valider le format de la date
+              const isValidFormat = isValidDateFormat(inputValue,false); // Valider le format de la date
               const isValidDateValue = isvalidDateValueFin(inputValue); // Valider la valeur de la date
               setFinReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
             }}
             onBlur={() => {
               // Valider la saisie lorsque le champ perd le focus
-              const isValidFormat = isValidDateFormat(finReponse); // Valider le format de la date
+              const isValidFormat = isValidDateFormat(finReponse,false); // Valider le format de la date
               const isValidDateValue = isvalidDateValueFin(finReponse); // Valider la valeur de la date
               setFinReponseError(!isValidFormat || !isValidDateValue); // Définir l'erreur si la date n'est pas valide
             }}
             error={finReponseError}
-            helperText={finReponseError ? "La date de fin de réponse est requise avec un format valide (JJ/MM/AAAA) *" : ""}
+            helperText={finReponseError ? ErrorTextDateFin: ""}
             fullWidth
             margin="normal"
             placeholder="JJ/MM/AAAA"
@@ -1139,7 +1196,7 @@ let updatedEvaluationData = {
           <Button onClick={handleAjouter} color="primary"  variant='contained' style={{textTransform: 'none'}}>
             Ajouter
           </Button>
-          <Button onClick={() => setOpenDialogAjouter(false)} color="secondary" variant='contained' style={{textTransform: 'none'}}>
+          <Button onClick={handleAnnulerAjouter} color="secondary" variant='contained' style={{textTransform: 'none'}}>
             Annuler
           </Button>
         </DialogActions>
