@@ -83,8 +83,9 @@ function EvaluationModifier() {
                 if (data?.rubriques) {
                     // Ensure rubriques are sorted by their initial order when fetched
                     const sortedRubriques = data.rubriques.sort((a, b) => a.rubrique.ordre - b.rubrique.ordre);
+                    console.log("---------------")
                     setRubriques(sortedRubriques);
-                    console.log(sortedRubriques)
+                    console.log(JSON.stringify(sortedRubriques))
                     // Capture the initial order of rubrique IDs
                     setInitialRubriquesOrder(sortedRubriques.map(rubrique => rubrique.rubrique.id));
                 }
@@ -152,6 +153,7 @@ function EvaluationModifier() {
       };
 
     const handleEditDialogClose1 = () => {
+        setChange(true)
         setEditDialogOpen1(false);
     };
     const handleEditDialogClose = () => {
@@ -362,35 +364,37 @@ function EvaluationModifier() {
                                             </IconButton>
                                         </AccordionSummary>
                                         <AccordionDetails>
-                                            <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
-                                                {rubrique.questions.length > 0 ? (
-                                                    <TableContainer component={Paper}>
-                                                        <Table>
-                                                            <TableHead>
-                                                                <TableRow>
-                                                                    <TableCell>Intitulé</TableCell>
-                                                                    <TableCell>Minimal</TableCell>
-                                                                    <TableCell>Maximal</TableCell>
-                                                                </TableRow>
-                                                            </TableHead>
-                                                            <TableBody>
-                                                                {rubrique.questions.map((question, qIndex) => (
-                                                                    <TableRow key={qIndex}>
-                                                                        <TableCell>{question.idQuestion.intitule}</TableCell>
-                                                                        <TableCell>{question.idQuestion.idQualificatif.minimal}</TableCell>
-                                                                        <TableCell>{question.idQuestion.idQualificatif.maximal}</TableCell>
-                                                                    </TableRow>
-                                                                ))}
-                                                            </TableBody>
-                                                        </Table>
-                                                    </TableContainer>
-                                                ) : (
-                                                    <Typography variant="body1" style={{ margin: '10px' }}>
-                                                        Aucune question
-                                                    </Typography>
-                                                )}
-                                            </div>
-                                        </AccordionDetails>
+  <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
+    {rubrique.questions.length > 0 ? (
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Intitulé</TableCell>
+              <TableCell>Minimal</TableCell>
+              <TableCell>Maximal</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {/* Sort questions by their order */}
+            {rubrique.questions.sort((a, b) => a.ordre - b.ordre).map((question, qIndex) => (
+              <TableRow key={qIndex}>
+                <TableCell>{question.idQuestion.intitule}</TableCell>
+                <TableCell>{question.idQuestion.idQualificatif.minimal}</TableCell>
+                <TableCell>{question.idQuestion.idQualificatif.maximal}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    ) : (
+      <Typography variant="body1" style={{ margin: '10px' }}>
+        Aucune question
+      </Typography>
+    )}
+  </div>
+</AccordionDetails>
+
                                     </Accordion>
                                 </div>
                             )}
