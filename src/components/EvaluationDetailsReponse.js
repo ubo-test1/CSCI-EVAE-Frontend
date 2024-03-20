@@ -167,19 +167,32 @@ function EvaluationDetailsReponse({ id }) {
         <>
             <div className="evaluationContainer" style={{ position: 'absolute', left: '0vw', width: '80%', margin: 'auto', display: 'flex' }}>
 
-                <div className='evaluationImage'>
+                <div className='evaluationImageRepondre'>
                     <img src={evaluationBackgroundImg}/>
                 </div>
                 <div className='evaluationInfo'>
-                    <div style={{ margin: '4px', padding: '8px' }}><strong>Désignation:</strong> {evaluationDetails.designation}</div>
-                    <div style={{ margin: '4px', padding: '8px' }}><strong> Promotion:</strong> {evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</div>
-                    {evaluationDetails.elementConstitutif && evaluationDetails.elementConstitutif.id.codeEc !== "" && (
-    <div style={{ margin: '4px', padding: '8px' }}>
+          <div ><strong>Désignation:</strong> {evaluationDetails.designation}</div>
+          <div ><strong> Promotion:</strong> {evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</div>
+          <div ><strong>Semestre:</strong> {evaluationDetails.uniteEnseignement.semestre}</div>
+          {evaluationDetails.uniteEnseignement.description && (
+    <div >
+        <strong>Description:</strong> 
+        {evaluationDetails.uniteEnseignement.description}
+    </div>
+)}
+          {evaluationDetails.elementConstitutif && evaluationDetails.elementConstitutif.id.codeEc !== "" && (
+    <div >
         <strong>Element Constitutif:</strong> 
         {evaluationDetails.elementConstitutif.id.codeEc}
     </div>
-)}                    <div style={{ margin: '4px', padding: '8px' }}><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
-                </div>
+)}
+          <div ><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
+          <div ><strong>État :</strong> {evaluationDetails.etat}</div>
+          <div ><strong>Début de réponse :</strong> {evaluationDetails.debutReponse}</div>
+          <div ><strong>Fin de réponse :</strong> {evaluationDetails.finReponse}</div>
+
+
+        </div>
 
                 <div style={{ position: 'fixed', top: '29vh', right: '10vw', overflowY: 'auto', width: 'calc(50% - 50px)', maxHeight: '75vh', border:'2px solid black', padding:'20px',     boxShadow: '0px 0px 21px 5px rgba(0,0,0,0.5)' }}>
     {/* Your existing UI */}

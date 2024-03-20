@@ -462,20 +462,28 @@ box-shadow: 8px 8px 4px 0px rgba(0, 0, 0, 0.25);
 
 
 .evaluationImage img{
+  height: 60vh;
+  width: 40%;
+  position: absolute;
+  top: 10vh;
+  left: 1vw;
+
+}
+.evaluationImageRepondre img{
   height: 55vh;
-  width: 30%;
-  position: fixed;
-  top: 27vh;
-  left: 6vw;
+  width: 40%;
+  position: absolute;
+  top: 25vh;
+  left: 5vw;
 
 }
 
 .evaluationInfo{
   position: fixed;
-  width: auto; 
+  width: 24%; 
   text-align: left; 
   left: 12.5vw;
-  top: 37vh;
+  top: 35vh;
   margin-bottom:50px; 
   height:40%; 
   display:flex; 

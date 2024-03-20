@@ -61,6 +61,7 @@ function EvaluationDetails({ id }) {
   };
   
   const evaluationDetails = details.evaluation;
+  console.log("this is the evaluation details :::: " + JSON.stringify(evaluationDetails))
 
   const onDragEnd = (result) => {
     if (!result.destination) {
@@ -95,15 +96,27 @@ function EvaluationDetails({ id }) {
           <img src={evaluationBackgroundImg}/>
         </div>
         <div className='evaluationInfo'>
-          <div style={{ margin: '4px', padding: '8px' }}><strong>Désignation:</strong> {evaluationDetails.designation}</div>
-          <div style={{ margin: '4px', padding: '8px' }}><strong> Promotion:</strong> {evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</div>
+          <div ><strong>Désignation:</strong> {evaluationDetails.designation}</div>
+          <div ><strong> Promotion:</strong> {evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</div>
+          <div ><strong>Semestre:</strong> {evaluationDetails.uniteEnseignement.semestre}</div>
+          {evaluationDetails.uniteEnseignement.description && (
+    <div >
+        <strong>Description:</strong> 
+        {evaluationDetails.uniteEnseignement.description}
+    </div>
+)}
           {evaluationDetails.elementConstitutif && evaluationDetails.elementConstitutif.id.codeEc !== "" && (
-    <div style={{ margin: '4px', padding: '8px' }}>
+    <div >
         <strong>Element Constitutif:</strong> 
         {evaluationDetails.elementConstitutif.id.codeEc}
     </div>
 )}
-          <div style={{ margin: '4px', padding: '8px' }}><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
+          <div ><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
+          <div ><strong>État :</strong> {evaluationDetails.etat}</div>
+          <div ><strong>Début de réponse :</strong> {evaluationDetails.debutReponse}</div>
+          <div ><strong>Fin de réponse :</strong> {evaluationDetails.finReponse}</div>
+
+
         </div>
 
         <div style={{ marginTop: '70px',marginRight:'50px', overflowX: 'auto', width: '50%' }}>
