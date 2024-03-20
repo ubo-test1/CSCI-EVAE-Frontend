@@ -418,17 +418,19 @@ const handleCLoseEdit = () => {
     async function getEvaluations() {
       try {
         const data = await fetchEvaluations();
-        setEvaluations(data);
-        console.log("content ::: " + JSON.stringify(data))
-        // console.log("this is the content of the evaluationsss :::::::::: " + JSON.stringify(data))
-        setChange(false)
+        // Sort the evaluations by the 'designation' attribute
+        const sortedData = data.slice().sort((a, b) => a.designation.localeCompare(b.designation));
+        setEvaluations(sortedData);
+        console.log("content ::: " + JSON.stringify(sortedData))
+        // console.log("this is the content of the evaluationsss :::::::::: " + JSON.stringify(sortedData))
+        setChange(false);
       } catch (error) {
         console.error('Error fetching evaluations:', error);
       }
     }
     getEvaluations();
   }, [change]);
-
+  
   const handleConsult = (evaluation) => {
     console.log("eeeh")
     setSelectedEvaluation(evaluation);
@@ -628,10 +630,10 @@ let updatedEvaluationData = {
     }
   };
   const columns = [
-    { field: 'designation', headerName: 'Designation', flex: 1 },
+    { field: 'designation', headerName: 'Désignation', flex: 1 },
     {
       field: 'etat',
-      headerName: 'Etat',
+      headerName: 'État',
       flex: 1.2,
       valueGetter: (params) => {
         const etatValue = params.row.etat;
@@ -651,7 +653,7 @@ let updatedEvaluationData = {
     { field: 'periode', headerName: 'Période', flex: 1.7 },
     {
       field: 'debutReponse',
-      headerName: 'Début Réponse',
+      headerName: 'Début réponse',
       flex: 1,
       valueGetter: (params) => {
         return formatDate(params.row.debutReponse);
@@ -659,7 +661,7 @@ let updatedEvaluationData = {
     },
     {
       field: 'finReponse',
-      headerName: 'Fin Réponse',
+      headerName: 'Fin réponse',
       flex: 1,
       valueGetter: (params) => {
         return formatDate(params.row.finReponse);
@@ -684,7 +686,7 @@ let updatedEvaluationData = {
                     onClick={() => {
                       handleConfirmationDialogOpen(params.row.id, params.row.etat)
                     }}
-                    style={{width: '85%', textTransform: 'none'}}
+                    style={{width: '100%', textTransform: 'none'}}
                 >
                   {
                     params.row.etat === 'CLO' ? 'Cloturée' :
@@ -773,12 +775,11 @@ let updatedEvaluationData = {
             />
           </div>
         </div>
-        //-------------------------------------------------------------modifier evaluation----------------------------------------------------------
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)} style={{marginLeft:'80px', width:'74vw', left:'10vw'}}>
           <DialogTitle>Modifier l'évaluation</DialogTitle>
           <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width: '90%', justifyContent: 'space-evenly', marginLeft: '50px' }}>
             <TextField
-    label="Designation"
+    label="Désignation"
     value={designation}
     onChange={(e) => {
         const inputValue = e.target.value; // Get the input value
@@ -815,7 +816,7 @@ let updatedEvaluationData = {
 />
 
             <TextField
-                label="Etat"
+                label="État"
                 value={etat}
                 onChange={(e) => setEtat(e.target.value)}
                 fullWidth
@@ -824,7 +825,7 @@ let updatedEvaluationData = {
                 style={{ flexBasis: '45%', marginLeft: '10px' }} // Adjust the width and add margin between fields
             />
             <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
-              <InputLabel htmlFor="ue">Unité d'Enseignement</InputLabel>
+              <InputLabel htmlFor="ue">Unité d'enseignement</InputLabel>
               <Select
                   labelId="ue-label"
                   id="ue"
@@ -850,7 +851,7 @@ let updatedEvaluationData = {
               </Select>
             </FormControl>
             <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
-              <InputLabel htmlFor="ec">Élément Constitutif</InputLabel>
+              <InputLabel htmlFor="ec">Élément constitutif</InputLabel>
               <Select
                   labelId="ec-label"
                   id="ec"
@@ -867,7 +868,7 @@ let updatedEvaluationData = {
               </Select>
             </FormControl>
             <TextField
-                label="Début Réponse"
+                label="Début réponse"
                 type="text"
                 value={debutReponse}
                 onChange={(e) => {
@@ -904,7 +905,7 @@ let updatedEvaluationData = {
                 style={{ flexBasis: '45%' }}
             />
             <TextField
-                label="Fin Réponse"
+                label="Fin réponse"
                 type="text"
                 value={finReponse}
                 onChange={(e) => {
@@ -1016,7 +1017,7 @@ let updatedEvaluationData = {
       <DialogTitle>Ajouter une évaluation</DialogTitle>
       <DialogContent style={{ display: 'flex', flexWrap: 'wrap', width: '90%', justifyContent: 'space-evenly', marginLeft: '50px' }}>
         <TextField
-            label="Designation"
+            label="Désignation"
             value={designation}
             onChange={(e) => {
               const inputValue = e.target.value; // Obtenez la valeur saisie par l'utilisateur
@@ -1046,13 +1047,13 @@ let updatedEvaluationData = {
             }}
         />
         <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }} error={uniteEnseignementError}>
-          <InputLabel htmlFor="ue">Unité d'Enseignement</InputLabel>
+          <InputLabel htmlFor="ue">Unité d'enseignement</InputLabel>
           <Select
               labelId="ue-label"
               id="ue"
               value={ue}
               onChange={handleUnitChange}
-              label="Unité d'Enseignement"
+              label="Unité d'enseignement"
           >
             {units.map((unit) => (
                 <MenuItem key={unit.id.codeUe} value={unit}>
@@ -1083,8 +1084,8 @@ let updatedEvaluationData = {
           </Select>
           {promotionError && <FormHelperText>La promotion est requise *</FormHelperText>}
         </FormControl>
-        <FormControl fullWidth margin="normal" style={{ flexBasis: '45%', marginLeft: '10px' }}>
-          <InputLabel htmlFor="ec">Élément Constitutif</InputLabel>
+        <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
+          <InputLabel htmlFor="ec">Élément constitutif</InputLabel>
           <Select
               labelId="ec-label"
               id="ec"
@@ -1103,7 +1104,7 @@ let updatedEvaluationData = {
 
         </FormControl>
         <TextField
-            label="Début Réponse"
+            label="Début réponse"
             type="text"
             value={debutReponse}
             onChange={(e) => {
@@ -1141,7 +1142,7 @@ let updatedEvaluationData = {
         />
 
         <TextField
-            label="Fin Réponse"
+            label="Fin réponse"
             type="text"
             value={finReponse}
             onChange={(e) => {

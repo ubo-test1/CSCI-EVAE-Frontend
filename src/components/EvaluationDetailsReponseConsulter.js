@@ -64,7 +64,13 @@ function EvaluationDetailsReponseConsulter({ id }) {
     if (details === null) {
         return null;
     }
+    const scrollToRubrique = (rubriqueIndex) => {
+        // Calculate the page corresponding to the rubrique index
+        const rubriquePage = Math.floor(rubriqueIndex / rubriquesPerPage);
 
+        // Set the current page
+        setCurrentPage(rubriquePage);
+    };
     const handleRetourClick = () => {
         window.history.back();
         console.log('Retour button clicked');
@@ -114,9 +120,13 @@ function EvaluationDetailsReponseConsulter({ id }) {
                 </div>
                 <div className='evaluationInfo'>
                     <div style={{ margin: '4px', padding: '8px' }}><strong>Désignation:</strong> {evaluationDetails.designation}</div>
-                    <div style={{ margin: '4px', padding: '8px' }}><strong> Promotion:</strong> {evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</div>
-                    <div style={{ margin: '4px', padding: '8px' }}> <strong>Element Constitutif:</strong> {evaluationDetails.elementConstitutif ? evaluationDetails.elementConstitutif.id.codeEc : ""}</div>
-                    <div style={{ margin: '4px', padding: '8px' }}><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
+                    <div style={{ margin: '4px', padding: '8px' }}><strong>Promotion:</strong> {evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</div>
+                    {evaluationDetails.elementConstitutif && evaluationDetails.elementConstitutif.id.codeEc !== "" && (
+    <div style={{ margin: '4px', padding: '8px' }}>
+        <strong>Element Constitutif:</strong> 
+        {evaluationDetails.elementConstitutif.id.codeEc}
+    </div>
+)}                    <div style={{ margin: '4px', padding: '8px' }}><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
                 </div>
                 <div style={{ marginTop: '70px',marginRight:'50px', overflowX: 'auto', width: '50%' }}>
                     <div style={{ position: 'fixed', top: '29vh', right: '10vw', overflowY: 'auto', width: 'calc(50% - 50px)', maxHeight: '75vh', border:'2px solid black', padding:'20px',     boxShadow: '0px 0px 21px 5px rgba(0,0,0,0.5)' }}>
@@ -190,8 +200,8 @@ function EvaluationDetailsReponseConsulter({ id }) {
 
     {/* Navigation buttons */}
     <div style={{ textAlign: 'center', marginBottom: '0px',marginTop:'-20px', display:'flex', justifyContent:'space-evenly' }}>
-        <Button disabled={currentPage === 0} onClick={handlePrevPage} variant='contained'>Précédent</Button>
-        <Button disabled={currentPage === totalPages - 1} onClick={handleNextPage} variant='contained'>Suivant</Button>
+        <Button disabled={currentPage === 0} onClick={handlePrevPage} variant='contained' style={{textTransform:'none'}}>Précédent</Button>
+        <Button disabled={currentPage === totalPages - 1} onClick={handleNextPage} variant='contained' style={{textTransform:'none'}}>Suivant</Button>
     </div>
     <div style={{ 
     width: '80%', 

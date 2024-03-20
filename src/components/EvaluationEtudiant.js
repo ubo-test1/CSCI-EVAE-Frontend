@@ -61,6 +61,7 @@ const handleHideAlert = () => {
       flex: 1.5,
       renderCell: (params) => (
         <Button
+        style={{textTransform:'none'}}
           variant="contained"
           color={params.row.repondu ? "secondary" : "primary"}
           fullWidth

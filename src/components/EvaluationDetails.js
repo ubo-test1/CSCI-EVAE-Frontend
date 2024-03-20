@@ -24,20 +24,25 @@ function EvaluationDetails({ id }) {
 
   useEffect(() => {
     const getEvaluationDetails = async () => {
-      try {
-        const data = await fetchEvaRubQuesDetails(id);
-        console.log("Dataaaaaaaaaa")
-        console.log(data)
-        setDetails(data);
-        setRubriques(data?.rubriques || []);
-      } catch (error) {
-        console.error('Error fetching evaluation details:', error);
-      }
+        try {
+            const data = await fetchEvaRubQuesDetails(id);
+            console.log("Dataaaaaaaaaa")
+            console.log(JSON.stringify(data))
+
+            // Sort rubriques by the ordre attribute
+            const sortedRubriques = data?.rubriques ? data.rubriques.sort((a, b) => a.rubrique.ordre - b.rubrique.ordre) : [];
+
+            setDetails(data);
+            setRubriques(sortedRubriques);
+        } catch (error) {
+            console.error('Error fetching evaluation details:', error);
+        }
     };
     if (id) {
-      getEvaluationDetails();
+        getEvaluationDetails();
     }
-  }, [id]);
+}, [id]);
+
 
 
   if (details === null) {
@@ -103,8 +108,8 @@ function EvaluationDetails({ id }) {
 
         <div style={{ marginTop: '70px',marginRight:'50px', overflowX: 'auto', width: '50%' }}>
         <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #ccc', borderRadius: '5px' }}>
-        <Button onClick={handleExpandAll} startIcon={<KeyboardArrowDownIcon />}>Développer tout</Button>
-      <Button onClick={handleCollapseAll} startIcon={<KeyboardArrowUpIcon />}>Réduire tout</Button>
+        <Button onClick={handleExpandAll} startIcon={<KeyboardArrowDownIcon />} style={{textTransform:'none'}}>Développer tout</Button>
+      <Button onClick={handleCollapseAll} startIcon={<KeyboardArrowUpIcon />} style={{textTransform:'none'}}>Réduire tout</Button>
       <DragDropContext onDragEnd={onDragEnd}>
   <Droppable droppableId="droppable">
     {(provided) => (

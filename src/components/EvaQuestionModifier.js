@@ -346,9 +346,9 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
 
     return (
         <>
-        <Paper style={{ padding: '20px', margin: '20px', minHeight: '80vh' }}>
-    <Typography variant="h4" style={{ marginBottom: '20px' }}>Modifier les questions</Typography>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <Paper style={{ margin: '50px', minHeight: '70vh' }}>
+    <Typography variant="h4" style={{ marginBottom: '20px', marginLeft:'20px' }}>Modifier les questions</Typography>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',  width:'98%', margin:'auto auto 20px auto' }}>
         <div style={{width:'70%'}}>
             <Button variant="contained" onClick={handleEditClick} style={{ textTransform: 'none' }}>
                 Ajouter des questions
@@ -361,7 +361,7 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
             </Button>
             )}
         {saveButtonVisible && (
-            <Button variant="contained" onClick={handleSaveOrder} style={{ textTransform: 'none' }} color="success">
+            <Button variant="contained" onClick={handleSaveOrder} style={{ textTransform: 'none',textTransform: 'none' }} color="success">
                 Sauvegarder
             </Button>
         )}
@@ -369,7 +369,7 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
     <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="questions">
                 {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                    <div {...provided.droppableProps} ref={provided.innerRef} style={{width:'98%', margin:'auto'}}>
                         {rubriqueQuestions.map((question, index) => (
                             <Draggable key={question.idQuestion + index} draggableId={question.idQuestion + index.toString()} index={index}>
                                 {(provided) => (
@@ -378,7 +378,15 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
                                         <AccordionSummary expandIcon={<ExpandMoreIcon />} style={{ alignItems: 'center' }}>
                                             <Typography>{question.idQuestion.intitule}</Typography>
                                             <div style={{ marginLeft: 'auto', display: 'flex' }}>
-                                                <IconButton onClick={(event) => handleDeleteClick(question.id, question.idQuestion.intitule, event)} size="small" color="error">
+                                                <IconButton onClick={(event) => handleDeleteClick(question.id, question.idQuestion.intitule, event)} size="small" color="error"
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    position: 'absolute',
+                                                    top: '50%',
+                                                    right: '50px',
+                                                    transform: 'translateY(-50%)',
+                                                }}
+                                                >
                                                     <DeleteIcon />
                                                 </IconButton>
                                             </div>

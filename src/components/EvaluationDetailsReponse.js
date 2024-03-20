@@ -33,6 +33,7 @@ function EvaluationDetailsReponse({ id }) {
     const [showAlert, setShowAlert] = useState(true);
     const [latestAction, setLatestAction] = useState(null);
     
+    
     const navigate = useNavigate();
 
     const handleHideAlert = () => {
@@ -127,11 +128,13 @@ function EvaluationDetailsReponse({ id }) {
     const handleSubmit = async () => {
         // Validation to ensure something is entered or rated
         const noRatingsProvided = Object.values(ratings).every(rating => rating === 0 || rating === undefined);
-        if (comment.trim() === '' && noRatingsProvided) {
+        console.log("hello i am here :::: " + comment.trim() ==='')
+        if ((comment.trim() === '' && noRatingsProvided) || (comment.trim()!='' && noRatingsProvided)) {
             setShowAlert(true)
             setLatestAction("addError")
             return; // Stop execution if validation fails
         }
+
 
         // Transform the ratings into the required structure
         const rList = Object.entries(ratings).map(([questionId, rating]) => ({
@@ -170,8 +173,12 @@ function EvaluationDetailsReponse({ id }) {
                 <div className='evaluationInfo'>
                     <div style={{ margin: '4px', padding: '8px' }}><strong>Désignation:</strong> {evaluationDetails.designation}</div>
                     <div style={{ margin: '4px', padding: '8px' }}><strong> Promotion:</strong> {evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</div>
-                    <div style={{ margin: '4px', padding: '8px' }}> <strong>Element Constitutif:</strong> {evaluationDetails.elementConstitutif ? evaluationDetails.elementConstitutif.id.codeEc : ""}</div>
-                    <div style={{ margin: '4px', padding: '8px' }}><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
+                    {evaluationDetails.elementConstitutif && evaluationDetails.elementConstitutif.id.codeEc !== "" && (
+    <div style={{ margin: '4px', padding: '8px' }}>
+        <strong>Element Constitutif:</strong> 
+        {evaluationDetails.elementConstitutif.id.codeEc}
+    </div>
+)}                    <div style={{ margin: '4px', padding: '8px' }}><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
                 </div>
 
                 <div style={{ position: 'fixed', top: '29vh', right: '10vw', overflowY: 'auto', width: 'calc(50% - 50px)', maxHeight: '75vh', border:'2px solid black', padding:'20px',     boxShadow: '0px 0px 21px 5px rgba(0,0,0,0.5)' }}>
@@ -191,7 +198,7 @@ function EvaluationDetailsReponse({ id }) {
                                             <TableCell>Intitulé</TableCell>
                                             <TableCell>Minimal</TableCell>
                                             <TableCell>Maximal</TableCell>
-                                            <TableCell>Rating</TableCell> {/* Add a header for the rating */}
+                                            <TableCell>Note</TableCell> {/* Add a header for the rating */}
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -244,8 +251,8 @@ function EvaluationDetailsReponse({ id }) {
 
     {/* Navigation buttons */}
     <div style={{ textAlign: 'center', marginBottom: '0px',marginTop:'-20px', display:'flex', justifyContent:'space-evenly' }}>
-        <Button disabled={currentPage === 0} onClick={handlePrevPage} variant='contained'>Précédent</Button>
-        <Button disabled={currentPage === totalPages - 1} onClick={handleNextPage} variant='contained'>Suivant</Button>
+        <Button disabled={currentPage === 0} onClick={handlePrevPage} variant='contained' style={{textTransform:'none'}}>Précédent</Button>
+        <Button disabled={currentPage === totalPages - 1} onClick={handleNextPage} variant='contained' style={{textTransform:'none'}}>Suivant</Button>
     </div>
     <div style={{ 
     width: '80%', 
@@ -309,6 +316,9 @@ function EvaluationDetailsReponse({ id }) {
         >
             Envoyer les réponses
         </Button>
+                    <Button variant="contained" color="primary" startIcon={<ArrowBackIcon />} onClick={handleRetourClick} style={{textTransform:'none',position:'absolute',top:'83vh',left:'11vw', marginTop: '20px'}}>
+                        Retour
+                    </Button>
             </div>
 
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md">

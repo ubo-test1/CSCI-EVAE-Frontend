@@ -756,7 +756,7 @@ open={editDialogOpen} onClose={handleCloseDialog}>
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDialog1(false)} color="primary">Fermer</Button>
+                    <Button onClick={() => setOpenDialog1(false)} color="primary" variant='contained'>Fermer</Button>
                 </DialogActions>
             </Dialog>
             {showAlert && latestAction === 'delete' && (

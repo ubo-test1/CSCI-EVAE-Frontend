@@ -26,6 +26,7 @@ import { getAllByIdEvaluation } from '../api/fetchEvaRubriquesApi.js';
 import { addRub } from '../api/addRubtoEvaApi.js';
 import Alert from '@mui/material/Alert';
 import CloseIcon from '@mui/icons-material/Close';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 function EvaluationModifier() {
     const navigate = useNavigate();
@@ -47,7 +48,18 @@ function EvaluationModifier() {
     const [change, setChange] = useState(false)
     const [showAlert, setShowAlert] = useState(true);
     const [latestAction, setLatestAction] = useState(null);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [rubriqueToDelete, setRubriqueToDelete] = useState(null); // State variable to store rubrique to delete
 
+
+
+    const handleDeleteConfirmation = () => {
+        setOpenDialog(false);
+        if (rubriqueToDelete) {
+            const { id, designation } = rubriqueToDelete.rubrique;
+            rmRub(id, designation);
+        }
+    };
     const handleCheckboxChange = (event) => {
         const { value } = event.target;
         const rubriqueId = parseInt(value, 10); // Convert value to number
@@ -240,7 +252,7 @@ function EvaluationModifier() {
         });
         updateEvaOrdre(ret)
             .then(response => {
-                alert("Succes");
+                setLatestAction("orderSuccess")
                 setShowSaveButton(false);
             })
             .catch(error => {
@@ -250,17 +262,17 @@ function EvaluationModifier() {
     }
 
     const rmRub = (rubriqueId, desi) => {
-        const isConfirmed = window.confirm(`Voulez-vous vraiment supprimer la rubrique ${desi}?`);
-        if (isConfirmed) {
             deleteEvaRub(rubriqueId)
                 .then(response => {
-                    location.reload()
+                    setLatestAction("delete");
+                    setChange(true);
                 })
                 .catch(error => {
-                    alert("Rubrique liee, suppression impossible!");
+                    alert("Rubrique liée, suppression impossible!");
                 });
-        }
+        
     };
+
 
     return (
         <>
@@ -268,7 +280,7 @@ function EvaluationModifier() {
             <SideBar />
             <div className="evaluationContainer" style={{ position: 'absolute', left: '0vw', top: '17vh', width: '80%', margin: 'auto', display: 'flex' }}>
                 <div style={{ position: 'fixed', left: '10vw', top: '17vh', zIndex: '1', textAlign: 'left', width: '50%' }}>
-                    <Button variant="contained" color="primary" startIcon={<ArrowBackIcon />} onClick={handleRetourClick}>
+                    <Button variant="contained" color="primary" startIcon={<ArrowBackIcon />} onClick={handleRetourClick} style={{textTransform:'none'}}>
                         Retour
                     </Button>
                 </div>
@@ -285,96 +297,116 @@ function EvaluationModifier() {
                 <div style={{ marginTop: '70px', overflowX: 'auto', width: '50%' }}>
                     <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #ccc', borderRadius: '5px' }}>
 
-                        <DragDropContext onDragEnd={onDragEnd}>
-                            <Droppable droppableId="droppable">
-                                {(provided) => (
-                                    <div {...provided.droppableProps} ref={provided.innerRef}>
-                                        {rubriques.map((rubrique, index) => (
-                                            <Draggable key={rubrique.rubrique.id} draggableId={rubrique.rubrique.id.toString()} index={index}>
-                                                {(provided) => (
-                                                    <div ref={provided.innerRef} {...provided.draggableProps}>
-                                                        <Accordion style={{ marginBottom: '10px' }}>
-                                                        <AccordionSummary expandIcon={<ExpandMoreIcon />} {...provided.dragHandleProps}>
-                                                            <Typography>{rubrique.rubrique.idRubrique.designation}</Typography>
-                                                            {/* Edit Icon */}
-                                                            <IconButton
-                                                                style={{
-                                                                    cursor: 'pointer',
-                                                                    position: 'absolute',
-                                                                    top: '50%',
-                                                                    right: '90px', // Adjust the position for the edit icon
-                                                                    transform: 'translateY(-50%)',
-                                                                }}
-                                                                color="primary" // Set the color of the Edit IconButton
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation(); // Prevent accordion from expanding
-                                                                    handleEditClick(rubrique.rubrique.id); // Call handleEditClick function with rubrique id
-                                                                }}
-                                                            >
-                                                                <EditIcon />
-                                                            </IconButton>
-                                                            {/* Delete Icon */}
-                                                            <IconButton
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation(); // Prevent accordion from expanding
-                                                                    rmRub(rubrique.rubrique.id, rubrique.rubrique.designation); // Call the deletion handler
-                                                                }}
-                                                                style={{
-                                                                    cursor: 'pointer',
-                                                                    position: 'absolute',
-                                                                    top: '50%',
-                                                                    right: '50px',
-                                                                    transform: 'translateY(-50%)',
-                                                                }}
-                                                                color="error" // Set the color of the Delete IconButton
-                                                            >
-                                                                <DeleteIcon />
-                                                            </IconButton>
-                                                        </AccordionSummary>
-
-                                                            <AccordionDetails>
-                                                                <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
-                                                                    {rubrique.questions.length > 0 ? (
-                                                                        <TableContainer component={Paper}>
-                                                                            <Table>
-                                                                                <TableHead>
-                                                                                    <TableRow>
-                                                                                        <TableCell>Intitulé</TableCell>
-                                                                                        <TableCell>Minimal</TableCell>
-                                                                                        <TableCell>Maximal</TableCell>
-                                                                                    </TableRow>
-                                                                                </TableHead>
-                                                                                <TableBody>
-                                                                                    {rubrique.questions.map((question, qIndex) => (
-                                                                                        <TableRow key={qIndex}>
-                                                                                            <TableCell>{question.idQuestion.intitule}</TableCell>
-                                                                                            <TableCell>{question.idQuestion.idQualificatif.minimal}</TableCell>
-                                                                                            <TableCell>{question.idQuestion.idQualificatif.maximal}</TableCell>
-                                                                                        </TableRow>
-                                                                                    ))}
-                                                                                </TableBody>
-                                                                            </Table>
-                                                                        </TableContainer>
-                                                                    ) : (
-                                                                        <Typography variant="body1" style={{ margin: '10px' }}>
-                                                                            Aucune question
-                                                                        </Typography>
-                                                                    )}
-                                                                </div>
-                                                            </AccordionDetails>
-                                                        </Accordion>
-                                                    </div>
+                    <DragDropContext onDragEnd={onDragEnd}>
+    <Droppable droppableId="droppable">
+        {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+                {rubriques.length === 0 ? (
+                    <Typography variant="body1" style={{ margin: '10px' }}>
+                        Il n'y a aucune rubrique dans cette évaluation
+                    </Typography>
+                ) : (
+                    rubriques.map((rubrique, index) => (
+                        <Draggable key={rubrique.rubrique.id} draggableId={rubrique.rubrique.id.toString()} index={index}>
+                            {(provided) => (
+                                <div ref={provided.innerRef} {...provided.draggableProps}>
+                                    <Accordion style={{ marginBottom: '10px' }}>
+                                        <AccordionSummary expandIcon={<ExpandMoreIcon />} {...provided.dragHandleProps}>
+                                            <Typography>{rubrique.rubrique.idRubrique.designation}</Typography>
+                                            {/* Edit Icon */}
+                                            <IconButton
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    position: 'absolute',
+                                                    top: '50%',
+                                                    right: '130px', // Adjust the position for the edit icon
+                                                    transform: 'translateY(-50%)',
+                                                }}
+                                                color="primary" // Set the color of the Edit IconButton
+                                                onClick={(e) => {
+                                                    e.stopPropagation(); // Prevent accordion from expanding
+                                                    handleEditClick(rubrique.rubrique.id); // Call handleEditClick function with rubrique id
+                                                }}
+                                            >
+                                                <EditIcon />
+                                            </IconButton>
+                                            {/* Delete Icon */}
+                                            <IconButton
+                                                onClick={() => {
+                                                    setOpenDialog(true);
+                                                    setRubriqueToDelete(rubrique); // Set the rubrique to delete when the delete button is clicked
+                                                }}
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    position: 'absolute',
+                                                    top: '50%',
+                                                    right: '80px',
+                                                    transform: 'translateY(-50%)',
+                                                }}
+                                                color="error"
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                            {/* Drag Indicator Icon */}
+                                            <IconButton
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    position: 'absolute',
+                                                    top: '50%',
+                                                    right: '30px', // Adjust the position for the drag indicator icon
+                                                    transform: 'translateY(-50%)',
+                                                }}
+                                                color="primary" // Set the color of the Drag IconButton
+                                            >
+                                                <DragIndicatorIcon />
+                                            </IconButton>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
+                                                {rubrique.questions.length > 0 ? (
+                                                    <TableContainer component={Paper}>
+                                                        <Table>
+                                                            <TableHead>
+                                                                <TableRow>
+                                                                    <TableCell>Intitulé</TableCell>
+                                                                    <TableCell>Minimal</TableCell>
+                                                                    <TableCell>Maximal</TableCell>
+                                                                </TableRow>
+                                                            </TableHead>
+                                                            <TableBody>
+                                                                {rubrique.questions.map((question, qIndex) => (
+                                                                    <TableRow key={qIndex}>
+                                                                        <TableCell>{question.idQuestion.intitule}</TableCell>
+                                                                        <TableCell>{question.idQuestion.idQualificatif.minimal}</TableCell>
+                                                                        <TableCell>{question.idQuestion.idQualificatif.maximal}</TableCell>
+                                                                    </TableRow>
+                                                                ))}
+                                                            </TableBody>
+                                                        </Table>
+                                                    </TableContainer>
+                                                ) : (
+                                                    <Typography variant="body1" style={{ margin: '10px' }}>
+                                                        Aucune question
+                                                    </Typography>
                                                 )}
-                                            </Draggable>
-                                        ))}
-                                        {provided.placeholder}
-                                    </div>
-                                )}
-                            </Droppable>
-                        </DragDropContext>
+                                            </div>
+                                        </AccordionDetails>
+                                    </Accordion>
+                                </div>
+                            )}
+                        </Draggable>
+                    ))
+                )}
+                {provided.placeholder}
+            </div>
+        )}
+    </Droppable>
+</DragDropContext>
+
+
                     </div>
                     <div style={{ position: 'absolute', bottom: '-5vh', right: '0', zIndex: '999' }}>
-                        <Button variant="contained" color="primary" onClick={handleButtonClick}>
+                        <Button variant="contained" color="primary" onClick={handleButtonClick} style={{textTransform:'none'}}>
                             Ajouter des rubriques
                         </Button>
                     </div>
@@ -423,7 +455,7 @@ function EvaluationModifier() {
                         variant="contained"
                         color="primary"
                         onClick={updateData}
-                        style={{ position: 'absolute', top: '0', right: '0', zIndex: '999' }}
+                        style={{ position: 'absolute', top: '0', right: '0', zIndex: '999',textTransform:'none' }}
                     >
                         Sauvegarder
                     </Button>
@@ -433,7 +465,7 @@ function EvaluationModifier() {
                         variant="contained"
                         color="error" // Change color to error for red color
                         onClick={resetOrder}
-                        style={{ position: 'absolute', top: '0', right: '150px', zIndex: '999' }}
+                        style={{ position: 'absolute', top: '0', right: '150px', zIndex: '999', textTransform:'none' }}
                     >
                         Réinitialiser
                     </Button>
@@ -473,11 +505,15 @@ function EvaluationModifier() {
                 </DialogActions>
             </Dialog>
             <Dialog open={editDialogOpen1} onClose={handleEditDialogClose1} fullWidth maxWidth="lg">
-  <DialogContent>
-    {/* Pass rubriqueId state to the EvaQuestionModifier component */}
-    <EvaQuestionModifier rubriqueId={rubriqueId} />
-  </DialogContent>
-</Dialog>
+        <DialogContent>
+          {/* Pass rubriqueId state to the EvaQuestionModifier component */}
+          <EvaQuestionModifier rubriqueId={rubriqueId} />
+          {/* Button to close the dialog */}
+          <Button onClick={handleEditDialogClose1} color="primary" variant='contained' style={{textTransform:'none',position:'absolute', right:'6%', top:'3%'}}>
+            Fermer
+          </Button>
+        </DialogContent>
+      </Dialog>
 
 
 
@@ -537,7 +573,17 @@ function EvaluationModifier() {
     </DialogActions>
 </Dialog>
 
+<Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+                <DialogTitle>Supprimer l'évaluation</DialogTitle>
+                <DialogContent>
+                {`Voulez-vous vraiment supprimer la rubrique ${rubriqueToDelete ? rubriqueToDelete.rubrique.designation : ''}?`}
+                </DialogContent>
+                <DialogActions>
+                <Button onClick={handleDeleteConfirmation} color="primary" variant='contained' style={{textTransform:'none'}}>Supprimer</Button>
 
+                    <Button onClick={() => setOpenDialog(false)} color="secondary" variant='contained' style={{textTransform:'none'}}>Annuler</Button>
+                </DialogActions>
+            </Dialog>
 
 
 {showAlert && latestAction === 'delete' && (
@@ -573,6 +619,12 @@ function EvaluationModifier() {
         {showAlert && latestAction==='editError' && (
             <Alert severity="error" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
               Échec de la modification de la Rubrique !
+              <Button onClick={handleHideAlert}><CloseIcon /></Button>
+            </Alert>
+        )}
+        {showAlert && latestAction==='orderSuccess' && (
+            <Alert severity="success" style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+              L'ordre a été modifiée avec succées
               <Button onClick={handleHideAlert}><CloseIcon /></Button>
             </Alert>
         )}
