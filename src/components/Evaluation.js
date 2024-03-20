@@ -674,28 +674,43 @@ let updatedEvaluationData = {
       renderCell: (params) => (
           <div style={{position: 'relative', display: 'inline-block', width:'100%'}}>
             <Tooltip
-                title={(new Date(params.row.finReponse) < new Date()) ? "Vous ne pouvez pas mettre à disposition cette évaluation car la date de fin de réponse a expiré. Veuillez la modifier !" : ""}>
-              <span>
-                <Button
-                    variant='contained'
-                    color={
-                      params.row.etat === 'CLO' ? 'success' :
-                          params.row.etat === 'ELA' ? 'primary' : 'secondary'
-                    }
-                    disabled={params.row.etat === 'CLO' || new Date(params.row.finReponse) < new Date()}
-                    onClick={() => {
-                      handleConfirmationDialogOpen(params.row.id, params.row.etat)
-                    }}
-                    style={{width: '100%', textTransform: 'none'}}
-                >
-                  {
-                    params.row.etat === 'CLO' ? 'Cloturée' :
-                        params.row.etat === 'ELA' ? 'Mettre à disposition' :
-                            'Cloturer'
-                  }
-                </Button>
-              </span>
-            </Tooltip>
+  title={
+    new Date(params.row.finReponse) < new Date()
+      ? "Vous ne pouvez pas mettre à disposition cette évaluation car la date de fin de réponse a expiré. Veuillez la modifier !"
+      : (params.row.etat === 'ELA' && !params.row.hasRubrique)
+      ? "Vous ne pouvez pas mettre à disposition cette évaluation car elle n'a pas de rubriques."
+      : (params.row.etat === 'ELA' && params.row.hasOrphanRubrique)
+      ? "Vous ne pouvez pas mettre à disposition cette évaluation car elle contient une ou plusieurs rubriques sans questions."
+      : ""
+  }
+>
+  <span>
+    <Button
+      variant='contained'
+      color={
+        params.row.etat === 'CLO' ? 'success' :
+          params.row.etat === 'ELA' ? 'primary' : 'secondary'
+      }
+      disabled={
+        params.row.etat === 'CLO' ||
+        new Date(params.row.finReponse) < new Date() ||
+        (params.row.etat === 'ELA' && !params.row.hasRubrique) ||
+        (params.row.etat === 'ELA' && params.row.hasOrphanRubrique)
+      }
+      onClick={() => {
+        handleConfirmationDialogOpen(params.row.id, params.row.etat)
+      }}
+      style={{width: '100%', textTransform: 'none'}}
+    >
+      {
+        params.row.etat === 'CLO' ? 'Cloturée' :
+          params.row.etat === 'ELA' ? 'Mettre à disposition' :
+          'Cloturer'
+      }
+    </Button>
+  </span>
+</Tooltip>
+
           </div>
 
       ),
