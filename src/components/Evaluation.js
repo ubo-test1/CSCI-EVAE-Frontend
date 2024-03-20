@@ -347,6 +347,7 @@ const handleCLoseEdit = () => {
       setEvaluations(updatedEvaluations);  }
     setShowAlert(true);
         setLatestAction('delete');
+        setChange(true)
 };
   const handleConfirmationDialogOpen = (id, etat) => {
     setConfirmationData({ id, etat });

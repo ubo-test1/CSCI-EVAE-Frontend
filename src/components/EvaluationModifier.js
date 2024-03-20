@@ -286,15 +286,32 @@ function EvaluationModifier() {
                         Retour
                     </Button>
                 </div>
-                <div className='evaluationImage'>
+                <div className='evaluationImageModifier'>
                     <img src={evaluationBackgroundImg} />
                 </div>
                 <div className='evaluationInfo'>
-                    <div style={{ margin: '4px', padding: '8px' }}><strong>Désignation:</strong> {evaluationDetails.designation}</div>
-                    <div style={{ margin: '4px', padding: '8px' }}><strong> Promotion:</strong> {evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</div>
-                    <div style={{ margin: '4px', padding: '8px' }}> <strong>Element Constitutif:</strong> {evaluationDetails.elementConstitutif ? evaluationDetails.elementConstitutif.id.codeEc : ""}</div>
-                    <div style={{ margin: '4px', padding: '8px' }}><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
-                </div>
+          <div ><strong>Désignation:</strong> {evaluationDetails.designation}</div>
+          <div ><strong> Promotion:</strong> {evaluationDetails.promotion.id.codeFormation} - {evaluationDetails.promotion.id.anneeUniversitaire}</div>
+          <div ><strong>Semestre:</strong> {evaluationDetails.uniteEnseignement.semestre}</div>
+          {evaluationDetails.uniteEnseignement.description && (
+    <div >
+        <strong>Description:</strong> 
+        {evaluationDetails.uniteEnseignement.description}
+    </div>
+)}
+          {evaluationDetails.elementConstitutif && evaluationDetails.elementConstitutif.id.codeEc !== "" && (
+    <div >
+        <strong>Element Constitutif:</strong> 
+        {evaluationDetails.elementConstitutif.id.codeEc}
+    </div>
+)}
+          <div ><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
+          <div ><strong>État :</strong> {evaluationDetails.etat}</div>
+          <div ><strong>Début de réponse :</strong> {evaluationDetails.debutReponse}</div>
+          <div ><strong>Fin de réponse :</strong> {evaluationDetails.finReponse}</div>
+
+
+        </div>
 
                 <div style={{ marginTop: '70px', overflowX: 'auto', width: '50%' }}>
                     <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #ccc', borderRadius: '5px' }}>

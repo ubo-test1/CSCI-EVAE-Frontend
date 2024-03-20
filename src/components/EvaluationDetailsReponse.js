@@ -39,22 +39,28 @@ function EvaluationDetailsReponse({ id }) {
     const handleHideAlert = () => {
         setShowAlert(false);
       };
-    useEffect(() => {
+      useEffect(() => {
         const getEvaluationDetails = async () => {
             try {
                 const data = await fetchEvaRubQuesDetails(id);
-                console.log("Dataaaaaaaaaa")
-                console.log(data)
+                console.log("================================")
+                console.log(JSON.stringify(data));
+    
+                // Sort rubriques by their order
+                const sortedRubriques = data?.rubriques.sort((a, b) => a.rubrique.ordre - b.rubrique.ordre);
+    
                 setDetails(data);
-                setRubriques(data?.rubriques || []);
+                setRubriques(sortedRubriques || []);
             } catch (error) {
                 console.error('Error fetching evaluation details:', error);
             }
         };
+    
         if (id) {
             getEvaluationDetails();
         }
     }, [id]);
+    
 
 
     if (details === null) {
@@ -194,60 +200,66 @@ function EvaluationDetailsReponse({ id }) {
 
         </div>
 
-                <div style={{ position: 'fixed', top: '29vh', right: '10vw', overflowY: 'auto', width: 'calc(50% - 50px)', maxHeight: '75vh', border:'2px solid black', padding:'20px',     boxShadow: '0px 0px 21px 5px rgba(0,0,0,0.5)' }}>
+                <div style={{ position: 'fixed', top: '29vh', right: '10vw', overflowY: 'auto', width: 'calc(50% - 50px)', maxHeight: '45vh', border:'2px solid black', padding:'20px',boxShadow: '0px 0px 21px 5px rgba(0,0,0,0.5)' }}>
     {/* Your existing UI */}
-    <div style={{ maxHeight: '45vh', minHeight:'45vh', overflowY: 'auto' }}>
+    {currentPage !== totalPages -1  &&( 
+    <div style={{ maxHeight: '40vh', minHeight:'40vh', overflowY: 'hidden' }}>
         {currentRubriques.map((rubrique, index) => (
             <div key={index}>
                 {/* Render rubrique content here */}
                 <div>
-                    <Typography variant="h6">{rubrique.rubrique.idRubrique.designation}</Typography>
-                    <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
-                        {rubrique.questions.length > 0 ? (
-                            <TableContainer component={Paper} style={{ maxHeight: '35vh', overflowY: 'auto' }}>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>Intitulé</TableCell>
-                                            <TableCell>Minimal</TableCell>
-                                            <TableCell>Maximal</TableCell>
-                                            <TableCell>Note</TableCell> {/* Add a header for the rating */}
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {rubrique.questions.map((question, qIndex) => (
-                                            <TableRow key={qIndex}>
-                                                <TableCell>{question.idQuestion.intitule}</TableCell>
-                                                <TableCell>{question.idQuestion.idQualificatif.minimal}</TableCell>
-                                                <TableCell>{question.idQuestion.idQualificatif.maximal}</TableCell>
-                                                <TableCell>
-                                                    <Rating
-                                                        name={`rating-${question.id}`} // Unique name for each question's rating
-                                                        value={ratings[question.id] || 0} // Control the rating value
-                                                        onChange={(event, newValue) => {
-                                                            handleRatingChange(question.id, newValue);
-                                                        }}
-                                                    />
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        ) : (
-                            <Typography variant="body1" style={{ margin: '10px' }}>
-                                Aucune question
-                            </Typography>
-                        )}
-                    </div>
-                </div>
+    <Typography variant="h6">{rubrique.rubrique.idRubrique.designation}</Typography>
+    <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
+        {rubrique.questions.length > 0 ? (
+            <TableContainer component={Paper} style={{ maxHeight: '35vh', overflowY: 'auto' }}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Intitulé</TableCell>
+                            <TableCell>Minimal</TableCell>
+                            <TableCell>Maximal</TableCell>
+                            <TableCell>Note</TableCell> {/* Add a header for the rating */}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {rubrique.questions
+                            .slice() // Create a shallow copy to avoid mutating the original array
+                            .sort((a, b) => a.ordre - b.ordre) // Sort questions by their order
+                            .map((question, qIndex) => (
+                                <TableRow key={qIndex}>
+                                    <TableCell>{question.idQuestion.intitule}</TableCell>
+                                    <TableCell>{question.idQuestion.idQualificatif.minimal}</TableCell>
+                                    <TableCell>{question.idQuestion.idQualificatif.maximal}</TableCell>
+                                    <TableCell>
+                                        <Rating
+                                            name={`rating-${question.id}`} // Unique name for each question's rating
+                                            value={ratings[question.id] || 0} // Control the rating value
+                                            onChange={(event, newValue) => {
+                                                handleRatingChange(question.id, newValue);
+                                            }}
+                                        />
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        ) : (
+            <Typography variant="body1" style={{ margin: '10px' }}>
+                Aucune question
+            </Typography>
+        )}
+    </div>
+</div>
+
             </div>
         ))}
     </div>
+    )}
 
     {/* Check if it's the last page */}
     {currentPage === totalPages -1  && (
-        <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+        <div style={{ maxHeight: '40vh', minHeight:'40vh', overflowY: 'hidden' }}>
             <Typography variant="h6">Commentaire</Typography>
             <TextField
                 label="Commentaire"
@@ -263,7 +275,7 @@ function EvaluationDetailsReponse({ id }) {
     )}
 
     {/* Navigation buttons */}
-    <div style={{ textAlign: 'center', marginBottom: '0px',marginTop:'-20px', display:'flex', justifyContent:'space-evenly' }}>
+    <div style={{ textAlign: 'center', marginBottom: '0px',marginTop:'0', display:'flex', justifyContent:'space-evenly' }}>
         <Button disabled={currentPage === 0} onClick={handlePrevPage} variant='contained' style={{textTransform:'none'}}>Précédent</Button>
         <Button disabled={currentPage === totalPages - 1} onClick={handleNextPage} variant='contained' style={{textTransform:'none'}}>Suivant</Button>
     </div>
@@ -299,7 +311,7 @@ function EvaluationDetailsReponse({ id }) {
         border: '1px solid #ccc', 
         borderRadius: '5px', 
         backgroundColor: currentPage === totalPages -1  ? 'white' : '#2b85cf', 
-        color: currentPage === totalPages -1 ? 'black' : 'white' 
+        color: currentPage === totalPages -1 ? '#2b85cf' : 'white' 
     }} onClick={() => setCurrentPage(totalPages - 1)}>
         <div style={{ textAlign: 'center' }}>Commentaire</div>
     </div>
@@ -325,7 +337,7 @@ function EvaluationDetailsReponse({ id }) {
             variant="contained"
             color="success"
             onClick={handleSubmit}
-            style={{position:'absolute',top:'83vh',right:'0', marginTop: '20px' }}
+            style={{position:'absolute',top:'83vh',right:'0', marginTop: '20px',textTransform:'none' }}
         >
             Envoyer les réponses
         </Button>
