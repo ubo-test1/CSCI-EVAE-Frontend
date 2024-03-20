@@ -131,7 +131,7 @@ function EvaluationDetailsReponseConsulter({ id }) {
                 <div style={{ marginTop: '70px',marginRight:'50px', overflowX: 'auto', width: '50%' }}>
                     <div style={{ position: 'fixed', top: '29vh', right: '10vw', overflowY: 'auto', width: 'calc(50% - 50px)', maxHeight: '75vh', border:'2px solid black', padding:'20px',     boxShadow: '0px 0px 21px 5px rgba(0,0,0,0.5)' }}>
     {/* Your existing UI */}
-    <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+    <div style={{ maxHeight: '45vh', minHeight:'45vh', overflowY: 'auto' }}>
         {currentRubriques.map((rubrique, index) => (
             <div key={index}>
                 {/* Render rubrique content here */}
@@ -139,7 +139,7 @@ function EvaluationDetailsReponseConsulter({ id }) {
                     <Typography variant="h6">{rubrique.rubrique.idRubrique.designation}</Typography>
                     <div style={{ maxHeight: 'none', overflow: 'hidden' }}>
                         {rubrique.questions.length > 0 ? (
-                            <TableContainer component={Paper} style={{ minHeight: '40vh', overflowY: 'auto' }}>
+                            <TableContainer component={Paper} style={{ maxHeight: '35vh', overflowY: 'auto' }}>
                                 <Table>
                                     <TableHead>
                                         <TableRow>

@@ -508,9 +508,7 @@ const handleAnnulerAjouter = () => {
 
 };
   const handleConfirmation = async () => {
-    console.log("this is the selected item idddd ::: +++++" + selectedItemId);
-    console.log("this is the selected row info :::: " + JSON.stringify(selectedRow));
-    console.log("this is the ec element ::::: " + ec)
+    
     const { codeFormation, promotion, noEvaluation } = selectedRow;
     const { code_UE, code_EC } = selectedRow;
     const { anneeUniversitaire } = promotion.id;
@@ -598,10 +596,7 @@ let updatedEvaluationData = {
       setShowAlert(true);
       setLatestAction('edit');
       // Fetch evaluations again to update the data grid
-      const updatedEvaluations = await fetchEvaluations();
-      console.log("je suis la ----------------------------------------------- ")
-
-      setEvaluations(updatedEvaluations);
+      setChange(true)
     } catch (error) {
       console.error('Error updating evaluation:', error.message);
       // Handle error if necessary
@@ -675,7 +670,7 @@ let updatedEvaluationData = {
           <div style={{position: 'relative', display: 'inline-block', width:'100%'}}>
             <Tooltip
   title={
-    new Date(params.row.finReponse) < new Date()
+    new Date(params.row.finReponse) < new Date() && params.row.etat === 'ELA'
       ? "Vous ne pouvez pas mettre à disposition cette évaluation car la date de fin de réponse a expiré. Veuillez la modifier !"
       : (params.row.etat === 'ELA' && !params.row.hasRubrique)
       ? "Vous ne pouvez pas mettre à disposition cette évaluation car elle n'a pas de rubriques."
@@ -692,8 +687,8 @@ let updatedEvaluationData = {
           params.row.etat === 'ELA' ? 'primary' : 'secondary'
       }
       disabled={
-        params.row.etat === 'CLO' ||
-        new Date(params.row.finReponse) < new Date() ||
+        params.row.etat === 'CLO' || 
+        (new Date(params.row.finReponse) < new Date() && params.row.etat === 'ELA') ||
         (params.row.etat === 'ELA' && !params.row.hasRubrique) ||
         (params.row.etat === 'ELA' && params.row.hasOrphanRubrique)
       }
