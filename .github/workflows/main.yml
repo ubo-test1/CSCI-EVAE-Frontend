@@ -34,7 +34,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm i
+        run: npm install --force
 
       - name: Build
         run: npm run build
