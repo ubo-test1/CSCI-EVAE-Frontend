@@ -282,9 +282,10 @@ const [latestAction, setLatestAction] = useState(null);
       setOpenDialogAjouter(false);
       setShowAlert(true);
       setLatestAction('add');
+      setChange(true)
       // Fetch evaluations again to update the data grid
-      const updatedEvaluations = await fetchEvaluations();
-      setEvaluations(updatedEvaluations);
+      // const updatedEvaluations = await fetchEvaluations();
+      // setEvaluations(updatedEvaluations);
     } catch (error) {
       console.error('Error adding evaluation:', error);
       // Handle error if necessary
@@ -492,9 +493,10 @@ const handleCLoseEdit = () => {
     const trimmedValue = value.trim();
     if (trimmedValue === "") {
       setValue(trimmedValue);
-      setError(false); // Reset error state when value is valid
+      setError(true); // Reset error state when value is valid
     } else {
-      setError(true); // Set error state when value is invalid
+      setValue(trimmedValue)
+      setError(false); // Set error state when value is invalid
     }
   };
 const handleAnnulerAjouter = () => {
@@ -511,6 +513,7 @@ const handleAnnulerAjouter = () => {
   setDebutReponseError(false);
   setFinReponseError(false);
   setOpenDialogAjouter(false)
+  setPromotionError(false)
 
 };
   const handleConfirmation = async () => {
@@ -641,7 +644,7 @@ let updatedEvaluationData = {
       valueGetter: (params) => {
         const etatValue = params.row.etat;
         if (etatValue === 'CLO') {
-          return 'Cloturé';
+          return 'Clôturée';
         } else if (etatValue === 'ELA') {
           return 'En cours d\'élaboration';
         } else if (etatValue === 'DIS') {
@@ -706,9 +709,9 @@ let updatedEvaluationData = {
       style={{width: '100%', textTransform: 'none'}}
     >
       {
-        params.row.etat === 'CLO' ? 'Cloturée' :
+        params.row.etat === 'CLO' ? 'Clôturée' :
           params.row.etat === 'ELA' ? 'Mettre à disposition' :
-          'Cloturer'
+          'Clôturer'
       }
     </Button>
   </span>
@@ -831,6 +834,7 @@ let updatedEvaluationData = {
             </InputAdornment>
         ),
     }}
+    required
 />
 
             <TextField
@@ -843,7 +847,7 @@ let updatedEvaluationData = {
                 style={{ flexBasis: '45%', marginLeft: '10px' }} // Adjust the width and add margin between fields
             />
             <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
-              <InputLabel htmlFor="ue">Unité d'enseignement</InputLabel>
+              <InputLabel htmlFor="ue" required>Unité d'enseignement</InputLabel>
               <Select
                   labelId="ue-label"
                   id="ue"
@@ -921,6 +925,7 @@ let updatedEvaluationData = {
                 margin="normal"
                 placeholder="JJ/MM/AAAA"
                 style={{ flexBasis: '45%' }}
+                required
             />
             <TextField
                 label="Fin réponse"
@@ -958,6 +963,7 @@ let updatedEvaluationData = {
                 margin="normal"
                 placeholder="JJ/MM/AAAA"
                 style={{ flexBasis: '45%' }}
+                required
             />
             <TextField
                 label="Période"
@@ -1044,12 +1050,12 @@ let updatedEvaluationData = {
                 setDesignationError(false); // Réinitialiser l'erreur si la valeur est valide lors de la perte de focus
               }
             }}
-            onBlur={() => {
-              if (designation.trim() === "") {
-                setDesignationError(true); // Définir l'erreur si la valeur est vide lors de la perte de focus
-              } else {
-                setDesignationError(false); // Réinitialiser l'erreur si la valeur est valide lors de la perte de focus
-              }
+            onBlur={() => { handleBlur(designation, setDesignation, setDesignationError)
+              // if (designation.trim() === "") {
+              //   setDesignationError(true); // Définir l'erreur si la valeur est vide lors de la perte de focus
+              // } else {
+              //   setDesignationError(false); // Réinitialiser l'erreur si la valeur est valide lors de la perte de focus
+              // }
             }}
             error={designationError}
             helperText={designationError ? "La désignation est requise *" : ""}
@@ -1063,9 +1069,10 @@ let updatedEvaluationData = {
                   </InputAdornment>
               ),
             }}
+            required
         />
         <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }} error={uniteEnseignementError}>
-          <InputLabel htmlFor="ue">Unité d'enseignement</InputLabel>
+          <InputLabel htmlFor="ue" required>Unité d'enseignement</InputLabel>
           <Select
               labelId="ue-label"
               id="ue"
@@ -1083,7 +1090,7 @@ let updatedEvaluationData = {
         </FormControl>
 
         <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }} error={promotionError}>
-          <InputLabel htmlFor="promotion">Promotion</InputLabel>
+          <InputLabel htmlFor="promotion" required>Promotion</InputLabel>
           <Select
               labelId="promotion-label"
               id="promotion"
@@ -1157,6 +1164,7 @@ let updatedEvaluationData = {
             margin="normal"
             placeholder="JJ/MM/AAAA"
             style={{ flexBasis: '45%' }}
+            required
         />
 
         <TextField
@@ -1195,6 +1203,7 @@ let updatedEvaluationData = {
             margin="normal"
             placeholder="JJ/MM/AAAA"
             style={{ flexBasis: '45%' }}
+            required
         />
         <TextField
             label="Période"
@@ -1221,7 +1230,7 @@ let updatedEvaluationData = {
       </DialogContent>
       <DialogActions>
           <Button onClick={handleAjouter} color="primary"  variant='contained' style={{textTransform: 'none'}}>
-            Confirmer
+            Ajouter
           </Button>
           <Button onClick={handleAnnulerAjouter} color="secondary" variant='contained' style={{textTransform: 'none'}}>
             Annuler

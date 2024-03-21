@@ -165,7 +165,7 @@ function EvaluationDetailsReponseConsulter({ id }) {
                                             <TableCell>Intitulé</TableCell>
                                             <TableCell>Minimal</TableCell>
                                             <TableCell>Maximal</TableCell>
-                                            <TableCell>Rating</TableCell> {/* Add a header for the rating */}
+                                            <TableCell>Note</TableCell> {/* Add a header for the rating */}
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
