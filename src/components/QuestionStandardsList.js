@@ -509,13 +509,13 @@ return (
           Êtes-vous sûr de vouloir supprimer cette question ?
         </DialogContent>
         <DialogActions>
-        <Button style={{ textTransform: 'none' }} variant='contained' onClick={() => handleDeleteConfirm(questionToDelete)} color="primary">Supprimer</Button>
+        <Button style={{ textTransform: 'none' }} variant='contained' onClick={() => handleDeleteConfirm(questionToDelete)} color="primary">Confirmer</Button>
           <Button style={{ textTransform: 'none' }} variant='contained' onClick={() => setDeleteDialogOpen(false)} color="secondary">Annuler</Button>
         </DialogActions>
       </Dialog>
       {/* Modify Question Modal */}
       <Dialog open={openModifyModal} onClose={handleModifyModalClose}>
-        <DialogTitle>Modifier une question standard</DialogTitle>
+        <DialogTitle>Modifier la question</DialogTitle>
         <DialogContent>
             <form
                  style={{
@@ -565,7 +565,7 @@ return (
         </DialogContent>
         <DialogActions>
             <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleUpdate} color="primary">
-                Modifier
+                Confirmer
             </Button>
           <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleModifyModalClose} color="secondary">
             Annuler

@@ -708,13 +708,13 @@ open={editDialogOpen} onClose={handleCloseDialog}>
         {renderEditRubrique()}
     </DialogContent>
     <DialogActions>
-    <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Sauvegarder</Button>
+    <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Confirmer</Button>
         <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleCloseDialog} color="secondary">Annuler</Button>
     </DialogActions>
 </Dialog>
 
             <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-                <DialogTitle>Supprimer une rubrique</DialogTitle>
+                <DialogTitle>Supprimer la rubrique</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                     Etes-vous sûr de vouloir supprimer cette rubrique ?
@@ -722,7 +722,7 @@ open={editDialogOpen} onClose={handleCloseDialog}>
                 </DialogContent>
                 <DialogActions>
                 <Button style={{ textTransform: 'none' }} variant="contained" onClick={handleDeleteConfirmed} color="primary" autoFocus>
-                    Supprimer
+                    Confirmer
                     </Button>
                     <Button style={{ textTransform: 'none' }} variant="contained" onClick={() => setDeleteDialogOpen(false)} color="secondary">
                     Annuler

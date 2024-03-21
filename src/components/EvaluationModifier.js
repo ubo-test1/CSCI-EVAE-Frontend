@@ -624,7 +624,7 @@ function EvaluationModifier() {
     </DialogContent>
     <DialogActions>
         <Button color="primary" onClick={handleAjouter} variant='contained' style={{textTransform:'none'}}>
-            Valider
+            Ajouter
         </Button>
         <Button color="secondary" onClick={handleCloseDialog} variant='contained' style={{textTransform:'none'}}>
             Annuler

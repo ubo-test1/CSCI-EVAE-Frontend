@@ -393,7 +393,7 @@ const CoupleQualificatifList = () => {
         </DialogContent>
         <DialogActions>
           <Button style={{ textTransform: 'none' }} variant='contained' onClick={handleUpdateQualificatif} color="primary">
-            Modifier
+            Confirmer
           </Button>
           <Button style={{ textTransform: 'none' }} variant='contained' onClick={() => setOpenEditDialog(false)} color="secondary">
             Annuler
