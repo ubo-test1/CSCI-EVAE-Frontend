@@ -135,7 +135,11 @@ function EvaluationDetailsReponseConsulter({ id }) {
     </div>
 )}
           <div ><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
-          <div ><strong>État :</strong> {evaluationDetails.etat}</div>
+          <div>
+    <strong>État :</strong> {evaluationDetails.etat === 'DIS' ? 'Mise à disposition' : 
+                                evaluationDetails.etat === 'ELA' ? 'En cours d\'élaboration' :
+                                evaluationDetails.etat === 'CLO' ? 'Cloturé' : ''}
+</div>
           <div ><strong>Début de réponse :</strong> {evaluationDetails.debutReponse}</div>
           <div ><strong>Fin de réponse :</strong> {evaluationDetails.finReponse}</div>
 
@@ -144,7 +148,8 @@ function EvaluationDetailsReponseConsulter({ id }) {
                 <div style={{ marginTop: '70px',marginRight:'50px', overflowX: 'auto', width: '50%' }}>
                     <div style={{ position: 'fixed', top: '29vh', right: '10vw', overflowY: 'auto', width: 'calc(50% - 50px)', maxHeight: '75vh', border:'2px solid black', padding:'20px',     boxShadow: '0px 0px 21px 5px rgba(0,0,0,0.5)' }}>
     {/* Your existing UI */}
-    <div style={{ maxHeight: '45vh', minHeight:'45vh', overflowY: 'auto' }}>
+    {currentPage !== totalPages -1  && (
+        <div style={{ maxHeight: '45vh', minHeight:'45vh', overflowY: 'hidden' }}>
         {currentRubriques.map((rubrique, index) => (
             <div key={index}>
                 {/* Render rubrique content here */}
@@ -190,24 +195,23 @@ function EvaluationDetailsReponseConsulter({ id }) {
             </div>
         ))}
     </div>
-
+    )}
     {/* Check if it's the last page */}
     {currentPage === totalPages -1  && (
-        <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+        <div style={{ maxHeight: '45vh', minHeight:'45vh', overflowY: 'hidden' }}>
             <Typography variant="h6">Commentaire</Typography>
             <TextField
-    label="Commentaire"
-    variant="outlined"
-    fullWidth
-    multiline
-    rows={4}
-    value={comment}
-    onChange={(e) => setComment(e.target.value)}
-    style={{ marginBottom: '151px',marginTop:'20px' }}
-    readOnly  // Make TextField readonly
-    disabled  // Make TextField disabled
-/>
-
+                label="Commentaire"
+                variant="outlined"
+                fullWidth
+                multiline
+                rows={4}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                style={{ marginBottom: '171px' }}
+                readOnly
+                disabled
+            />
         </div>
     )}
 

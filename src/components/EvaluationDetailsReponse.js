@@ -193,7 +193,11 @@ function EvaluationDetailsReponse({ id }) {
     </div>
 )}
           <div ><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
-          <div ><strong>État :</strong> {evaluationDetails.etat}</div>
+          <div>
+    <strong>État :</strong> {evaluationDetails.etat === 'DIS' ? 'Mise à disposition' : 
+                                evaluationDetails.etat === 'ELA' ? 'En cours d\'élaboration' :
+                                evaluationDetails.etat === 'CLO' ? 'Cloturé' : ''}
+</div>
           <div ><strong>Début de réponse :</strong> {evaluationDetails.debutReponse}</div>
           <div ><strong>Fin de réponse :</strong> {evaluationDetails.finReponse}</div>
 

@@ -112,7 +112,11 @@ function EvaluationDetails({ id }) {
     </div>
 )}
           <div ><strong> Unité d'enseignement:</strong> {evaluationDetails.uniteEnseignement.id.codeUe}</div>
-          <div ><strong>État :</strong> {evaluationDetails.etat}</div>
+          <div>
+    <strong>État :</strong> {evaluationDetails.etat === 'DIS' ? 'Mise à disposition' : 
+                                evaluationDetails.etat === 'ELA' ? 'En cours d\'élaboration' :
+                                evaluationDetails.etat === 'CLO' ? 'Cloturé' : ''}
+</div>
           <div ><strong>Début de réponse :</strong> {evaluationDetails.debutReponse}</div>
           <div ><strong>Fin de réponse :</strong> {evaluationDetails.finReponse}</div>
 
@@ -135,7 +139,13 @@ function EvaluationDetails({ id }) {
   rubriques.map((rubrique, index) => (
     <div key={rubrique.rubrique.id}>
       <Accordion expanded={Array.isArray(expanded) && expanded.includes(index)} onChange={() => handleAccordionToggle(index)}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />} /* Add any necessary props here */>
+              <AccordionSummary 
+                expandIcon={rubrique.questions.length > 0 ? <ExpandMoreIcon /> : null} // Conditionally render the expand icon
+        {...provided.dragHandleProps}
+        onClick={rubrique.questions.length > 0 ? null : (event) => event.stopPropagation()} // Conditionally prevent expansion if no questions
+        style={{ cursor: rubrique.questions.length > 0 ? 'pointer' : 'default' }} // Conditionally set cursor style
+    
+                >
                 <Typography>{rubrique.rubrique.idRubrique.designation}</Typography>
               </AccordionSummary>
               <AccordionDetails>
@@ -164,7 +174,6 @@ function EvaluationDetails({ id }) {
       </TableContainer>
     ) : (
       <Typography variant="body1" style={{ margin: '10px' }}>
-        Aucune question
       </Typography>
     )}
   </div>

@@ -65,7 +65,7 @@ function Home() {
 
                   <>
                       <img src={image5} alt="Evaluation image" />
-                      <h1 style={{textAlign:'center'}}>Bienvenue dans la gestion des évaluations <br/> du département d'informatique à l'UBO !</h1>
+                      <h1 style={{textAlign:'center'}}>Bienvenue dans la gestion des évaluations <br/> du département d'informatique de l'UBO !</h1>
                       </>
 
               </div>

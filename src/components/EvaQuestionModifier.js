@@ -356,13 +356,13 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
         </div>
         {/* Conditional rendering of the "Sauvegarder" button */}
         {saveButtonVisible && (
-            <Button variant="contained" onClick={resetQuestionsOrder} style={{ marginRight: '40px', textTransform: 'none' }} color='error'>
-                Réinitialiser
+            <Button variant="contained" onClick={resetQuestionsOrder} style={{ marginRight: '40px',width:'20%', textTransform: 'none' }} color='error'>
+                Réinitialiser l'ordre
             </Button>
             )}
         {saveButtonVisible && (
-            <Button variant="contained" onClick={handleSaveOrder} style={{ textTransform: 'none',textTransform: 'none' }} color="success">
-                Sauvegarder
+            <Button variant="contained" onClick={handleSaveOrder} style={{width:'20%', textTransform: 'none' }} color="success">
+                Valider l'ordre
             </Button>
         )}
     </div>
@@ -434,8 +434,8 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
                     {renderEditRubrique()}
                 </DialogContent>
                 <DialogActions>
+                <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Confirmer</Button>
                     <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleCloseDialog} color="secondary">Annuler</Button>
-                    <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Sauvegarder</Button>
                 </DialogActions>
             </Dialog>
 

@@ -120,8 +120,12 @@ const [latestAction, setLatestAction] = useState(null);
     console.log("date debut actuelle-------->"+inputDate);
     console.log(inputDate.getTime() === debutResponseDate.getTime())
     if(inputDate.getTime() === debutResponseDate.getTime()) return true;
-    if(!(inputDate > debutResponseDate && inputDate >= currentDate)) setErrorTextDateDebut("La date de début de réponse doit être soit la même que celle déjà spécifiée, soit supérieure ou égale à la date d'aujourd'hui *")
-    else return inputDate > debutResponseDate && inputDate >= currentDate;
+   // if(!(inputDate > debutResponseDate && inputDate >= currentDate)) setErrorTextDateDebut("La date de début de réponse doit être soit la même que celle déjà spécifiée, soit supérieure ou égale à la date d'aujourd'hui *")
+   // else return inputDate > debutResponseDate && inputDate >= currentDate;
+    if(currentDate<=debutResponseDate) {if (inputDate < currentDate) {setErrorTextDateDebut("La date de début de réponse doit être supérieure ou égale à la date d'aujourd'hui *") ;return false;}}
+    else if (currentDate>debutResponseDate){if(!(inputDate > debutResponseDate && inputDate >= currentDate)) {setErrorTextDateDebut("La date de début de réponse doit être soit la même que celle déjà spécifiée, soit supérieure ou égale à la date d'aujourd'hui *");return false;}
+    }
+    return true;
   };
   const isvalidDateValueFin = (dateString) => {
     // Vérifier d'abord le format de la date
@@ -197,6 +201,7 @@ const [latestAction, setLatestAction] = useState(null);
     if (hasEmptyField) {
       return;
     }
+    if(!isvalidDateValueFin(finReponse)) {setFinReponseError(true) ;setErrorTextDateFin("La date de fin de réponse doit être supérieure ou égale à la date de début de réponse *");return;}
       try {
       // Assuming debutReponse and finReponse are strings in the format 'yyyy-mm-dd'
         console.log("checking ::: " + debutReponse)
@@ -540,6 +545,8 @@ const handleAnnulerAjouter = () => {
     if (hasEmptyField) {
       return;
     }
+    if(!isvalidDateValueFinUpdated(finReponse)) {setFinReponseError(true) ;setErrorTextDateFin("La date de fin de réponse doit être supérieure ou égale à la date de début de réponse *");return;}
+
     try {
       // Format debutReponse and finReponse to "YYYY/MM/DD" format
       const formattedDebutReponse = debutReponse.split('/').reverse().join('-');
@@ -676,7 +683,7 @@ let updatedEvaluationData = {
       : (params.row.etat === 'ELA' && !params.row.hasRubrique)
       ? "Vous ne pouvez pas mettre à disposition cette évaluation car elle n'a pas de rubriques."
       : (params.row.etat === 'ELA' && params.row.hasOrphanRubrique)
-      ? "Vous ne pouvez pas mettre à disposition cette évaluation car elle contient une ou plusieurs rubriques sans questions."
+      ? "Vous ne pouvez pas mettre à disposition cette évaluation car elle contient une ou plusieurs rubriques sans question."
       : ""
   }
 >
@@ -1214,7 +1221,7 @@ let updatedEvaluationData = {
       </DialogContent>
       <DialogActions>
           <Button onClick={handleAjouter} color="primary"  variant='contained' style={{textTransform: 'none'}}>
-            Ajouter
+            Confirmer
           </Button>
           <Button onClick={handleAnnulerAjouter} color="secondary" variant='contained' style={{textTransform: 'none'}}>
             Annuler
