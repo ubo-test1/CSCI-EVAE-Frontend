@@ -582,14 +582,18 @@ function EvaluationModifier() {
         <form>
             {rubriquesAjouter.map((rubrique, index) => (
                 <Accordion key={index} style={{ marginBottom: '10px' }}>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />} onClick={(event) => event.stopPropagation()}>
+                <AccordionSummary 
+                    expandIcon={rubrique.questions && rubrique.questions.length > 0 ? <ExpandMoreIcon /> : null}  
+                    onClick={(event) => event.stopPropagation()}
+                    style={{ cursor: rubrique.questions && rubrique.questions.length > 0 ? 'pointer' : 'default' }} // Conditionally set cursor style
+                >
                     <Checkbox
                         checked={selectedRubriques.includes(rubrique.rubrique.id)}
                         onChange={(event) => handleCheckboxChange(event)}
                         value={rubrique.rubrique.id ? rubrique.rubrique.id.toString() : ''}
                         style={{ marginRight: '8px' }} // Add some margin between checkbox and accordion summary
                         onClick={(event) => event.stopPropagation()} // Prevent accordion expansion when clicking checkbox
-                    />
+                        />
                     <Typography>{rubrique.rubrique.designation}</Typography>
                 </AccordionSummary>
                 {/* Conditionally render AccordionDetails only if there are questions */}

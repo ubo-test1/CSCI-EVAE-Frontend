@@ -81,11 +81,11 @@ const handleHideAlert = () => {
         >
           {(() => {
             if (params.row.evaluation.etat === "CLO" && params.row.repondu) {
-              return "Consulter les réponses";
+              return "Consulter mes réponses";
             } else if (params.row.evaluation.etat === "CLO") {
               return "Évaluation clôturée";
             } else if (params.row.evaluation.etat !== "CLO" && params.row.repondu) {
-              return "Consulter les réponses";
+              return "Consulter mes réponses";
             } else if (params.row.evaluation.etat !== "CLO" && !params.row.repondu) {
               return "Répondre";
             }

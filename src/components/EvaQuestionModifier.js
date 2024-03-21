@@ -361,7 +361,7 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
             </Button>
             )}
         {saveButtonVisible && (
-            <Button variant="contained" onClick={handleSaveOrder} style={{width:'20%', textTransform: 'none' }} color="success">
+            <Button variant="contained" onClick={handleSaveOrder} style={{width:'20%', textTransform: 'none' }} color="primary">
                 Valider l'ordre
             </Button>
         )}
@@ -434,7 +434,7 @@ const EvaQuestionModifier = ({ rubriqueId }) => { // Accept rubriqueId as a para
                     {renderEditRubrique()}
                 </DialogContent>
                 <DialogActions>
-                <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Confirmer</Button>
+                <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleEditConfirmed} color="primary">Ajouter</Button>
                     <Button variant='contained' style={{ textTransform: 'none' }} onClick={handleCloseDialog} color="secondary">Annuler</Button>
                 </DialogActions>
             </Dialog>

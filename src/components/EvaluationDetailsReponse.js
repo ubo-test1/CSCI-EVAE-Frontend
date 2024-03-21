@@ -19,6 +19,7 @@ import {submitReponse} from "../api/submitReponse";
 import { useNavigate } from 'react-router-dom';
 import Alert from '@mui/material/Alert';
 import CloseIcon from '@mui/icons-material/Close';
+import DialogContentText from '@mui/material/DialogContentText';
 
 function EvaluationDetailsReponse({ id }) {
     //const { id } = useParams();
@@ -32,8 +33,27 @@ function EvaluationDetailsReponse({ id }) {
     const [currentPage, setCurrentPage] = useState(0);
     const [showAlert, setShowAlert] = useState(true);
     const [latestAction, setLatestAction] = useState(null);
+    const [confirmResponseDialog, setConfirmResponseDialog] = useState(false)
     
-    
+    const handleOpenConfirmResponseDialog = () => {
+        const noRatingsProvided = Object.values(ratings).every(rating => rating === 0 || rating === undefined);
+        console.log("hello i am here :::: " + comment.trim() ==='')
+        if ((comment.trim() === '' && noRatingsProvided) || (comment.trim()!='' && noRatingsProvided)) {
+            setShowAlert(true)
+            setLatestAction("addError")
+            return; // Stop execution if validation fails
+        }
+        setConfirmResponseDialog(true);
+    };
+
+    const handleCloseConfirmResponseDialog = () => {
+        setConfirmResponseDialog(false);
+    };
+    const handleConfirmSubmit = () => {
+        setConfirmResponseDialog(false);
+        handleSubmit();
+    };
+
     const navigate = useNavigate();
 
     const handleHideAlert = () => {
@@ -337,14 +357,14 @@ function EvaluationDetailsReponse({ id }) {
 </div>
 
 
-    <Button
-            variant="contained"
-            color="success"
-            onClick={handleSubmit}
-            style={{position:'absolute',top:'83vh',right:'0', marginTop: '20px',textTransform:'none' }}
-        >
-            Envoyer les réponses
-        </Button>
+<Button
+                variant="contained"
+                color="success"
+                onClick={handleOpenConfirmResponseDialog}
+                style={{ position: 'absolute', top: '83vh', right: '0', marginTop: '20px', textTransform: 'none' }}
+            >
+                Envoyer les réponses
+            </Button>
                     <Button variant="contained" color="primary" startIcon={<ArrowBackIcon />} onClick={handleRetourClick} style={{textTransform:'none',position:'absolute',top:'83vh',left:'11vw', marginTop: '20px'}}>
                         Retour
                     </Button>
@@ -378,6 +398,23 @@ function EvaluationDetailsReponse({ id }) {
                 <DialogActions>
                     <Button onClick={() => setDialogOpen(false)} color="primary">
                         Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={confirmResponseDialog} onClose={handleCloseConfirmResponseDialog}>
+                <DialogTitle>Confirmation</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Êtes-vous sûr de vouloir envoyer les réponses ?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    
+                    <Button onClick={handleConfirmSubmit} color="primary" autoFocus variant='contained' style={{textTransform:'none'}}>
+                        Confirmer
+                    </Button>
+                    <Button onClick={handleCloseConfirmResponseDialog} color="secondary" variant='contained' style={{textTransform:'none'}}>
+                        Annuler
                     </Button>
                 </DialogActions>
             </Dialog>

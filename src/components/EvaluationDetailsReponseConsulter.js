@@ -45,7 +45,8 @@ function EvaluationDetailsReponseConsulter({ id }) {
                 const data = await fetchReponseData(id);
                 const evaData = await fetchEvaRubQuesDetails(data.eva.id);
                 setDetails(evaData)
-                setRubriques(evaData?.rubriques || []);
+                setRubriques(evaData?.rubriques.sort((a,b) => a.rubrique.ordre - b.rubrique.ordre) || []);
+                console.log("===============" + JSON.stringify(evaData?.rubriques.sort((a,b) => a.rubrique.ordre - b.rubrique.ordre)))
                 setComment(data.commentaireEvaluation || ''); // Set comment
                 const ratingsData = {};
                 data.questions.forEach(question => {

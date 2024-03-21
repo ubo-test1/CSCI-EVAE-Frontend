@@ -213,6 +213,7 @@ const CoupleQualificatifList = () => {
         if(minimalError || maximalError){
           return;
         } 
+        console.log("this is the maximal value ! ======== " + maximalValue)
       await updateQualificatif(editRow.id, minimalValue, maximalValue);
       const updatedCoupleQualificatifs = coupleQualificatifs.map((couple) => {
         if (couple.id === editRow.id) {

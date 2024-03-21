@@ -9,7 +9,7 @@ export const updateQualificatif = async (id, minimal, maximal) => {
         minimal: minimal,
         maximal: maximal,
       };
-  
+      console.log("i am in the api :: ======" + JSON.stringify(bodyData))
       console.log('Sending body:', bodyData);
   
       const response = await fetch(`http://localhost:8080/qualificatif/update`, {
