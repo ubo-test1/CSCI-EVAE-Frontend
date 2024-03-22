@@ -72,7 +72,7 @@ const [latestAction, setLatestAction] = useState(null);
   const [confirmError, setConfirmError] = useState(false)
   const [ErrorTextDateDebut, setErrorTextDateDebut] = useState('');
   const [ErrorTextDateFin, setErrorTextDateFin] = useState('');
-
+  const [chosenPromotion, setChosenPromotion] = useState('')
 // Fonction pour valider le format de la date (JJ/MM/AAAA)
   const isValidDateFormat = (dateString,debut) => {
     const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/[0-9]{4}$/;
@@ -299,6 +299,7 @@ const [latestAction, setLatestAction] = useState(null);
     fetchPromotions()
         .then(promotionsData => setPromotions(promotionsData))
         .catch(error => console.error('Error setting promotions:', error));
+
   }, [])
   const fetchUnits = async () => {
     try {
@@ -461,7 +462,26 @@ const handleCLoseEdit = () => {
     setDebutReponse(formatDate(row.debutReponse));
     setDebutReponseUpdated(formatDate(row.debutReponse))
     setFinReponse(formatDate(row.finReponse));
+    const test = row.promotion.id.codeFormation + "-" + row.promotion.id.anneeUniversitaire
+    console.log("111111111111111111111" + test)
+    console.log("88888888888888888" + (row.promotion.id.anneeUniversitaire))
+    setPromotion(test)
+    console.log("$$$$$$$$$$$$$$$$$$$$$$$" + promotion)
     setOpenDialog(true);
+    const initialPromotionValue = row.promotion.id.codeFormation + " - " + row.promotion.id.anneeUniversitaire;
+    //setPromotion(initialPromotionValue); // Set the initial value for promotion
+    //console.log("=============erehjrerher======== " + JSON.stringify(promotions))
+    //console.log("=================" + JSON.stringify(promotions))
+    // const matchingPromotionIndex = promotions.findIndex(promo => promo.label === promotion);
+    // //console.log("=========reeeeeeeeee================" + (promotions[matchingPromotionIndex].label))
+
+    // if (matchingPromotionIndex !== -1) {
+    //   setChosenPromotion(promotions[matchingPromotionIndex].value);
+    //   console.log("this is the chose kk;;;; " + chosenPromotion)
+    //   setPromotion(promotions[matchingPromotionIndex].label)
+    // } else {
+    //   console.error("No matching promotion found for:", promotion);
+    // }
 
     try {
       const unitsData = await fetchUnitsByEnseignant(); // Fetch units data from backend
@@ -471,10 +491,9 @@ const handleCLoseEdit = () => {
       console.log("done with the ue ::: " + ue )
       // Set the initial value for codeFormation
       setCodeFormation(row.codeFormation.codeFormation);
+      
       // Set the initial value for promotion and academic year
-      setPromotion(row.promotion.siglePromotion); // Assuming you want to set the promotion's sigle
-      setAnneeUniversitaire(row.promotion.id.anneeUniversitaire); // Assuming you want to set the academic year
-  
+      
       // Fetch ECs data based on the selected unit
       const ecsData = await fetchEcsByUe({ id: { codeFormation: row.codeFormation.codeFormation, codeUe: row.code_UE } });
       setEcs(ecsData);
@@ -487,7 +506,9 @@ const handleCLoseEdit = () => {
     } catch (error) {
       console.error('Error fetching units:', error);
     }
-  };
+};
+
+
   
   const handleBlur = (value, setValue, setError) => {
     const trimmedValue = value.trim();
@@ -517,10 +538,15 @@ const handleAnnulerAjouter = () => {
 
 };
   const handleConfirmation = async () => {
-    
-    const { codeFormation, promotion, noEvaluation } = selectedRow;
+    console.log("555555555555555555555" + JSON.stringify(selectedRow))
+    const { noEvaluation } = selectedRow;
+        console.log("555555555555555555555" + JSON.stringify(promotion))
+
     const { code_UE, code_EC } = selectedRow;
-    const { anneeUniversitaire } = promotion.id;
+    const anneeUniversitaire  = promotion.split("-")[1] + "-" +  promotion.split("-")[2];
+     const codeFormation = promotion.split("-")[0]
+     console.log("aaaaaaaaaaaaaaaaaaaaaaaa" + anneeUniversitaire)
+     console.log("eeeeeeeeeeeeeeeeeeeeeeeee" + codeFormation)
     if (finReponse.trim()==="") setFinReponseError(true);setErrorTextDateFin("La date de fin de réponse est requise *");
     if (debutReponse.trim()==="") setDebutReponseError(true);setErrorTextDateDebut("La date de début de réponse est requise *")
     if (finReponseError) return;
@@ -554,17 +580,18 @@ const handleAnnulerAjouter = () => {
       // Format debutReponse and finReponse to "YYYY/MM/DD" format
       const formattedDebutReponse = debutReponse.split('/').reverse().join('-');
       const formattedFinReponse = finReponse.split('/').reverse().join('-');
+      console.log("t8977777777777777777777" + JSON.stringify(promotion))
 let updatedEvaluationData = {
         id: selectedItemId,
         uniteEnseignement: {
           id: {
-            codeFormation: codeFormation.codeFormation,
+            codeFormation: codeFormation,
             codeUe: ue
           }
         },
         promotion: {
           id: {
-            codeFormation: codeFormation.codeFormation,
+            codeFormation: codeFormation,
             anneeUniversitaire: anneeUniversitaire
           }
         },
@@ -582,7 +609,7 @@ let updatedEvaluationData = {
           ...updatedEvaluationData, // Spread the existing properties
           elementConstitutif: {
             id: {
-              codeFormation: codeFormation.codeFormation,
+              codeFormation: codeFormation,
               codeUe: ue,
               codeEc: ec
             }
@@ -965,6 +992,25 @@ let updatedEvaluationData = {
                 style={{ flexBasis: '45%' }}
                 required
             />
+            <FormControl fullWidth margin="normal" style={{ flexBasis: '45%' }}>
+              <InputLabel htmlFor="promotion">Promotion</InputLabel>
+              <Select
+    labelId="promotion"
+    id="promotion"
+    value={promotion} // Use chosenPromotion instead of promotion
+    onChange={(e) => setPromotion(e.target.value)}
+    label="Promotion"
+>
+    <MenuItem value="">aucun</MenuItem>
+    {promotions.map((promotion, index) => (
+        <MenuItem key={index} value={promotion.value}>
+            {promotion.label}
+        </MenuItem>
+    ))}
+</Select>
+
+            </FormControl>
+
             <TextField
                 label="Période"
                 value={periode}

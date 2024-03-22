@@ -48,7 +48,7 @@ const handleHideAlert = () => {
 
   // Define columns for DataGrid
   const columns = [
-    { field: 'designation', headerName: 'Designation', flex: 0.7 },
+    { field: 'designation', headerName: 'Designation', flex: 2 },
     { field: 'formation', headerName: 'Formation', flex: 0.6 },
     { field: 'ue', headerName: 'UE', flex: 0.5 },
     { field: 'ec', headerName: 'EC', flex: 0.5 },

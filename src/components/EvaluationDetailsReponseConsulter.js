@@ -141,8 +141,8 @@ function EvaluationDetailsReponseConsulter({ id }) {
                                 evaluationDetails.etat === 'ELA' ? 'En cours d\'élaboration' :
                                 evaluationDetails.etat === 'CLO' ? 'Cloturé' : ''}
 </div>
-          <div ><strong>Début de réponse :</strong> {evaluationDetails.debutReponse}</div>
-          <div ><strong>Fin de réponse :</strong> {evaluationDetails.finReponse}</div>
+        <div ><strong>Début de réponse :</strong> {evaluationDetails.debutReponse.split("-")[2] + "/" + evaluationDetails.debutReponse.split("-")[1] + "/" + evaluationDetails.debutReponse.split("-")[0]}</div>
+          <div ><strong>Fin de réponse :</strong> {evaluationDetails.finReponse.split("-")[2] + "/" + evaluationDetails.finReponse.split("-")[1] + "/" + evaluationDetails.finReponse.split("-")[0]}</div>
 
 
         </div>

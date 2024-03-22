@@ -55,7 +55,7 @@ const RubriqueList = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [rubriqueDetails, setRubriqueDetails] = useState(null);
   const [isEmpty, setIsEmpty] = useState(false);
-
+    const [change, setChange] = useState(false)
 
 
 
@@ -75,7 +75,8 @@ const RubriqueList = () => {
         fetchRubriques();
         sessionStorage.setItem('toAdd', JSON.stringify([]));
         sessionStorage.setItem('toDel', JSON.stringify([]));
-    }, []);
+        setChange(false)
+    }, [change]);
 
     const fetchRubriques = async () => {
         try {
@@ -161,6 +162,7 @@ const RubriqueList = () => {
             
             console.log(rubriqueDetails.rubrique)
             setQuestionStandards(data);
+            setChange(true)
         } catch (error) {
             console.error('Error fetching rubrique details:', error);
         } finally {
@@ -238,6 +240,7 @@ const RubriqueList = () => {
         } finally {
             setLoading(false);
             handleCloseDialog();
+            setChange(true)
         }
     };
 
